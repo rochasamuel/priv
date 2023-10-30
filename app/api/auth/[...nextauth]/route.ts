@@ -1,114 +1,92 @@
-// import { NextApiRequest, NextApiResponse } from "next";
-// import NextAuth, { NextAuthOptions } from "next-auth";
-// import CredentialProvider from "next-auth/providers/credentials";
+import NextAuth from "next-auth/next";
+import { NextAuthOptions } from "next-auth";
+import CredentialProvider from "next-auth/providers/credentials";
+import axios from "axios";
 
-// const options: NextAuthOptions = {
-//   providers: [
-//     CredentialProvider({
-//       name: "Credentials",
-//       credentials: {
-//         email: { label: 'email', type: 'text' },
-// 				password: { label: 'password', type: 'password' }
-//       },
-
-//       async authorize(credentials) {
-//         console.log('CREDENTIALS', credentials);
-
-//         const response = await fetch(
-//           "https://privatus-homol.automatizai.com.br/token",
-//           {
-//             method: "POST",
-//             headers: { "Content-Type": "application/json" },
-//             body: JSON.stringify({
-//               email: "lucas0409lf@gmail.com",
-//               password: "1Manualzai#brincante",
-//               client_id: "autenticador",
-//               grant_type: "password",
-//             }),
-//           }
-//         );
-
-//         const user = await response.json();
-
-//         if (user && response.ok) {
-//           return user;
-//         }
-
-//         return null;
-//       },
-//     }),
-//   ],
-//   pages: {
-//     signIn: "/login",
-//   },
-//   // Add any other options here
-// };
-
-// const handler = NextAuth(options);
-
-// export { handler as GET, handler as POST };
-
-import NextAuth from 'next-auth/next'
-import { NextAuthOptions } from 'next-auth'
-import CredentialProvider from 'next-auth/providers/credentials'
-
-const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialProvider({
-      name: 'Credentials',
+      name: "Credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const user = {
-          id: '1',
-          email: 'user@email.com',
-          password: '12345678',
-          name: 'User Hardcoded',
-          role: 'admin'
+        const tokenResponse = (
+          await axios.post(
+            "https://privatus-homol.automatizai.com.br/token",
+            {
+              username: credentials?.email,
+              password: credentials?.password,
+              client_id: "autenticador",
+              grant_type: "password",
+            },
+            {
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            }
+          )
+        ).data;
+
+        const userResponse: any = (await axios.get(
+          "https://privatus-homol.automatizai.com.br/users/me",
+          { headers: { Authorization: `Bearer ${tokenResponse.access_token}` } }
+        )).data;
+
+        const user = { accessToken: tokenResponse.access_token, ...userResponse.user }
+
+        if(user) {
+          return user;
         }
 
-        // const isValidEmail = user.email === credentials?.email
-        // const isValidPassword = user.password === credentials?.password
-
-        // if (!isValidEmail || !isValidPassword) {
-        //   return null
-        // }
-
-        return user
-      }
-    })
+        return null;
+      },
+    }),
   ],
   callbacks: {
     jwt: async ({ token, user }) => {
-      const customUser = user as unknown as any
+      const customUser = user as unknown as any;
 
       if (user) {
         return {
           ...token,
-          role: customUser.role
-        }
+          ...customUser
+        };
       }
 
-      return token
+      return token;
     },
-    session: async ({ session, token }) => {
+    session: ({ session, token }) => {
+
       return {
         ...session,
         user: {
-          name: token.name,
+          ...session.user,
+          accessToken: token.accessToken,
+          username: token.username,
+          presentationName: token.presentationName,
           email: token.email,
-          role: token.role
+          role: token.role,
+          approved: token.approved,
+          banned: token.banned,
+          activeProducer: token.activeProducer,
+          activeUser: token.activeUser,
+          hasDocuments: token.hasDocuments,
+          hasRejectedDocument: token.hasRejectedDocument,
+          hasPendingDocument: token.hasPendingDocument,
+          hasActiveBank: token.hasActiveBank,
+          producerTax: token.producerTax,
+          roles: token.roles
         }
-      }
-    }
+      };
+    },
   },
   pages: {
-    signIn: '/auth/login'
-  }
-}
+    signIn: "/auth/login",
+  },
+};
 
-const handler = NextAuth(authOptions)
+const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST }
+export { handler as GET, handler as POST };

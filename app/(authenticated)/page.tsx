@@ -1,7 +1,23 @@
-import PostCard from '@/components/PostCard'
-import SuggestionCard from '@/components/SuggestionCard'
+"use client"
+import { getBackEndClient } from '@/backend-sdk';
+import PostCard from '@/components/post-card/PostCard'
+import SuggestionCard from '@/components/suggestion-card/SuggestionCard'
+import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
 
 export default function Home() {
+  const { data: session, status } = useSession()
+
+  useEffect(() => {
+    (async () => {
+      if(session) {
+        const client = await getBackEndClient(session?.user.accessToken!);
+        const result = client.post.getPosts();
+        console.log(result);
+      }
+    })();
+  }, [session]);
+
   return (
     <>
       <main className="flex-1 h-full">

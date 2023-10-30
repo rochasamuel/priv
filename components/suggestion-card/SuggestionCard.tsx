@@ -9,7 +9,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
-import HorizontalImage from "../public/horizontal.png";
+import HorizontalImage from "@/public/horizontal.png";
 
 
 export default function SuggestionCard() {

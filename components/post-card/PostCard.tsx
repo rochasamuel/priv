@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import { ReactElement, useState } from "react";
 
-import HorizontalImage from "../public/horizontal.png";
+import HorizontalImage from "@/public/horizontal.png";
 
 import {
   Card,
@@ -14,18 +14,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Bookmark,
-  Forward,
-  Globe2,
-  Heart,
-  MessageCircle
-} from "lucide-react";
+import { Bookmark, Forward, Globe2, Heart, MessageCircle } from "lucide-react";
 
 export default function PostCard() {
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(10);
-
   return (
     <Card className="max-w-2xl m-auto mb-6">
       <CardHeader>
@@ -70,24 +61,41 @@ export default function PostCard() {
         </AspectRatio>
       </CardContent>
       <CardFooter>
-        <div className="flex justify-between w-full">
-          <div className="flex gap-4">
-            <ActionButton
-              onClick={() => {
-                setLiked(!liked);
-                setLikeCount(liked ? likeCount - 1 : likeCount + 1);
-              }}
-              icon={<Heart className={liked ? "transition-all -scale-x-100 duration-500 fill-pink-500 text-pink-500" : "transition-all -scale-x+100 duration-500"} />}
-              count={likeCount}
-            />
-            <ActionButton icon={<MessageCircle />} count={5} />
-            <ActionButton icon={<Forward />} count={102} />
-          </div>
-
-          <Bookmark className="cursor-pointer" />
-        </div>
+        <ActionBar />
       </CardFooter>
     </Card>
+  );
+}
+
+export function ActionBar() {
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(10);
+
+  return (
+    <div className="flex justify-between w-full">
+      <div className="flex gap-4">
+        <ActionButton
+          onClick={() => {
+            setLiked(!liked);
+            setLikeCount(liked ? likeCount - 1 : likeCount + 1);
+          }}
+          icon={
+            <Heart
+              className={
+                liked
+                  ? "transition-all -scale-x-100 duration-500 fill-pink-500 text-pink-500"
+                  : "transition-all -scale-x+100 duration-500"
+              }
+            />
+          }
+          count={likeCount}
+        />
+        <ActionButton icon={<MessageCircle />} count={5} />
+        <ActionButton icon={<Forward />} count={102} />
+      </div>
+
+      <Bookmark className="cursor-pointer" />
+    </div>
   );
 }
 
