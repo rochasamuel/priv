@@ -2,6 +2,7 @@ import NextAuth from "next-auth/next";
 import { NextAuthOptions } from "next-auth";
 import CredentialProvider from "next-auth/providers/credentials";
 import axios from "axios";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export const authOptions: NextAuthOptions = {
   providers: [

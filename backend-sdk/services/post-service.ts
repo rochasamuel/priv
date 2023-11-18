@@ -1,14 +1,22 @@
-import { AxiosInstance } from "axios";
+import { AxiosInstance, AxiosResponse } from 'axios';
+import { Post } from '@/types/post';
 
-export class PostService {
-  constructor(protected httpClient: AxiosInstance) {}
-
-  /**
-   * Get all posts
-   * @returns List with all posts
-   * @example [{}]
-   */
-  async getPosts() {
-    return (await this.httpClient.get('/post')).data;
-  }
+interface QueryOptions {
+  itemsPerPage: number;
+  pageNumber: number;
 }
+
+export const PostService = (httpClient: AxiosInstance) => {
+  return {
+    getPosts: async (queryOptions: QueryOptions): Promise<Post[]> => {
+      const response: AxiosResponse = await httpClient.get('/post', {
+        params: {
+          itemsPerPage: queryOptions.itemsPerPage,
+          pageNumber: queryOptions.pageNumber,
+        },
+      });
+
+      return response.data.result as Post[];
+    },
+  };
+};
