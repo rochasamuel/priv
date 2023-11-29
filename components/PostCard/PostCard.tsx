@@ -24,6 +24,7 @@ import { Navigation, Pagination } from 'swiper/modules';
 import "swiper/css";
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { getAcronym } from "@/utils";
 
 interface PostCardProps {
   post: Post;
@@ -57,7 +58,7 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
           <div className="flex items-center gap-3">
             <Avatar>
               <AvatarImage src={post.producer.presignedUrlProfile} />
-              <AvatarFallback>SR</AvatarFallback>
+              <AvatarFallback>{getAcronym(post.producer.presentationName)}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               <p className="text-lg font-bold">
@@ -88,6 +89,7 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
             slidesPerView={1}
             navigation={true}
             modules={[Navigation]}
+            autoHeight={true}
             onSlideChange={() => console.log("slide change")}
           >
             {post.medias.map((media: Media) => (

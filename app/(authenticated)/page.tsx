@@ -67,7 +67,7 @@ export default function Home() {
         ) : (
           <div>
             {_posts?.map((post, index) => {
-              if (index === _posts.length - 3) return  <PostCard post={post} ref={ref} />;
+              if (index === _posts.length - 1) return <PostCard post={post} ref={ref} />;
               return (<PostCard post={post} />)
             })}
             {isFetchingNextPage && <SkeletonDemo />}

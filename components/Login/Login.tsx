@@ -142,7 +142,7 @@ export const LoginForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
         <FormField
           control={form.control}
           name="username"
@@ -179,6 +179,9 @@ export const LoginForm = () => {
             </FormItem>
           )}
         />
+        <div className="flex items-center justify-end">
+          <Button variant="link" type="button">Esqueceu sua senha?</Button>
+        </div>
         <Button disabled={isSendindRequest} className="w-full" type="submit">
           {isSendindRequest ? (
             <>
