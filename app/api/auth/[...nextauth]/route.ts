@@ -78,7 +78,8 @@ export const authOptions: NextAuthOptions = {
           hasPendingDocument: token.hasPendingDocument,
           hasActiveBank: token.hasActiveBank,
           producerTax: token.producerTax,
-          roles: token.roles
+          roles: token.roles,
+          profilePhotoPresignedGet: token.profilePhotoPresignedGet,
         }
       };
     },

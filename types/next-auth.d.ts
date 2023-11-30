@@ -5,6 +5,20 @@ declare module 'next-auth' {
     user: {
       accessToken?: string;
       email?: string;
+      presentationName: string;
+      email: string;
+      role: string;
+      approved: boolean;
+      banned: boolean;
+      activeProducer: boolean;
+      activeUser: boolean;
+      hasDocuments: boolean;
+      hasRejectedDocument: boolean;
+      hasPendingDocument: boolean;
+      hasActiveBank: boolean;
+      producerTax: number;
+      roles: string[];
+      profilePhotoPresignedGet: string;
     };
   }
 }

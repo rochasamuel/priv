@@ -6,6 +6,10 @@ import "../globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import AuthSessionProvider from "@/providers/session-provider";
 import Providers from "@/utils/providers";
+import { Home, Search, Menu, MessageCircle, PlusSquare } from "lucide-react";
+import Link from "next/link";
+import { headers } from "next/headers";
+import MobileNav from "@/components/MobileNav/MobileNav";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +23,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
     <html lang="en">
       <body suppressHydrationWarning className={inter.className}>
@@ -33,7 +38,7 @@ export default function RootLayout({
               <div className="flex min-h-full flex-col">
                 <Header />
 
-                <div className="mx-auto flex w-full max-w-full items-start gap-x-8 px-2 py-10 sm:px-6 lg:px-8 h-full">
+                <div className="mx-auto flex w-full min-h-[calc(100vh-129px)] max-w-full items-start gap-x-8 px-2 py-4 sm:px-6 lg:px-8 h-full">
                   <aside className="sticky top-8 hidden w-80 shrink-0 lg:block h-full">
                     <SideNav />
                   </aside>
@@ -41,6 +46,7 @@ export default function RootLayout({
                   {children}
                 </div>
               </div>
+              <MobileNav />
             </ThemeProvider>
           </AuthSessionProvider>
         </Providers>

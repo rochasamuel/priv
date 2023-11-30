@@ -44,14 +44,16 @@ const FollowerList = () => {
 
   return (
     <div className="mt-4 mb-4">
-      <div className="flex items-center">
-        <Input
+      <div
+        className={"flex h-10 items-center rounded-md border border-input bg-transparent pl-3 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"}
+      >
+        <Search size={22} />
+        <input
           onChange={handleSearch}
-          className="mr-2"
+          className="w-full bg-transparent p-2 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           type="search"
           placeholder="Nome ou usuário"
         />
-        <Search />
       </div>
       <div className="mt-4">
         {isLoading ? (

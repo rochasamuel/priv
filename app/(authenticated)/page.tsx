@@ -1,28 +1,27 @@
 "use client";
 import apiClient from "@/backend-sdk";
-import PostCard from "@/components/PostCard/PostCard";
-import SuggestionCard from "@/components/SuggestionCard/SuggestionCard";
+import PostCard, { PostCardSkeleton } from "@/components/PostCard/PostCard";
+import RecommendationCard from "@/components/SuggestionCard/SuggestionCard";
 import { signOut, useSession } from "next-auth/react";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Post } from "@/types/post";
 import { LegacyRef, useEffect, useRef } from "react";
 import { useIntersection } from "@mantine/hooks";
-
-export function SkeletonDemo() {
-  return (
-    <div className="flex items-center space-x-4">
-      <Skeleton className="h-12 w-12 rounded-full" />
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-[250px]" />
-        <Skeleton className="h-4 w-[200px]" />
-      </div>
-    </div>
-  );
-}
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Home() {
   const { data: session, status } = useSession();
+
+  const { data: recommendations } = useQuery({
+    queryKey: ["recommendations"],
+    queryFn: async () => {
+      const api = apiClient(session?.user.accessToken!);
+
+      return await api.reccomendation.getRecommendations();
+    },
+    enabled: !!session?.user.accessToken,
+  });
 
   const { data, fetchNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
@@ -50,7 +49,7 @@ export default function Home() {
   const infiniteTriggerPostRef = useRef<HTMLElement>(null);
   const { ref, entry } = useIntersection({
     root: infiniteTriggerPostRef.current,
-    threshold: 1,
+    threshold: 0.2,
   });
 
   useEffect(() => {
@@ -63,23 +62,28 @@ export default function Home() {
     <>
       <main className="flex-1 h-full">
         {!session?.user || isLoading ? (
-          <SkeletonDemo />
+          Array.from({ length: 4 }).map((_, index) => (
+            <PostCardSkeleton key={index} withPicture={index % 2 === 0} />
+          ))
         ) : (
           <div>
             {_posts?.map((post, index) => {
-              if (index === _posts.length - 1) return <PostCard post={post} ref={ref} />;
-              return (<PostCard post={post} />)
+              if (index === _posts.length - 1)
+                return <PostCard post={post} ref={ref} />;
+              return <PostCard post={post} />;
             })}
-            {isFetchingNextPage && <SkeletonDemo />}
+            {isFetchingNextPage && <PostCardSkeleton />}
           </div>
         )}
       </main>
 
-      <aside className="sticky top-8 hidden w-72 shrink-0 xl:block h-[calc(100vh-72px)] overflow-y-auto">
+      <aside className="sticky top-8 hidden w-72 shrink-0 xl:block">
         <p className="text-lg font-bold mb-4">Sugestões pra você</p>
-        <SuggestionCard />
-        <SuggestionCard />
-        <SuggestionCard />
+        <ScrollArea className="h-[calc(100vh-140px)]">
+          {recommendations?.map((recommendation) => (
+            <RecommendationCard recommendation={recommendation} />
+          ))}
+        </ScrollArea>
       </aside>
     </>
   );

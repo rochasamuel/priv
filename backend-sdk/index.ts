@@ -2,6 +2,7 @@ import axios from 'axios';
 import { PostService } from './services/post-service';
 import { SubscriptionService } from './services/subscription-service';
 import { FollowService } from './services/follow-service';
+import { RecommendationService } from './services/recommendation-service';
 
 const defaultHeaders = {
   'X-Api': 1,
@@ -23,6 +24,7 @@ export const apiClient = (accessToken: string) => {
     post: PostService(httpClient),
     subscription: SubscriptionService(httpClient),
     follow: FollowService(httpClient),
+    reccomendation: RecommendationService(httpClient),
   }
 };
 

@@ -23,13 +23,6 @@ export default function Header() {
         />
         <div className="flex items-center gap-x-8">
           <ModeToggle />
-          <button type="button" className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-300">
-            <span className="sr-only">View notifications</span>
-            <BellIcon className="h-6 w-6" aria-hidden="true" />
-          </button>
-          <a href="#" className="-m-1.5 p-1.5">
-            <span className="sr-only">Your profile</span>
-          </a>
         </div>
       </div>
     </header>

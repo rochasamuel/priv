@@ -12,7 +12,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Bookmark, ChevronRight, Forward, Globe2, Heart, MessageCircle } from "lucide-react";
+import {
+  Bookmark,
+  ChevronRight,
+  Forward,
+  Globe2,
+  Heart,
+  MessageCircle,
+} from "lucide-react";
 import { Media, MediaType, Post } from "@/types/post";
 
 import { DateTime } from "luxon";
@@ -20,11 +27,12 @@ import { getBestAspectRatio } from "@/utils/aspect-ratio";
 import { useQuery } from "react-query";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from 'swiper/modules';
+import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 import { getAcronym } from "@/utils";
+import { Skeleton } from "../ui/skeleton";
 
 interface PostCardProps {
   post: Post;
@@ -52,13 +60,18 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
   });
 
   return (
-    <Card className="max-w-[90vw] m-auto mb-6 md:max-w-2xl" ref={ref as Ref<HTMLDivElement>}>
+    <Card
+      className="max-w-[96vw] m-auto mb-4 md:max-w-2xl"
+      ref={ref as Ref<HTMLDivElement>}
+    >
       <CardHeader className="space-y-2">
         <CardTitle>
           <div className="flex items-center gap-3">
             <Avatar>
               <AvatarImage src={post.producer.presignedUrlProfile} />
-              <AvatarFallback>{getAcronym(post.producer.presentationName)}</AvatarFallback>
+              <AvatarFallback>
+                {getAcronym(post.producer.presentationName)}
+              </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               <p className="text-lg font-bold">
@@ -194,5 +207,41 @@ export function ActionButton({ icon, count, ...props }: ActionButtonProps) {
     </div>
   );
 }
+
+export const PostCardSkeleton = ({ withPicture }: {withPicture?: boolean}) => {
+  return (
+      <Card className="max-w-[96vw] m-auto mb-4 md:max-w-2xl">
+        <CardHeader className="space-y-4">
+          <CardTitle>
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <div className="flex flex-col">
+                <Skeleton className="animate-pulse w-32 h-4 rounded-sm"></Skeleton>
+                <Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2"></Skeleton>
+              </div>
+            </div>
+          </CardTitle>
+          <Skeleton className="animate-pulse w-48 h-3 rounded-sm mt-6"></Skeleton>
+        </CardHeader>
+        {withPicture && (
+          <CardContent className="pl-0 pr-0">
+            <AspectRatio ratio={16 / 9}>
+              <Skeleton className="animate-pulse w-full h-full rounded-none" />
+            </AspectRatio>
+          </CardContent>
+        )}
+        <CardFooter>
+          <div className="flex justify-between w-full">
+            <div className="flex gap-4">
+              <Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
+              <Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
+              <Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
+            </div>
+            <Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
+          </div>
+        </CardFooter>
+      </Card>
+  );
+};
 
 export default PostCard;

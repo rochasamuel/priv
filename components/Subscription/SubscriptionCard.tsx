@@ -83,7 +83,7 @@ export const SubscriptionCardSkeleton = () => {
   return (
     <div className="w-full rounded-sm border-[1px] mt-4 mb-4 pb-4">
       <div className="w-full flex flex-col items-center rounded-sm">
-        <div className="w-full h-20 bg-gray-300 rounded-sm"></div>
+        <Skeleton className="w-full h-20 rounded-sm bg-gray-800"></Skeleton>
         <Avatar className="w-16 h-16 -mt-8 border-cyan-50 border-2">
           <AvatarImage src="" />
           <AvatarFallback></AvatarFallback>
