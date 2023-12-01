@@ -2,7 +2,7 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
-import { ReactElement, Ref, forwardRef, useState } from "react";
+import { ReactElement, Ref, forwardRef, useCallback, useState } from "react";
 
 import {
   Card,
@@ -33,6 +33,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { getAcronym } from "@/utils";
 import { Skeleton } from "../ui/skeleton";
+import PostCommentsDialog from "./PostCommentsDialog";
 
 interface PostCardProps {
   post: Post;
@@ -139,6 +140,7 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
           totalComments={post.totalComments}
           totalLikes={post.totalLikes}
           isSaved={post.isSaved}
+          post={post}
         />
       </CardFooter>
     </Card>
@@ -150,16 +152,28 @@ interface ActionBarPros {
   isSaved: boolean;
   totalLikes: number;
   totalComments: number;
+  post?: Post;
 }
 
 export function ActionBar({
   isLiked,
   totalLikes,
   totalComments,
+  post
 }: ActionBarPros) {
   const [liked, setLiked] = useState(isLiked);
   const [likeCount, setLikeCount] = useState(Number(totalLikes));
   const [commentsCount, setCommentsCount] = useState(Number(totalComments));
+  const [openComments, setOpenComments] = useState(false);
+
+  const handleCloseComments = useCallback(() => {
+    console.log('passei')
+    setOpenComments(!openComments);
+  }, [post, openComments])
+
+  const handleUpdateCommentsCount = useCallback((count: number) => {
+    setCommentsCount(count);
+  }, [post, commentsCount])
 
   return (
     <div className="flex justify-between w-full">
@@ -180,7 +194,8 @@ export function ActionBar({
           }
           count={likeCount}
         />
-        <ActionButton icon={<MessageCircle />} count={commentsCount} />
+        <ActionButton onClick={() => setOpenComments(true)} icon={<MessageCircle />} count={commentsCount} />
+        {openComments && <PostCommentsDialog post={post!} closeComments={handleCloseComments} updateCommentsCount={handleUpdateCommentsCount} />}
         <ActionButton icon={<Forward />} count={0} />
       </div>
 

@@ -1,6 +1,6 @@
 "use client";
 import apiClient from "@/backend-sdk";
-import PostCard, { PostCardSkeleton } from "@/components/PostCard/PostCard";
+import PostCard, { PostCardSkeleton } from "@/components/Post/PostCard";
 import RecommendationCard from "@/components/SuggestionCard/SuggestionCard";
 import { signOut, useSession } from "next-auth/react";
 import { useInfiniteQuery, useQuery } from "react-query";

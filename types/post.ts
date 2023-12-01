@@ -1,6 +1,6 @@
 export enum MediaType {
   Image = 1,
-  Video = 2
+  Video = 2,
 }
 
 export interface Media {
@@ -27,4 +27,13 @@ export interface Post {
   isLiked: boolean;
   isSaved: boolean;
   medias: Media[];
+}
+
+export interface PostComment {
+  comment: string;
+  idComment: string;
+  idUser: string;
+  presentationName: string;
+  profilePhotoPresignedGet: string;
+  registrationDate: string;
 }
