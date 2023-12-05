@@ -172,6 +172,10 @@ export function ActionBar({
   }, [post, openComments])
 
   const handleUpdateCommentsCount = useCallback((count: number) => {
+    if(count === -1) {
+      setCommentsCount(commentsCount - 1);
+      return;
+    }
     setCommentsCount(count);
   }, [post, commentsCount])
 

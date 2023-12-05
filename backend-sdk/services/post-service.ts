@@ -6,6 +6,12 @@ interface QueryOptions {
   pageNumber: number;
 }
 
+interface ApiActionResponse {
+  result: string;
+  status: number;
+  message: string;
+}
+
 export const PostService = (httpClient: AxiosInstance) => {
   return {
     getPosts: async (queryOptions: QueryOptions): Promise<Post[]> => {
@@ -27,6 +33,16 @@ export const PostService = (httpClient: AxiosInstance) => {
       const response: AxiosResponse = await httpClient.get(`/post/${id}/comments`);
 
       return response.data.comments as PostComment[];
+    },
+    createPostComment: async (postId: string, comment: string): Promise<ApiActionResponse> => {
+      const response: AxiosResponse = await httpClient.post(`/post/${postId}/comments`, { comment });
+
+      return response.data as ApiActionResponse;
+    },
+    deletePostComment: async (postId: string, commentId: string): Promise<ApiActionResponse> => {
+      const response: AxiosResponse = await httpClient.delete(`/post/${postId}/comments/${commentId}`);
+
+      return response.data as ApiActionResponse;
     }
   };
 };
