@@ -10,6 +10,7 @@ import { Home, Search, Menu, MessageCircle, PlusSquare } from "lucide-react";
 import Link from "next/link";
 import { headers } from "next/headers";
 import MobileNav from "@/components/MobileNav/MobileNav";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -50,6 +51,7 @@ export default function RootLayout({
                 </div>
               </div>
               <MobileNav />
+              <Toaster />
             </ThemeProvider>
           </AuthSessionProvider>
         </Providers>

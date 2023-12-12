@@ -34,13 +34,18 @@ export const PostService = (httpClient: AxiosInstance) => {
 
       return response.data.comments as PostComment[];
     },
-    createPostComment: async (postId: string, comment: string): Promise<ApiActionResponse> => {
-      const response: AxiosResponse = await httpClient.post(`/post/${postId}/comments`, { comment });
+    toggleLike: async (postId: string, producerId: string) => {
+      const response: AxiosResponse = await httpClient.post(`/post/${postId}/favorites/${producerId}`);
 
       return response.data as ApiActionResponse;
     },
-    deletePostComment: async (postId: string, commentId: string): Promise<ApiActionResponse> => {
-      const response: AxiosResponse = await httpClient.delete(`/post/${postId}/comments/${commentId}`);
+    deletePost: async (postId: string) => {
+      const response: AxiosResponse = await httpClient.delete(`/post/${postId}`);
+
+      return response.data as ApiActionResponse;
+    },
+    editPost: async (postId: string, description: string) => {
+      const response: AxiosResponse = await httpClient.put(`/post`, { postId, description });
 
       return response.data as ApiActionResponse;
     }

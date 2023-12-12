@@ -1,25 +1,21 @@
-import { Post, PostComment } from "@/types/post";
+import apiClient from "@/backend-sdk";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  DialogTitle
 } from "@/components/ui/dialog";
-import { useMutation, useQuery } from "react-query";
-import apiClient from "@/backend-sdk";
-import { useSession } from "next-auth/react";
-import PostCommentCard from "./PostCommentCard";
-import { ScrollArea } from "../ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Post } from "@/types/post";
 import { Loader2 } from "lucide-react";
-import { Separator } from "../ui/separator";
-import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { useCallback, useMemo, useState } from "react";
-import { now } from "next-auth/client/_utils";
-import { string } from "zod";
+import { useSession } from "next-auth/react";
+import { useMemo, useState } from "react";
+import { useMutation, useQuery } from "react-query";
+import { useToast } from "../ui/use-toast";
+import PostCommentCard from "./PostCommentCard";
 
 interface PostCommentsDialogProps {
   post: Post;
@@ -33,6 +29,7 @@ const PostCommentsDialog = ({
   updateCommentsCount,
 }: PostCommentsDialogProps) => {
   const [commentText, setCommentText] = useState("");
+  const { toast } = useToast()
 
   const { data: session } = useSession();
 
@@ -57,7 +54,7 @@ const PostCommentsDialog = ({
     mutate,
   } = useMutation({
     mutationFn: async (comment: string) => {
-      const response = await api.post.createPostComment(post.postId, comment);
+      const response = await api.comment.createPostComment(post.postId, comment);
       if (response.status === 201)
         comments?.unshift({
           comment: commentText,
@@ -67,12 +64,19 @@ const PostCommentsDialog = ({
           profilePhotoPresignedGet: session?.user.profilePhotoPresignedGet!,
           registrationDate: new Date().toDateString(),
         });
-      setCommentText("");
       return response;
     },
     onSuccess: () => {
+      setCommentText("");
       updateCommentsCount(comments?.length || 0);
     },
+    onError: (error) => {
+      toast({
+        variant: 'destructive',
+        title: "Erro ao publicar comentário",
+        description: 'Tente novamente mais tarde',
+      })
+    }
   });
 
   return (
@@ -86,7 +90,7 @@ const PostCommentsDialog = ({
           <div className="w-full flex items-center justify-center h-[80vh]">
             Carregando <Loader2 className="animate-spin ml-2" />
           </div>
-        ) : (comments?.length || 0) > 0 ? (
+        ) : ((comments?.length || 0) > 0 || loadingPublish) ? (
           <ScrollArea className="h-[80vh] p-3">
             {loadingPublish && (
               <PostCommentCard
@@ -119,6 +123,7 @@ const PostCommentsDialog = ({
             <Input
               onChange={(e) => setCommentText(e.target.value)}
               value={commentText}
+              maxLength={280}
               placeholder="Digite seu comentário"
             />
             <Button className="ml-2" onClick={() => mutate(commentText)}>

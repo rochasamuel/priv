@@ -2,7 +2,14 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
-import { ReactElement, Ref, forwardRef, useCallback, useState } from "react";
+import {
+  ReactElement,
+  Ref,
+  forwardRef,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 
 import {
   Card,
@@ -18,13 +25,17 @@ import {
   Forward,
   Globe2,
   Heart,
+  Loader2,
   MessageCircle,
+  MoreHorizontal,
+  MoreVertical,
+  Trash,
 } from "lucide-react";
 import { Media, MediaType, Post } from "@/types/post";
 
 import { DateTime } from "luxon";
 import { getBestAspectRatio } from "@/utils/aspect-ratio";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -32,20 +43,58 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { getAcronym } from "@/utils";
-import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import PostCommentsDialog from "./PostCommentsDialog";
+import { useSession } from "next-auth/react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "../ui/use-toast";
+import apiClient from "@/backend-sdk";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea";
+import { Input } from "../ui/input";
 
 interface PostCardProps {
   post: Post;
 }
 
 export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
+  const { data: session } = useSession();
+
+  const [deletedPost, setDeletedPost] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [postDescription, setPostDescription] = useState(post.description);
+
+  const isOwn = useMemo(
+    () => session?.user.userId === post.producer.producerId,
+    [session, post]
+  );
+
   const relativePostDate = DateTime.fromISO(post.registrationDate, {
     locale: "pt-BR",
   }).toRelative();
+
   const postHasMedias =
     post.medias.length > 0 &&
     post.medias.some((media) => media.presignedUrls.length > 0);
+
   const imgUrl =
     postHasMedias && post.medias[0].mediaTypeId === MediaType.Image
       ? post.medias[0].presignedUrls[0]
@@ -60,13 +109,101 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
     enabled: !!imgUrl,
   });
 
+  const { mutate } = useMutation({
+    mutationFn: async (postId: string) => {
+      const api = apiClient(session?.user.accessToken!);
+      const result = await api.post.deletePost(postId);
+      return result;
+    },
+    onSuccess: () => {
+      setDeletedPost(true);
+      toast({
+        variant: "default",
+        title: "Post excluído com sucesso",
+      });
+    },
+    onError: (error) => {
+      setDeletedPost(false);
+      toast({
+        variant: "destructive",
+        title: "Erro ao excluir o post",
+        description: "Tente novamente mais tarde",
+      });
+    },
+  });
+
+  const handleEditPost = useCallback(() => {
+    setPostDescription(post.description);
+    setEditMode(true);
+  }, [post]);
+
+  const { mutate: mutateEditPost, isLoading } = useMutation({
+    mutationFn: async (description: string) => {
+      const api = apiClient(session?.user.accessToken!);
+      const result = await api.post.editPost(post.postId, description);
+      return result;
+    },
+    onSuccess: () => {
+      setEditMode(false);
+      post.description = postDescription;
+      toast({
+        variant: "default",
+        title: "Post editado com sucesso",
+      });
+    },
+    onError: (error) => {
+      setEditMode(true);
+      toast({
+        variant: "destructive",
+        title: "Erro ao editar o post",
+        description: "Tente novamente mais tarde",
+      });
+    },
+  });
+
   return (
     <Card
-      className="max-w-[96vw] m-auto mb-4 md:max-w-2xl"
+      className={`max-w-[96vw] m-auto mb-4 md:max-w-2xl ${
+        deletedPost && "hidden"
+      }`}
       ref={ref as Ref<HTMLDivElement>}
     >
       <CardHeader className="space-y-2">
-        <CardTitle>
+        <CardTitle className="relative">
+          {isOwn && (
+            <div className="absolute right-0 top-0">
+              <AlertDialog>
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <MoreHorizontal size={18} />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={handleEditPost}>
+                      Editar
+                    </DropdownMenuItem>
+                    <AlertDialogTrigger className="w-full">
+                      <DropdownMenuItem>Excluir</DropdownMenuItem>
+                    </AlertDialogTrigger>
+                  </DropdownMenuContent>
+                  <AlertDialogContent className="max-w-[95vw]">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Um post excluído não pode ser recuperado. Tem certeza
+                        que deseja continuar?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => mutate(post.postId)}>
+                        Continuar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </DropdownMenu>
+              </AlertDialog>
+            </div>
+          )}
           <div className="flex items-center gap-3">
             <Avatar>
               <AvatarImage src={post.producer.presignedUrlProfile} />
@@ -74,8 +211,8 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
                 {getAcronym(post.producer.presentationName)}
               </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              <p className="text-lg font-bold">
+            <div className="flex flex-col w-full">
+              <p className="text-lg font-bold max-w-[90%] line-clamp-1">
                 {post.producer.presentationName}
               </p>
               <div className="flex text-sm items-center">
@@ -91,8 +228,40 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
             </div>
           </div>
         </CardTitle>
-        <CardDescription className="text-gray-900 dark:text-gray-300">
-          {post.description}
+        <CardDescription className="text-gray-900 dark:text-gray-300 whitespace-pre-line">
+          {editMode ? (
+            <div>
+              <Textarea
+                rows={5}
+                maxLength={5000}
+                defaultValue={postDescription}
+                onChange={(e) => setPostDescription(e.target.value)}
+              />
+              <div className="flex justify-between items-start mt-3">
+                <div>{postDescription.length} / 5000</div>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="secondary"
+                    onClick={() => setEditMode(false)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button disabled={isLoading} onClick={() => mutateEditPost(postDescription)}>
+                  {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Editando
+                      </>
+                    ) : (
+                      <>Salvar</>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            post.description
+          )}
         </CardDescription>
       </CardHeader>
       {postHasMedias && (
@@ -159,34 +328,69 @@ export function ActionBar({
   isLiked,
   totalLikes,
   totalComments,
-  post
+  post,
 }: ActionBarPros) {
   const [liked, setLiked] = useState(isLiked);
   const [likeCount, setLikeCount] = useState(Number(totalLikes));
   const [commentsCount, setCommentsCount] = useState(Number(totalComments));
   const [openComments, setOpenComments] = useState(false);
 
-  const handleCloseComments = useCallback(() => {
-    console.log('passei')
-    setOpenComments(!openComments);
-  }, [post, openComments])
+  const { data: session } = useSession();
 
-  const handleUpdateCommentsCount = useCallback((count: number) => {
-    if(count === -1) {
-      setCommentsCount(commentsCount - 1);
-      return;
-    }
-    setCommentsCount(count);
-  }, [post, commentsCount])
+  const {
+    isLoading: loadingPublish,
+    variables,
+    mutate,
+  } = useMutation({
+    mutationFn: async ({
+      postId,
+      producerId,
+    }: {
+      postId: string;
+      producerId: string;
+    }) => {
+      const api = apiClient(session?.user.accessToken!);
+      setLiked(!liked);
+      setLikeCount(liked ? likeCount - 1 : likeCount + 1);
+      const result = await api.post.toggleLike(postId, producerId);
+      return result;
+    },
+    onError: (error) => {
+      setLiked(liked);
+      setLikeCount(likeCount);
+      toast({
+        variant: "destructive",
+        title: "Erro executar a ação",
+        description: "Tente novamente mais tarde",
+      });
+    },
+  });
+
+  const handleCloseComments = useCallback(() => {
+    setOpenComments(!openComments);
+  }, [post, openComments]);
+
+  const handleUpdateCommentsCount = useCallback(
+    (count: number) => {
+      if (count === -1) {
+        setCommentsCount(commentsCount - 1);
+        return;
+      }
+      setCommentsCount(count);
+    },
+    [post, commentsCount]
+  );
 
   return (
     <div className="flex justify-between w-full">
       <div className="flex gap-4">
         <ActionButton
-          onClick={() => {
-            setLiked(!liked);
-            setLikeCount(liked ? likeCount - 1 : likeCount + 1);
-          }}
+          onClick={() =>
+            mutate({
+              postId: post!.postId,
+              producerId: post!.producer.producerId,
+            })
+          }
           icon={
             <Heart
               className={
@@ -198,8 +402,18 @@ export function ActionBar({
           }
           count={likeCount}
         />
-        <ActionButton onClick={() => setOpenComments(true)} icon={<MessageCircle />} count={commentsCount} />
-        {openComments && <PostCommentsDialog post={post!} closeComments={handleCloseComments} updateCommentsCount={handleUpdateCommentsCount} />}
+        <ActionButton
+          onClick={() => setOpenComments(true)}
+          icon={<MessageCircle />}
+          count={commentsCount}
+        />
+        {openComments && (
+          <PostCommentsDialog
+            post={post!}
+            closeComments={handleCloseComments}
+            updateCommentsCount={handleUpdateCommentsCount}
+          />
+        )}
         <ActionButton icon={<Forward />} count={0} />
       </div>
 
@@ -227,39 +441,43 @@ export function ActionButton({ icon, count, ...props }: ActionButtonProps) {
   );
 }
 
-export const PostCardSkeleton = ({ withPicture }: {withPicture?: boolean}) => {
+export const PostCardSkeleton = ({
+  withPicture,
+}: {
+  withPicture?: boolean;
+}) => {
   return (
-      <Card className="max-w-[96vw] m-auto mb-4 md:max-w-2xl">
-        <CardHeader className="space-y-4">
-          <CardTitle>
-            <div className="flex items-center gap-3">
-              <Skeleton className="h-10 w-10 rounded-full" />
-              <div className="flex flex-col">
-                <Skeleton className="animate-pulse w-32 h-4 rounded-sm"></Skeleton>
-                <Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2"></Skeleton>
-              </div>
+    <Card className="max-w-[96vw] m-auto mb-4 md:max-w-2xl">
+      <CardHeader className="space-y-4">
+        <CardTitle>
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <div className="flex flex-col">
+              <Skeleton className="animate-pulse w-32 h-4 rounded-sm"></Skeleton>
+              <Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2"></Skeleton>
             </div>
-          </CardTitle>
-          <Skeleton className="animate-pulse w-48 h-3 rounded-sm mt-6"></Skeleton>
-        </CardHeader>
-        {withPicture && (
-          <CardContent className="pl-0 pr-0">
-            <AspectRatio ratio={16 / 9}>
-              <Skeleton className="animate-pulse w-full h-full rounded-none" />
-            </AspectRatio>
-          </CardContent>
-        )}
-        <CardFooter>
-          <div className="flex justify-between w-full">
-            <div className="flex gap-4">
-              <Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
-              <Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
-              <Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
-            </div>
+          </div>
+        </CardTitle>
+        <Skeleton className="animate-pulse w-48 h-3 rounded-sm mt-6"></Skeleton>
+      </CardHeader>
+      {withPicture && (
+        <CardContent className="pl-0 pr-0">
+          <AspectRatio ratio={16 / 9}>
+            <Skeleton className="animate-pulse w-full h-full rounded-none" />
+          </AspectRatio>
+        </CardContent>
+      )}
+      <CardFooter>
+        <div className="flex justify-between w-full">
+          <div className="flex gap-4">
+            <Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
+            <Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
             <Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
           </div>
-        </CardFooter>
-      </Card>
+          <Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
+        </div>
+      </CardFooter>
+    </Card>
   );
 };
 

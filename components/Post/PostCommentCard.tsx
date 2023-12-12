@@ -13,12 +13,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../ui/alert-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
+} from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { useMutation } from "react-query";
 import { useState } from "react";
 import apiClient from "@/backend-sdk";
+import { useToast } from "../ui/use-toast";
+import { ToastAction } from "../ui/toast";
 
 interface PostCommentCardProps {
   comment: PostComment;
@@ -35,6 +37,7 @@ const PostCommentCard = ({
 }: PostCommentCardProps) => {
   const { data: session } = useSession();
   const [isDeleted, setIsDeleted] = useState(false);
+  const { toast } = useToast()
 
   const isOwner = comment.idUser === session?.user.userId;
 
@@ -45,7 +48,7 @@ const PostCommentCard = ({
   } = useMutation({
     mutationFn: (commentId: string) => {
       const api = apiClient(session?.user.accessToken!);
-      return api.post.deletePostComment(
+      return api.comment.deletePostComment(
         postId,
         commentId
       );
@@ -54,6 +57,14 @@ const PostCommentCard = ({
       setIsDeleted(true);
       updateCommentsCount(-1);
     },
+    onError: (error) => {
+      toast({
+        variant: 'destructive',
+        title: "Erro ao excluir comentário",
+        description: 'Tente novamente mais tarde',
+      })
+      console.error(error);
+    }
   });
 
   return (

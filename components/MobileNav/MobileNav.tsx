@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/sheet";
 import { SideNavItem } from "../SideNav/SideNav";
 import { ReactElement } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut, useSession } from "next-auth/react";
 import { getAcronym } from "@/utils";
 

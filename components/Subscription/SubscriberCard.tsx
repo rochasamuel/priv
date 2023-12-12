@@ -11,7 +11,7 @@ import { getAcronym } from "@/utils";
 import { MoreVertical } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Subscriber } from "@/types/subscription";
-import { Badge } from "../ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 interface SubscriberCardProps {
   subscriber: Subscriber;
