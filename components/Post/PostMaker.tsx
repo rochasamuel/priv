@@ -20,9 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Globe2, Lock, Image, Video } from "lucide-react";
+import { Globe2, Lock, Image, Video, Loader2 } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "react-query";
+import apiClient from "@/backend-sdk";
+import { useToast } from "../ui/use-toast";
+import { Post } from "@/types/post";
+import { usePostStore } from "@/store/usePostStore";
 
 interface PostMakerProps {
   algo?: string;
@@ -30,13 +35,47 @@ interface PostMakerProps {
 
 const PostMaker: FunctionComponent<PostMakerProps> = ({}) => {
   const { data: session } = useSession();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const [postDescription, setPostDescription] = useState("");
+
+  const {
+    isLoading: isLoadingPublishPost,
+    variables,
+    isSuccess,
+    mutate: createPost,
+  } = useMutation({
+    mutationFn: (postData: {
+      postDescription: string;
+      postMedias?: string[];
+    }) => {
+      const api = apiClient(session?.user.accessToken!);
+      return api.post.createPost(postData.postDescription, postData.postMedias);
+    },
+    onSuccess: () => {
+      queryClient.refetchQueries(["posts", session?.user.email]); //update post list
+      setPostDescription(""); //clear post description
+      toast({
+        variant: "default",
+        title: "Sucesso",
+        description: "Post criado com sucesso",
+      });
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Erro ao excluir comentário",
+        description: "Tente novamente mais tarde",
+      });
+      console.error(error);
+    },
+  });
 
   return (
     <div className="max-w-[96vw] m-auto mb-4 md:max-w-2xl">
       <Card>
-        <CardHeader>
+        <CardHeader className="mb-0">
           <CardTitle className="flex items-center gap-4">
             <Avatar className="w-8 h-8">
               <AvatarImage src={session?.user.profilePhotoPresignedGet} />
@@ -64,16 +103,39 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({}) => {
             </Select>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <Textarea placeholder="O que está acontecendo?" rows={6} onChange={(e) => setPostDescription(e.target.value)} />
-          <div className="text-xs mt-2 text-gray-300">{postDescription.length} / 5000</div>
+        <CardContent className="pb-2">
+          <Textarea
+            placeholder="O que está acontecendo?"
+            rows={6}
+            value={postDescription}
+            onChange={(e) => setPostDescription(e.target.value)}
+          />
+          <div className="text-xs mt-2 text-gray-300">
+            {postDescription.length} / 5000
+          </div>
         </CardContent>
         <CardFooter className="flex justify-between">
           <div className="flex gap-8">
-            <div className="cursor-pointer flex gap-2"><Image /> Foto</div>
-            <div className="cursor-pointer flex gap-2"><Video /> Vídeo</div>
+            <div className="cursor-pointer flex gap-2">
+              <Image /> Foto
+            </div>
+            <div className="cursor-pointer flex gap-2">
+              <Video /> Vídeo
+            </div>
           </div>
-          <Button>Publicar</Button>
+          <Button
+            disabled={postDescription.length <= 0}
+            onClick={() => createPost({ postDescription })}
+          >
+            {isLoadingPublishPost ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Publicando
+              </>
+            ) : (
+              <>Publicar</>
+            )}
+          </Button>
         </CardFooter>
       </Card>
     </div>
