@@ -53,6 +53,16 @@ export const PostService = (httpClient: AxiosInstance) => {
       const response: AxiosResponse = await httpClient.post(`/post`, { description, medias });
 
       return response.data as ApiActionResponse;
+    },
+    getHotPosts: async (queryOptions: QueryOptions) => {
+      const response: AxiosResponse = await httpClient.get('/post/hot', {
+        params: {
+          itemsPerPage: queryOptions.itemsPerPage,
+          pageNumber: queryOptions.pageNumber,
+        },
+      });
+
+      return response.data.result as Post[];
     }
   };
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import AuthSessionProvider from "@/providers/session-provider";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 
@@ -8,7 +9,9 @@ function Providers({ children }: React.PropsWithChildren) {
 
   return (
     <QueryClientProvider client={client}>
-      {children}
+      <AuthSessionProvider>
+        {children}
+      </AuthSessionProvider>
     </QueryClientProvider>
   );
 }

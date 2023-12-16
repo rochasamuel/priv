@@ -10,13 +10,13 @@ const defaultHeaders = {
   'X-TimeZone': 'America/Sao_Paulo',
 };
 
-export const apiClient = (accessToken: string) => {
+export const apiClient = (accessToken?: string) => {
 
   const httpClient = axios.create({
     baseURL: 'https://privatus-homol.automatizai.com.br/',
     headers: {
       ...defaultHeaders,
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: accessToken && `Bearer ${accessToken}`,
       'Access-Control-Allow-Origin': '*',
     },
   });

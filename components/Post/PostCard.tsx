@@ -447,7 +447,7 @@ export const PostCardSkeleton = ({
   withPicture?: boolean;
 }) => {
   return (
-    <Card className="max-w-[96vw] m-auto mb-4 md:max-w-2xl">
+    <Card className="w-full max-w-[96vw] m-auto mb-4 md:max-w-2xl">
       <CardHeader className="space-y-4">
         <CardTitle>
           <div className="flex items-center gap-3">

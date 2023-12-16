@@ -45,6 +45,11 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+  session: {
+    strategy: "jwt",
+    // maxAge: 2 * 24 * 60 * 60 //2 days,
+    maxAge: 1 * 60 * 60, //1 hour
+  },
   callbacks: {
     jwt: async ({ token, user }) => {
       const customUser = user as unknown as any;

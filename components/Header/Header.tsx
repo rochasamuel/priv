@@ -1,5 +1,5 @@
 "use client";
-import { BellIcon } from "lucide-react"
+import { BellIcon, VenetianMask } from "lucide-react"
 
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -11,8 +11,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import React from "react";
 
-export default function Header() {
+interface HeaderProps {
+  actionButton?: React.ReactNode
+}
+
+export default function Header({ actionButton }: HeaderProps) {
   return (
     <header className="shrink-0 border-b">
       <div className="mx-auto flex h-16 max-w-full items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -22,14 +27,15 @@ export default function Header() {
           alt="Your Company"
         />
         <div className="flex items-center gap-x-8">
-          <ModeToggle />
+          {actionButton}
+          <ColorModeToggle />
         </div>
       </div>
     </header>
   )
 }
 
-export function ModeToggle() {
+export function ColorModeToggle() {
   const { setTheme } = useTheme()
  
   return (

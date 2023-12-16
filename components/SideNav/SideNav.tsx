@@ -7,6 +7,7 @@ import {
   CircleDollarSign,
   CreditCard,
   FileSignature,
+  Flame,
   HelpCircle,
   Home,
   LogOut,
@@ -42,6 +43,9 @@ export default function SideNav() {
       <div className="flex flex-col gap-4">
         <Link href={"/"}>
           <SideNavItem icon={<Home />} name="Início" />
+        </Link>
+        <Link href={"/hot"}>
+          <SideNavItem icon={<Flame />} name="Hot" />
         </Link>
         <Link href={"/subscriptions"}>
           <SideNavItem icon={<FileSignature />} name="Inscrições" />
