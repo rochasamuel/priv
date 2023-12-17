@@ -1,33 +1,28 @@
 "use client";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
   CardContent,
   CardFooter
 } from "@/components/ui/card";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Image from "next/image";
-import HorizontalImage from "@/public/horizontal.png";
-import { useQuery } from "react-query";
-import { useSession } from "next-auth/react";
-import apiClient from "@/backend-sdk";
 import { Recommendation } from "@/types/recommendation";
+import Image from "next/image";
 
-interface RecommendationCardProps {
+interface SuggestionsCardProps {
   recommendation: Recommendation;
 }
 
-export default function RecommendationCard({ recommendation }: RecommendationCardProps) {
+export default function SuggestionsCard({ recommendation }: SuggestionsCardProps) {
   return (
     <Card className="m-auto mb-4 relative cursor-pointer">
-      <CardContent className="pl-0 pr-0 pb-0 max-h-fit relative">
-        <AspectRatio ratio={21 / 9} className="rounded-md bg-slate-600">
-          {recommendation.coverPhotoReference && <Image
-            fill={true}
+      <CardContent className="pl-0 pr-0 pb-0 max-h-36 relative">
+        <AspectRatio ratio={21 / 9} className="rounded-md max-h-36 pb-0 bg-slate-600">
+          {recommendation.coverPhotoReference && <img
             src={recommendation.coverPhotoReference}
             alt="Image"
             onError={(e) => {}}
-            className="object-cover rounded-md"
+            className="w-full h-full object-cover rounded-md"
           />}
         </AspectRatio>
       </CardContent>

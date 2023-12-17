@@ -19,7 +19,7 @@ interface SubscriberCardProps {
 
 const SubscriberCard = ({ subscriber }: SubscriberCardProps) => {
   return (
-    <div className="w-full mt-5 mb-5 flex items-center justify-between">
+    <div className="w-full my-4 flex items-center justify-between">
       <div className="flex items-center justify-start">
         <Avatar>
           <AvatarImage src={subscriber.profilePhotoPresignedGet} />

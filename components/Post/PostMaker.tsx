@@ -74,8 +74,8 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({}) => {
 
   return (
     <div className="max-w-[96vw] m-auto mb-4 md:max-w-2xl">
-      <Card>
-        <CardHeader className="mb-0">
+      <Card className="p-0">
+        <CardHeader className="mb-0 p-4">
           <CardTitle className="flex items-center gap-4">
             <Avatar className="w-8 h-8">
               <AvatarImage src={session?.user.profilePhotoPresignedGet} />
@@ -103,7 +103,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({}) => {
             </Select>
           </CardTitle>
         </CardHeader>
-        <CardContent className="pb-2">
+        <CardContent className="p-4 pb-2">
           <Textarea
             placeholder="O que está acontecendo?"
             rows={6}
@@ -114,7 +114,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({}) => {
             {postDescription.length} / 5000
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex justify-between p-4">
           <div className="flex gap-8">
             <div className="cursor-pointer flex gap-2">
               <Image /> Foto

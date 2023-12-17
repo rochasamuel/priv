@@ -4,6 +4,7 @@ import { SubscriptionService } from './services/subscription-service';
 import { FollowService } from './services/follow-service';
 import { RecommendationService } from './services/recommendation-service';
 import { CommentService } from './services/comment-service';
+import { ProducerService } from './services/producer-service';
 
 const defaultHeaders = {
   'X-Api': 1,
@@ -27,6 +28,7 @@ export const apiClient = (accessToken?: string) => {
     follow: FollowService(httpClient),
     reccomendation: RecommendationService(httpClient),
     comment: CommentService(httpClient),
+    producer: ProducerService(httpClient),
   }
 };
 

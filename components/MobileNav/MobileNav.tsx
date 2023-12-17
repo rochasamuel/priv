@@ -49,7 +49,7 @@ const MobileNav = () => {
       <Link href={"/"}>
         <Home color={shouldHighlight("/") ? "#b759d9" : "#FFF"} />
       </Link>
-      <Link href={"/"}>
+      <Link href={"/search"}>
         <Search color={shouldHighlight("/search") ? "#b759d9" : "#FFF"} />
       </Link>
       <Link href={"/"}>
