@@ -12,7 +12,7 @@ interface RedirectButtonProps {
 const RedirectButton: FunctionComponent<RedirectButtonProps> = ({ destination, icon }) => {
   const router = useRouter();
 
-  return ( <Button onClick={() => router.push(destination)} variant="default" size="default" className="font-bold">Área HOT{icon}</Button> );
+  return ( <Button onClick={() => router.push(destination)} variant="default" size="default" className="font-bold">HOT{icon}</Button> );
 }
  
 export default RedirectButton;

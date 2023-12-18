@@ -45,7 +45,7 @@ const MobileNav = () => {
   }
 
   return (
-    <div className="w-full h-16 bg-gray-900 flex items-center justify-between p-6 sticky bottom-0 z-50 lg:hidden">
+    <div className="w-full h-16 bg-gray-900 flex items-center justify-between p-6 sticky -bottom-[1px] z-50 lg:hidden">
       <Link href={"/"}>
         <Home color={shouldHighlight("/") ? "#b759d9" : "#FFF"} />
       </Link>
@@ -58,7 +58,7 @@ const MobileNav = () => {
         />
       </Link>
       <Link href={"/"}>
-        <MessageCircle color={shouldHighlight("/chats") ? "#b759d9" : "#FFF"} />
+        <MessageCircle className="transition-all" color={shouldHighlight("/chats") ? "#b759d9" : "#FFF"} />
       </Link>
       <Sheet>
         <SheetTrigger>
@@ -96,7 +96,7 @@ const MobileNav = () => {
               </SheetClose>
 
               <SheetClose asChild>
-                <Link href={"/afiliates"}>
+                <Link href={"/affiliates"}>
                   <MobileNavItem name="Afiliados" icon={<Network />} />
                 </Link>
               </SheetClose>

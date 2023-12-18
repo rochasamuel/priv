@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
-import Providers from "@/utils/providers";
+import Providers from "@/providers/providers";
 import MobileNav from "@/components/MobileNav/MobileNav";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";

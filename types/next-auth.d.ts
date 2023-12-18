@@ -20,6 +20,7 @@ declare module 'next-auth' {
       producerTax: number;
       roles: string[];
       profilePhotoPresignedGet: string;
+      referrerCode: string;
     };
   }
 }

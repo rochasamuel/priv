@@ -5,6 +5,7 @@ import { FollowService } from './services/follow-service';
 import { RecommendationService } from './services/recommendation-service';
 import { CommentService } from './services/comment-service';
 import { ProducerService } from './services/producer-service';
+import { ReferrerService } from './services/referrer-service';
 
 const defaultHeaders = {
   'X-Api': 1,
@@ -29,6 +30,7 @@ export const apiClient = (accessToken?: string) => {
     reccomendation: RecommendationService(httpClient),
     comment: CommentService(httpClient),
     producer: ProducerService(httpClient),
+    referrer: ReferrerService(httpClient),
   }
 };
 

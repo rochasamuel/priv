@@ -86,6 +86,7 @@ export const authOptions: NextAuthOptions = {
           producerTax: token.producerTax,
           roles: token.roles,
           profilePhotoPresignedGet: token.profilePhotoPresignedGet,
+          referrerCode: token.referrerCode,
         }
       };
     },
