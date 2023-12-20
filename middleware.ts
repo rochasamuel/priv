@@ -1,19 +1,23 @@
-import { NextResponse } from 'next/server'
-import { withAuth, NextRequestWithAuth, NextAuthMiddlewareOptions } from 'next-auth/middleware'
+import {
+	NextAuthMiddlewareOptions,
+	NextRequestWithAuth,
+	withAuth,
+} from "next-auth/middleware";
+import { NextResponse } from "next/server";
 
 const middleware = (request: NextRequestWithAuth) => {
-  const isPrivateRoutes = !request.nextUrl.pathname.startsWith('/auth')
-  
-  if (isPrivateRoutes && !request.nextauth.token) {
-    return NextResponse.rewrite(new URL('/auth/login', request.url))
-  }
-}
+	const isPrivateRoutes = !request.nextUrl.pathname.startsWith("/auth");
 
-const callbackOptions: NextAuthMiddlewareOptions = {}
+	if (isPrivateRoutes && !request.nextauth.token) {
+		return NextResponse.rewrite(new URL("/auth/login", request.url));
+	}
+};
 
-export default withAuth(middleware, callbackOptions)
+const callbackOptions: NextAuthMiddlewareOptions = {};
+
+export default withAuth(middleware, callbackOptions);
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|auth|hot).*)"],
+	matcher: ["/((?!api|_next/static|_next/image|favicon.ico|auth|hot).*)"],
 };

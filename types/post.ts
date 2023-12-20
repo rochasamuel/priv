@@ -1,39 +1,39 @@
 export enum MediaType {
-  Image = 1,
-  Video = 2,
+	Image = 1,
+	Video = 2,
 }
 
 export interface Media {
-  isPublic: boolean;
-  mediaTypeId: MediaType;
-  presignedUrls: string[];
+	isPublic: boolean;
+	mediaTypeId: MediaType;
+	presignedUrls: string[];
 }
 
 export interface Producer {
-  producerId: string;
-  username: string;
-  presentationName: string;
-  presignedUrlProfile: string;
+	producerId: string;
+	username: string;
+	presentationName: string;
+	presignedUrlProfile: string;
 }
 
 export interface Post {
-  canEdit: boolean;
-  description: string;
-  postId: string;
-  producer: Producer;
-  registrationDate: string;
-  totalLikes: number;
-  totalComments: number;
-  isLiked: boolean;
-  isSaved: boolean;
-  medias: Media[];
+	canEdit: boolean;
+	description: string;
+	postId: string;
+	producer: Producer;
+	registrationDate: string;
+	totalLikes: number;
+	totalComments: number;
+	isLiked: boolean;
+	isSaved: boolean;
+	medias: Media[];
 }
 
 export interface PostComment {
-  comment: string;
-  idComment: string;
-  idUser: string;
-  presentationName: string;
-  profilePhotoPresignedGet: string;
-  registrationDate: string;
+	comment: string;
+	idComment: string;
+	idUser: string;
+	presentationName: string;
+	profilePhotoPresignedGet: string;
+	registrationDate: string;
 }

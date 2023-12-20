@@ -1,8 +1,3 @@
-
 export default function Cards() {
-  return (
-    <>
-      Cards
-    </>
-  )
+	return <>Cards</>;
 }

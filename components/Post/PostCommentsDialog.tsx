@@ -1,11 +1,11 @@
 import apiClient from "@/backend-sdk";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,122 +18,130 @@ import { useToast } from "../ui/use-toast";
 import PostCommentCard from "./PostCommentCard";
 
 interface PostCommentsDialogProps {
-  post: Post;
-  closeComments: () => void;
-  updateCommentsCount: (count: number) => void;
+	post: Post;
+	closeComments: () => void;
+	updateCommentsCount: (count: number) => void;
 }
 
 const PostCommentsDialog = ({
-  post,
-  closeComments,
-  updateCommentsCount,
+	post,
+	closeComments,
+	updateCommentsCount,
 }: PostCommentsDialogProps) => {
-  const [commentText, setCommentText] = useState("");
-  const { toast } = useToast()
+	const [commentText, setCommentText] = useState("");
+	const { toast } = useToast();
 
-  const { data: session } = useSession();
+	const { data: session } = useSession();
 
-  const api = useMemo(
-    () => apiClient(session?.user.accessToken!),
-    [session?.user.accessToken]
-  );
+	const api = useMemo(
+		() => apiClient(session?.user.accessToken!),
+		[session?.user.accessToken],
+	);
 
-  const { data: comments, isLoading } = useQuery({
-    queryKey: ["post", post.postId, "comments"],
-    queryFn: () => api.post.getPostComments(post.postId),
-    enabled: !!session?.user.accessToken,
-    onSuccess: (data) => {
-      updateCommentsCount(data.length);
-    },
-    refetchOnWindowFocus: false,
-  });
+	const { data: comments, isLoading } = useQuery({
+		queryKey: ["post", post.postId, "comments"],
+		queryFn: () => api.post.getPostComments(post.postId),
+		enabled: !!session?.user.accessToken,
+		onSuccess: (data) => {
+			updateCommentsCount(data.length);
+		},
+		refetchOnWindowFocus: false,
+	});
 
-  const {
-    isLoading: loadingPublish,
-    variables,
-    mutate,
-  } = useMutation({
-    mutationFn: async (comment: string) => {
-      const response = await api.comment.createPostComment(post.postId, comment);
-      if (response.status === 201)
-        comments?.unshift({
-          comment: commentText,
-          idComment: response.result,
-          idUser: session?.user.userId!,
-          presentationName: session?.user.presentationName!,
-          profilePhotoPresignedGet: session?.user.profilePhotoPresignedGet!,
-          registrationDate: new Date().toDateString(),
-        });
-      return response;
-    },
-    onSuccess: () => {
-      setCommentText("");
-      updateCommentsCount(comments?.length || 0);
-    },
-    onError: (error) => {
-      toast({
-        variant: 'destructive',
-        title: "Erro ao publicar comentário",
-        description: 'Tente novamente mais tarde',
-      })
-    }
-  });
+	const {
+		isLoading: loadingPublish,
+		variables,
+		mutate,
+	} = useMutation({
+		mutationFn: async (comment: string) => {
+			const response = await api.comment.createPostComment(
+				post.postId,
+				comment,
+			);
+			if (response.status === 201)
+				comments?.unshift({
+					comment: commentText,
+					idComment: response.result,
+					idUser: session?.user.userId!,
+					presentationName: session?.user.presentationName!,
+					profilePhotoPresignedGet: session?.user.profilePhotoPresignedGet!,
+					registrationDate: new Date().toDateString(),
+				});
+			return response;
+		},
+		onSuccess: () => {
+			setCommentText("");
+			updateCommentsCount(comments?.length || 0);
+		},
+		onError: (error) => {
+			toast({
+				variant: "destructive",
+				title: "Erro ao publicar comentário",
+				description: "Tente novamente mais tarde",
+			});
+		},
+	});
 
-  return (
-    <Dialog defaultOpen onOpenChange={closeComments}>
-      {/* <DialogTrigger>{trigger}</DialogTrigger> */}
-      <DialogContent className="max-w-screen-md h-screen flex flex-col px-4 md:max-w-[50vw] md:h-auto md:max-h-[90vh] lg:max-w-[45vw]">
-        <DialogHeader>
-          <DialogTitle>Comentários</DialogTitle>
-        </DialogHeader>
-        {isLoading ? (
-          <div className="w-full flex items-center justify-center h-[80vh]">
-            Carregando <Loader2 className="animate-spin ml-2" />
-          </div>
-        ) : ((comments?.length || 0) > 0 || loadingPublish) ? (
-          <ScrollArea className="h-[80vh] p-3">
-            {loadingPublish && (
-              <PostCommentCard
-                comment={{
-                  idComment: "0",
-                  idUser: session?.user.userId!,
-                  presentationName: session?.user.presentationName!,
-                  profilePhotoPresignedGet:
-                    session?.user.profilePhotoPresignedGet!,
-                  registrationDate: new Date().toDateString(),
-                  comment: variables!,
-                }}
-                postId={post.postId}
-                loadingPublish
-                updateCommentsCount={updateCommentsCount}
-              />
-            )}
-            {comments?.map((comment) => (
-              <PostCommentCard key={comment.idComment} postId={post.postId} comment={comment} updateCommentsCount={updateCommentsCount}/>
-            ))}
-          </ScrollArea>
-        ) : (
-          <div className="w-full text-center h-[80vh]">
-            Nenhum comentário. <br />
-            Seja o primeiro a comentar!
-          </div>
-        )}
-        <DialogFooter>
-          <div className="w-full flex">
-            <Input
-              onChange={(e) => setCommentText(e.target.value)}
-              value={commentText}
-              maxLength={280}
-              placeholder="Digite seu comentário"
-            />
-            <Button className="ml-2" onClick={() => mutate(commentText)}>
-              Publicar
-            </Button>
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
+	return (
+		<Dialog defaultOpen onOpenChange={closeComments}>
+			{/* <DialogTrigger>{trigger}</DialogTrigger> */}
+			<DialogContent className="max-w-screen-md h-screen flex flex-col px-4 md:max-w-[50vw] md:h-auto md:max-h-[90vh] lg:max-w-[45vw]">
+				<DialogHeader>
+					<DialogTitle>Comentários</DialogTitle>
+				</DialogHeader>
+				{isLoading ? (
+					<div className="w-full flex items-center justify-center h-[80vh]">
+						Carregando <Loader2 className="animate-spin ml-2" />
+					</div>
+				) : (comments?.length || 0) > 0 || loadingPublish ? (
+					<ScrollArea className="h-[80vh] p-3">
+						{loadingPublish && (
+							<PostCommentCard
+								comment={{
+									idComment: "0",
+									idUser: session?.user.userId!,
+									presentationName: session?.user.presentationName!,
+									profilePhotoPresignedGet:
+										session?.user.profilePhotoPresignedGet!,
+									registrationDate: new Date().toDateString(),
+									comment: variables!,
+								}}
+								postId={post.postId}
+								loadingPublish
+								updateCommentsCount={updateCommentsCount}
+							/>
+						)}
+						{comments?.map((comment) => (
+							<PostCommentCard
+								key={comment.idComment}
+								postId={post.postId}
+								comment={comment}
+								updateCommentsCount={updateCommentsCount}
+							/>
+						))}
+					</ScrollArea>
+				) : (
+					<div className="w-full text-center h-[80vh]">
+						Nenhum comentário. <br />
+						Seja o primeiro a comentar!
+					</div>
+				)}
+				<DialogFooter>
+					<div className="w-full flex">
+						<Input
+							onChange={(e) => setCommentText(e.target.value)}
+							value={commentText}
+							maxLength={280}
+							placeholder="Digite seu comentário"
+						/>
+						<Button className="ml-2" onClick={() => mutate(commentText)}>
+							Publicar
+						</Button>
+					</div>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	);
 };
 
 export default PostCommentsDialog;
