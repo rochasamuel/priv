@@ -49,6 +49,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAcronym } from "@/utils";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -70,7 +71,6 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { toast } from "../ui/use-toast";
 import PostCommentsDialog from "./PostCommentsDialog";
-import Link from "next/link";
 
 interface PostCardProps {
 	post: Post;
@@ -217,7 +217,10 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 								{post.producer.presentationName}
 							</p>
 							<div className="flex text-sm items-center">
-								<Link href={`/profile/${post.producer.username}`} className="font-normal hover:underline">
+								<Link
+									href={`/profile/${post.producer.username}`}
+									className="font-normal hover:underline"
+								>
 									@{post.producer.username}
 								</Link>
 								<PointSeparator />
