@@ -70,6 +70,7 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { toast } from "../ui/use-toast";
 import PostCommentsDialog from "./PostCommentsDialog";
+import Link from "next/link";
 
 interface PostCardProps {
 	post: Post;
@@ -216,9 +217,9 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 								{post.producer.presentationName}
 							</p>
 							<div className="flex text-sm items-center">
-								<a href="#" className="font-normal hover:underline">
+								<Link href={`/profile/${post.producer.username}`} className="font-normal hover:underline">
 									@{post.producer.username}
-								</a>
+								</Link>
 								<PointSeparator />
 								<Globe2 className=" text-pink-600" size={14} />
 								<p className="font-semibold text-xs ml-1">Público</p>
@@ -371,7 +372,7 @@ export function ActionBar({
 
 	const handleCloseComments = useCallback(() => {
 		setOpenComments(!openComments);
-	}, [post, openComments]);
+	}, [openComments]);
 
 	const handleUpdateCommentsCount = useCallback(
 		(count: number) => {
@@ -381,7 +382,7 @@ export function ActionBar({
 			}
 			setCommentsCount(count);
 		},
-		[post, commentsCount],
+		[commentsCount],
 	);
 
 	return (
@@ -456,12 +457,12 @@ export const PostCardSkeleton = ({
 					<div className="flex items-center gap-3">
 						<Skeleton className="h-10 w-10 rounded-full" />
 						<div className="flex flex-col">
-							<Skeleton className="animate-pulse w-32 h-4 rounded-sm"></Skeleton>
-							<Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2"></Skeleton>
+							<Skeleton className="animate-pulse w-32 h-4 rounded-sm" />
+							<Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2" />
 						</div>
 					</div>
 				</CardTitle>
-				<Skeleton className="animate-pulse w-48 h-3 rounded-sm mt-6"></Skeleton>
+				<Skeleton className="animate-pulse w-48 h-3 rounded-sm mt-6" />
 			</CardHeader>
 			{withPicture && (
 				<CardContent className="pl-0 pr-0">
@@ -473,11 +474,11 @@ export const PostCardSkeleton = ({
 			<CardFooter>
 				<div className="flex justify-between w-full">
 					<div className="flex gap-4">
-						<Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
-						<Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
-						<Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
+						<Skeleton className="animate-pulse w-7 h-7 rounded-sm" />
+						<Skeleton className="animate-pulse w-7 h-7 rounded-sm" />
+						<Skeleton className="animate-pulse w-7 h-7 rounded-sm" />
 					</div>
-					<Skeleton className="animate-pulse w-7 h-7 rounded-sm"></Skeleton>
+					<Skeleton className="animate-pulse w-7 h-7 rounded-sm" />
 				</div>
 			</CardFooter>
 		</Card>

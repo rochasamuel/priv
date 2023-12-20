@@ -51,7 +51,7 @@ export const PostService = (httpClient: AxiosInstance) => {
 			return response.data as ApiActionResponse;
 		},
 		editPost: async (postId: string, description: string) => {
-			const response: AxiosResponse = await httpClient.put(`/post`, {
+			const response: AxiosResponse = await httpClient.put("/post", {
 				postId,
 				description,
 			});
@@ -59,7 +59,7 @@ export const PostService = (httpClient: AxiosInstance) => {
 			return response.data as ApiActionResponse;
 		},
 		createPost: async (description: string, medias: string[] = []) => {
-			const response: AxiosResponse = await httpClient.post(`/post`, {
+			const response: AxiosResponse = await httpClient.post("/post", {
 				description,
 				medias,
 			});

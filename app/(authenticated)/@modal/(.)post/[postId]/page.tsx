@@ -29,11 +29,11 @@ export const PostModal = ({ params }: { params: { postId: string } }) => {
 
 	const handleOpenChange = useCallback((open: boolean) => {
 		if (!open) router.back();
-	}, []);
+	}, [router]);
 
 	return (
 		<Dialog defaultOpen onOpenChange={handleOpenChange}>
-			<DialogContent className="h-full lg:h-auto"></DialogContent>
+			<DialogContent className="h-full lg:h-auto" />
 		</Dialog>
 	);
 };

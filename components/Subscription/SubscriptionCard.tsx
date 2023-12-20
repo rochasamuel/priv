@@ -22,7 +22,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
 						alt=""
 					/>
 				) : (
-					<div className="w-full h-20 bg-gray-200 rounded-sm"></div>
+					<div className="w-full h-20 bg-gray-200 rounded-sm" />
 				)}
 				<Avatar className="w-16 h-16 -mt-8 border-cyan-50 border-2">
 					<AvatarImage src={subscription.profilePhotoPresignedGet} />
@@ -91,26 +91,26 @@ export const SubscriptionCardSkeleton = () => {
 	return (
 		<div className="w-full rounded-sm border-[1px] mt-4 mb-4 pb-4">
 			<div className="w-full flex flex-col items-center rounded-sm">
-				<Skeleton className="w-full h-20 rounded-sm bg-gray-800"></Skeleton>
+				<Skeleton className="w-full h-20 rounded-sm bg-gray-800" />
 				<Avatar className="w-16 h-16 -mt-8 border-cyan-50 border-2">
 					<AvatarImage src="" />
-					<AvatarFallback></AvatarFallback>
+					<AvatarFallback />
 				</Avatar>
 
 				<p className="text-sm font-medium mt-2">
-					<Skeleton className="animate-pulse w-44 h-4 rounded-sm"></Skeleton>
+					<Skeleton className="animate-pulse w-44 h-4 rounded-sm" />
 				</p>
 				<p className="text-xs">
-					<Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2"></Skeleton>
+					<Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2" />
 				</p>
 
-				<Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2"></Skeleton>
+				<Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2" />
 				<Button className="text-xs h-6" variant={"link"}>
-					<Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2"></Skeleton>
+					<Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2" />
 				</Button>
 
 				<p className="text-xs mt-4 flex">
-					<Skeleton className="animate-pulse w-36 h-3 rounded-sm mt-2"></Skeleton>
+					<Skeleton className="animate-pulse w-36 h-3 rounded-sm mt-2" />
 				</p>
 			</div>
 		</div>

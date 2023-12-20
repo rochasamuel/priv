@@ -58,11 +58,11 @@ export const FollowerCardSkeleton = () => {
 			<div className="flex items-center justify-start">
 				<Skeleton className="h-10 w-10 rounded-full" />
 				<div className="ml-2 flex flex-col">
-					<Skeleton className="animate-pulse w-44 h-4 rounded-sm"></Skeleton>
-					<Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2"></Skeleton>
+					<Skeleton className="animate-pulse w-44 h-4 rounded-sm" />
+					<Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2" />
 				</div>
 			</div>
-			<Skeleton className="animate-pulse w-4 h-4 rounded-sm"></Skeleton>
+			<Skeleton className="animate-pulse w-4 h-4 rounded-sm" />
 		</div>
 	);
 };

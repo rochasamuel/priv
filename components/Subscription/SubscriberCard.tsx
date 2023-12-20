@@ -59,13 +59,13 @@ export const SubscriberCardSkeleton = () => {
 				<Skeleton className="h-10 w-10 rounded-full" />
 				<div className="ml-2 flex flex-col">
 					<div className="flex">
-						<Skeleton className="animate-pulse w-32 h-4 rounded-sm"></Skeleton>
-						<Skeleton className="animate-pulse ml-2 w-12 h-4 rounded-sm"></Skeleton>
+						<Skeleton className="animate-pulse w-32 h-4 rounded-sm" />
+						<Skeleton className="animate-pulse ml-2 w-12 h-4 rounded-sm" />
 					</div>
-					<Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2"></Skeleton>
+					<Skeleton className="animate-pulse w-24 h-3 rounded-sm mt-2" />
 				</div>
 			</div>
-			<Skeleton className="animate-pulse w-4 h-4 rounded-sm"></Skeleton>
+			<Skeleton className="animate-pulse w-4 h-4 rounded-sm" />
 		</div>
 	);
 };
