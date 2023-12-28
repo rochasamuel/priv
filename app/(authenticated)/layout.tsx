@@ -52,7 +52,7 @@ export default function RootLayout({
 								</aside>
 
 								{children}
-								{modal}
+								{/* {modal} */}
 							</div>
 						</div>
 						<MobileNav />

@@ -36,6 +36,7 @@ export const PostModal = ({ params }: { params: { postId: string } }) => {
 
 	return (
 		<Dialog defaultOpen onOpenChange={handleOpenChange}>
+			dksaldlas
 			<DialogContent className="h-full lg:h-auto" />
 		</Dialog>
 	);

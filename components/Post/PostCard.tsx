@@ -388,6 +388,21 @@ export function ActionBar({
 		[commentsCount],
 	);
 
+	
+	const handleClipboardCopy = async () => {
+		if(post) {
+			await navigator.clipboard.writeText(
+				`https://privatus.vip/profile/${post.producer.username}/${post.postId}`,
+			);
+			toast({
+				title: "Link copiado!",
+				description:
+					"O link do post foi copiado. Compartilhe com seus amigos!",
+			});
+		}
+	};
+
+
 	return (
 		<div className="flex justify-between w-full">
 			<div className="flex gap-4">
@@ -421,7 +436,7 @@ export function ActionBar({
 						updateCommentsCount={handleUpdateCommentsCount}
 					/>
 				)}
-				<ActionButton icon={<Forward />} count={0} />
+				<ActionButton onClick={handleClipboardCopy} icon={<Forward />} />
 			</div>
 
 			<Bookmark className="cursor-pointer" />
@@ -434,7 +449,7 @@ export function PointSeparator() {
 }
 
 export interface ActionButtonProps {
-	count: number;
+	count?: number;
 	icon: ReactElement;
 	onClick?: () => void;
 }

@@ -11,9 +11,7 @@ import { useSession } from "next-auth/react";
 import { FunctionComponent, useState } from "react";
 import { useQuery } from "react-query";
 
-type SearchComponentProps = {};
-
-const SearchComponent: FunctionComponent<SearchComponentProps> = () => {
+const SearchComponent: FunctionComponent = () => {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [timeoutId, setTimeoutId] = useState<any>(null);
 
