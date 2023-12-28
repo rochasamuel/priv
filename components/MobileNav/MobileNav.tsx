@@ -65,7 +65,7 @@ const MobileNav = () => {
 			</Link>
 			<Sheet>
 				<SheetTrigger>
-					<Menu />
+					<Menu color="#FFF" />
 				</SheetTrigger>
 				<SheetContent>
 					<SheetHeader>

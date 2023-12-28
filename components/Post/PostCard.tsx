@@ -27,6 +27,8 @@ import {
 	Globe2,
 	Heart,
 	Loader2,
+	Lock,
+	LockKeyhole,
 	MessageCircle,
 	MoreHorizontal,
 	MoreVertical,
@@ -86,6 +88,11 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 	const isOwn = useMemo(
 		() => session?.user.userId === post.producer.producerId,
 		[session, post],
+	);
+
+	const isPrivate = useMemo(
+		() => post?.medias.some((media) => media.isPublic === false),
+		[post],
 	);
 
 	const relativePostDate = DateTime.fromISO(post.registrationDate, {
@@ -224,8 +231,17 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 									@{post.producer.username}
 								</Link>
 								<PointSeparator />
-								<Globe2 className=" text-pink-600" size={14} />
-								<p className="font-semibold text-xs ml-1">Público</p>
+								{isPrivate ? (
+									<>
+										<Lock className=" text-pink-600" size={14} />
+										<p className="font-semibold text-xs ml-1">Apenas assinantes</p>
+									</>
+								) : (
+									<>
+										<Globe2 className=" text-pink-600" size={14} />
+										<p className="font-semibold text-xs ml-1">Público</p>
+									</>
+								)}
 								{/* <PointSeparator />
                 <p className="font-semibold text-xs">{relativePostDate}</p> */}
 							</div>
@@ -271,7 +287,22 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 					)}
 				</CardDescription>
 			</CardHeader>
-			{postHasMedias && (
+			{isPrivate && (
+				<CardContent className="pl-0 pr-0">
+					<div className="h-60 bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-400 dark:bg-gradient-to-br dark:from-slate-900 dark:via-purple-900 dark:to-slate-900">
+						<div className="w-full h-full bg-white bg-opacity-50 backdrop-blur-3xl p-4 dark:bg-black dark:bg-opacity-50">
+							<div className="w-full h-full opacity-80 flex flex-col gap-4 items-center justify-center">
+								<LockKeyhole size={40} />
+								<p className="w-full text-center font-medium text-lg">
+									Este conteúdo é secreto! Assine o plano do produtor para
+									visualizar
+								</p>
+							</div>
+						</div>
+					</div>
+				</CardContent>
+			)}
+			{postHasMedias && !isPrivate && (
 				<CardContent className="pl-0 pr-0">
 					{/* 1.91/1 || 16/9 || 4/5 || 1/1 */}
 					<Swiper
@@ -310,7 +341,7 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 					</Swiper>
 				</CardContent>
 			)}
-			<CardFooter>
+			{!isPrivate && <CardFooter>
 				<ActionBar
 					isLiked={post.isLiked}
 					totalComments={post.totalComments}
@@ -318,7 +349,7 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 					isSaved={post.isSaved}
 					post={post}
 				/>
-			</CardFooter>
+			</CardFooter>}
 		</Card>
 	);
 });
@@ -388,20 +419,17 @@ export function ActionBar({
 		[commentsCount],
 	);
 
-	
 	const handleClipboardCopy = async () => {
-		if(post) {
+		if (post) {
 			await navigator.clipboard.writeText(
 				`https://privatus.vip/profile/${post.producer.username}/${post.postId}`,
 			);
 			toast({
 				title: "Link copiado!",
-				description:
-					"O link do post foi copiado. Compartilhe com seus amigos!",
+				description: "O link do post foi copiado. Compartilhe com seus amigos!",
 			});
 		}
 	};
-
 
 	return (
 		<div className="flex justify-between w-full">
