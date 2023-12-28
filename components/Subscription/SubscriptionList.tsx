@@ -60,7 +60,7 @@ const SubscriptionList = () => {
 			<div className="mt-4">
 				{isLoading ? (
 					Array.from({ length: 10 }).map((_, index) => (
-						<SubscriptionCardSkeleton key={index} />
+						<SubscriptionCardSkeleton key={index + 1} />
 					))
 				) : (
 					<>

@@ -186,7 +186,7 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 											<DropdownMenuItem>Excluir</DropdownMenuItem>
 										</AlertDialogTrigger>
 									</DropdownMenuContent>
-									<AlertDialogContent className="max-w-[95vw]">
+									<AlertDialogContent className="max-w-[96vw] lg:max-w-lg">
 										<AlertDialogHeader>
 											<AlertDialogTitle>Tem certeza?</AlertDialogTitle>
 											<AlertDialogDescription>

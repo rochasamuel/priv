@@ -38,7 +38,7 @@ interface PostMakerProps {
 	algo?: string;
 }
 
-const PostMaker: FunctionComponent<PostMakerProps> = ({}) => {
+const PostMaker: FunctionComponent<PostMakerProps> = ({algo}) => {
 	const { data: session } = useSession();
 	const { toast } = useToast();
 	const queryClient = useQueryClient();

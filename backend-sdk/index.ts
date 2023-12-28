@@ -6,6 +6,7 @@ import { ProducerService } from "./services/producer-service";
 import { RecommendationService } from "./services/recommendation-service";
 import { ReferrerService } from "./services/referrer-service";
 import { SubscriptionService } from "./services/subscription-service";
+import { CreditCardService } from "./services/credit-card-service";
 
 const defaultHeaders = {
 	"X-Api": 1,
@@ -30,6 +31,7 @@ export const apiClient = (accessToken?: string) => {
 		comment: CommentService(httpClient),
 		producer: ProducerService(httpClient),
 		referrer: ReferrerService(httpClient),
+		creditCard: CreditCardService(httpClient),
 	};
 };
 

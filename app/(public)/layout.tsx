@@ -52,6 +52,7 @@ export default function RootLayout({
 								{children}
 							</div>
 						</div>
+						<Toaster /> 
 					</ThemeProvider>
 				</Providers>
 			</body>

@@ -60,7 +60,7 @@ const FollowerList = () => {
 			<div className="mt-4">
 				{isLoading ? (
 					Array.from({ length: 10 }).map((_, index) => (
-						<FollowerCardSkeleton key={index} />
+						<FollowerCardSkeleton key={index + 1} />
 					))
 				) : (
 					<>

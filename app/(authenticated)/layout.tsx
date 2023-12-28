@@ -2,23 +2,14 @@ import RedirectButton from "@/components/Button/RedirectButton";
 import Header from "@/components/Header/Header";
 import MobileNav from "@/components/MobileNav/MobileNav";
 import SideNav from "@/components/SideNav/SideNav";
-import { Button } from "@/components/ui/button";
-import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/ui/theme-provider";
 import Providers from "@/providers/providers";
-import AuthSessionProvider from "@/providers/session-provider";
 import {
-	Flame,
-	Home,
-	Menu,
-	MessageCircle,
-	PlusSquare,
-	Search,
+	Flame
 } from "lucide-react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { headers } from "next/headers";
-import Link from "next/link";
 import "../globals.css";
 
 const inter = Inter({ subsets: ["latin"] });

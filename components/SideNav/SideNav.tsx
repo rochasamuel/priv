@@ -48,7 +48,7 @@ export default function SideNav() {
 					<SideNavItem icon={<FileSignature />} name="Inscrições" />
 				</Link>
 				<Link href={"/cards"}>
-					<SideNavItem icon={<CreditCard />} name="Cadastrar cartão" />
+					<SideNavItem icon={<CreditCard />} name="Cartões" />
 				</Link>
 				<Link href={"/affiliates"}>
 					<SideNavItem icon={<Network />} name="Afiliados" />
@@ -59,7 +59,7 @@ export default function SideNav() {
 				<Link href={"/settings"}>
 					<SideNavItem name="Configurações" icon={<Settings />} />
 				</Link>
-				<Link href={"/help"}>
+				<Link href={"https://api.whatsapp.com/send?phone=556196286030&text=Gostaria%20de%20um%20aux%C3%ADlio%20na%20plataforma%2C%20poderia%20me%20ajudar%3F"}>
 					<SideNavItem name="Ajuda e Suporte" icon={<HelpCircle />} />
 				</Link>
 			</div>

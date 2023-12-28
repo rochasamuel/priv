@@ -92,7 +92,7 @@ const MobileNav = () => {
 							<SheetClose asChild>
 								<Link href={"/cards"}>
 									<MobileNavItem
-										name="Cadastrar cartão"
+										name="Cartões"
 										icon={<CreditCard />}
 									/>
 								</Link>
