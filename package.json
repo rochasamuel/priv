@@ -28,7 +28,7 @@
     "axios": "^1.6.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
-    "lucide-react": "^0.288.0",
+    "lucide-react": "^0.303.0",
     "luxon": "^3.4.3",
     "next": "14.0.2",
     "next-auth": "^4.24.3",

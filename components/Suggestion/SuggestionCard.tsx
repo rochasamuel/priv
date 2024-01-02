@@ -3,7 +3,9 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Recommendation } from "@/types/recommendation";
+import { getAcronym } from "@/utils";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface SuggestionsCardProps {
 	recommendation: Recommendation;
@@ -12,6 +14,12 @@ interface SuggestionsCardProps {
 export default function SuggestionsCard({
 	recommendation,
 }: SuggestionsCardProps) {
+	const router = useRouter();
+
+	const handleRedirect = (username: string) => {
+		router.push(`/profile/${username}`);
+	}
+
 	return (
 		<Card className="m-auto mb-4 relative cursor-pointer">
 			<CardContent className="pl-0 pr-0 pb-0 max-h-36 relative">
@@ -22,17 +30,17 @@ export default function SuggestionsCard({
 					{recommendation.coverPhotoReference && (
 						<img
 							src={recommendation.coverPhotoReference}
-							alt="Image"
+							alt="Imagem de capa"
 							onError={(e) => {}}
 							className="w-full h-full object-cover rounded-md"
 						/>
 					)}
 				</AspectRatio>
 			</CardContent>
-			<CardFooter className="flex flex-col w-full absolute p-0 bottom-0 ">
+			<CardFooter className="flex flex-col w-full absolute p-0 bottom-0" onClick={() => handleRedirect(recommendation.username)}>
 				<Avatar className="w-16 h-16 mb-2">
 					<AvatarImage src={recommendation.profilePhotoReference} />
-					<AvatarFallback>SR</AvatarFallback>
+					<AvatarFallback>{getAcronym(recommendation.presentationName)}</AvatarFallback>
 				</Avatar>
 				<div className="flex justify-center items-center self-stretch h-10 rounded-b-md leading-4 text-white bg-black bg-opacity-50 backdrop-blur-lg p-2">
 					<div className="flex flex-1 flex-col justify-center items-center">

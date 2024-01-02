@@ -8,12 +8,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAcronym } from "@/utils";
 import { Loader2, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { FunctionComponent, useState } from "react";
 import { useQuery } from "react-query";
 
 const SearchComponent: FunctionComponent = () => {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [timeoutId, setTimeoutId] = useState<any>(null);
+
+	const router = useRouter();
 
 	const { data: session } = useSession();
 	const {
@@ -30,6 +33,10 @@ const SearchComponent: FunctionComponent = () => {
 		retry: false,
 		staleTime: 1000,
 	});
+
+	const handleRedirect = (username: string) => {
+		router.push(`/profile/${username}`);
+	}
 
 	return (
 		<div className="w-full">
@@ -50,6 +57,7 @@ const SearchComponent: FunctionComponent = () => {
 					<div
 						key={searchResult.username}
 						className="flex items-center my-4 cursor-pointer"
+						onClick={() => handleRedirect(searchResult.username)}
 					>
 						<Avatar>
 							<AvatarImage src={searchResult.profilePhotoReference} />

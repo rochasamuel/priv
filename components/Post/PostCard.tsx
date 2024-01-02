@@ -73,6 +73,7 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { toast } from "../ui/use-toast";
 import PostCommentsDialog from "./PostCommentsDialog";
+import { useRouter } from "next/navigation";
 
 interface PostCardProps {
 	post: Post;
@@ -85,14 +86,20 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 	const [editMode, setEditMode] = useState(false);
 	const [postDescription, setPostDescription] = useState(post.description);
 
+	const router = useRouter();
+
+	const handleRedirect = (username: string) => {
+		router.push(`/profile/${username}`);
+	};
+
 	const isOwn = useMemo(
 		() => session?.user.userId === post.producer.producerId,
 		[session, post],
 	);
 
 	const isPrivate = useMemo(
-		() => post?.medias.some((media) => media.isPublic === false),
-		[post],
+		() => post?.medias.some((media) => media.isPublic === false) && session?.user.userId !== post.producer.producerId,
+		[post, session],
 	);
 
 	const relativePostDate = DateTime.fromISO(post.registrationDate, {
@@ -220,7 +227,7 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 							</AvatarFallback>
 						</Avatar>
 						<div className="flex flex-col w-full">
-							<p className="text-lg font-bold max-w-[90%] line-clamp-1">
+							<p className="text-lg font-bold max-w-[90%] line-clamp-1" onClick={() => handleRedirect(post.producer.username)}>
 								{post.producer.presentationName}
 							</p>
 							<div className="flex text-sm items-center">
@@ -234,7 +241,7 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 								{isPrivate ? (
 									<>
 										<Lock className=" text-pink-600" size={14} />
-										<p className="font-semibold text-xs ml-1">Apenas assinantes</p>
+										<p className="font-semibold text-xs ml-1">Assinantes</p>
 									</>
 								) : (
 									<>

@@ -6,9 +6,7 @@ import { useQuery } from "react-query";
 import { ScrollArea } from "../ui/scroll-area";
 import SuggestionCard from "./SuggestionCard";
 
-type SuggestionListProps = {};
-
-const SuggestionList: FunctionComponent<SuggestionListProps> = () => {
+const SuggestionList: FunctionComponent = () => {
 	const { data: session, status } = useSession();
 
 	const { data: recommendations, isLoading } = useQuery({

@@ -6,12 +6,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Subscription, SubscriptionStatus } from "@/types/subscription";
 import { getAcronym } from "@/utils";
 import { DateTime } from "luxon";
+import { useRouter } from "next/navigation";
 
 interface SubscriptionCardProps {
 	subscription: Subscription;
 }
 
 const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
+	const router = useRouter();
+
+	const handleRedirect = (username: string) => {
+		router.push(`/profile/${username}`);
+	};
+	
 	return (
 		<div className="w-full rounded-sm border-[1px] mt-4 mb-4 pb-4">
 			<div className="w-full flex flex-col items-center rounded-sm">
@@ -31,10 +38,10 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
 					</AvatarFallback>
 				</Avatar>
 
-				<p className="text-sm font-medium mt-2">
+				<p className="text-sm font-medium mt-2" onClick={() => handleRedirect(subscription.username)}>
 					{subscription.presentationName}
 				</p>
-				<p className="text-xs">@{subscription.username}</p>
+				<p className="text-xs" onClick={() => handleRedirect(subscription.username)}>@{subscription.username}</p>
 
 				{subscription.idStatusContract === SubscriptionStatus.ACTIVE &&
 					subscription.expirationDate && (

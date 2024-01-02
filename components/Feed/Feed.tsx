@@ -10,9 +10,10 @@ import { useInfiniteQuery } from "react-query";
 
 interface FeedProps {
 	mode: "feed" | "profile" | "hot";
+	producerId?: string;
 }
 
-const Feed: FunctionComponent<FeedProps> = ({ mode }) => {
+const Feed: FunctionComponent<FeedProps> = ({ mode, producerId }) => {
 	const { data: session } = useSession();
 	const { data, fetchNextPage, isFetchingNextPage, isLoading } =
 		useInfiniteQuery({
@@ -20,10 +21,13 @@ const Feed: FunctionComponent<FeedProps> = ({ mode }) => {
 			queryFn: async ({ pageParam = 1 }) => {
 				const api = apiClient(session?.user.accessToken!);
 
-				return await api.post.getPosts({
-					itemsPerPage: 7,
-					pageNumber: pageParam,
-				});
+				return await api.post.getPosts(
+					{
+						itemsPerPage: 7,
+						pageNumber: pageParam,
+					},
+					producerId,
+				);
 			},
 			enabled: !!session?.user.accessToken,
 			retry: false,
@@ -53,7 +57,7 @@ const Feed: FunctionComponent<FeedProps> = ({ mode }) => {
 		<>
 			{!session?.user || isLoading ? (
 				Array.from({ length: 4 }).map((_, index) => (
-					<PostCardSkeleton key={index} withPicture={index % 2 === 0} />
+					<PostCardSkeleton key={index + 1} withPicture={index % 2 === 0} />
 				))
 			) : (
 				<div>

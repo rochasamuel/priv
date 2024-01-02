@@ -12,12 +12,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Subscriber } from "@/types/subscription";
 import { getAcronym } from "@/utils";
 import { MoreVertical } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface SubscriberCardProps {
 	subscriber: Subscriber;
 }
 
 const SubscriberCard = ({ subscriber }: SubscriberCardProps) => {
+	const router = useRouter();
+
+	const handleRedirect = (username: string) => {
+		router.push(`/profile/${username}`);
+	};
+
 	return (
 		<div className="w-full my-4 flex items-center justify-between">
 			<div className="flex items-center justify-start">
@@ -28,13 +35,13 @@ const SubscriberCard = ({ subscriber }: SubscriberCardProps) => {
 					</AvatarFallback>
 				</Avatar>
 				<div className="ml-2 flex flex-col">
-					<div className="font-medium text-sm flex items-center">
+					<div className="font-medium text-sm flex items-center" onClick={() => handleRedirect(subscriber.username)}>
 						{subscriber.presentationName}{" "}
 						<Badge className="ml-2 h-4 bg-purple-500">
 							{subscriber.planType}
 						</Badge>
 					</div>
-					<a className="text-xs">@{subscriber.username}</a>
+					<a className="text-xs" href={`/profile/${subscriber.username}`}>@{subscriber.username}</a>
 				</div>
 			</div>
 			<DropdownMenu>
