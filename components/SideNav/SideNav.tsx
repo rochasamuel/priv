@@ -16,21 +16,27 @@ import {
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ReactElement } from "react";
 
 export default function SideNav() {
 	const { data: session, status } = useSession();
+	const router = useRouter();
+
+	const handleRedirect = (username?: string) => {
+		if (username) router.push(`/profile/${username}`);
+	}
 
 	return (
 		<>
 			<div className="flex gap-2 items-center cursor-pointer">
-				<Avatar>
+				<Avatar onClick={() => handleRedirect(session?.user.username)}>
 					<AvatarImage src={session?.user.profilePhotoPresignedGet} />
 					<AvatarFallback>
 						{getAcronym(session?.user.presentationName ?? "")}
 					</AvatarFallback>
 				</Avatar>
-				<p className="text-lg font-bold">{session?.user.presentationName}</p>
+				<p className="text-lg font-bold" onClick={() => handleRedirect(session?.user.username)}>{session?.user.presentationName}</p>
 				<LogOut
 					onClick={() => signOut()}
 					size={38}

@@ -3,6 +3,8 @@
 import apiClient from "@/backend-sdk";
 import Feed from "@/components/Feed/Feed";
 import PostMaker from "@/components/Post/PostMaker";
+import AboutCard from "@/components/Profile/AboutCard";
+import MediaCard from "@/components/Profile/MediaCard";
 import ProfileCard, {
 	ProfileCardSkeleton,
 } from "@/components/Profile/ProfileCard";
@@ -40,31 +42,31 @@ const ProfileComponent = ({ params }: { params: { username: string } }) => {
 					</>
 				);
 			case "about":
-				return <div>about</div>;
+				return <AboutCard user={user!} />;
 			case "media":
-				return <div>media</div>;
+				return <MediaCard user={user!} />;
 			default:
 				return <></>;
 		}
 	};
 	
-	const selectedSessionStyle = "text-sm font-bold border-b-2 border-pink-500 transition-colors duration-500";
+	const selectedSessionStyle = "text-sm font-bold border-b-2 border-pink-500 transition-all duration-500";
 
 	return (
 		<>
-			<main className="flex-1 h-full">
+			<main className="flex-1 h-full max-w-[96vw] mx-auto md:max-w-2xl">
 				{isLoading && <ProfileCardSkeleton />}
 				{user && !isLoading && <ProfileCard user={user} />}
 				<div className="w-full bg-[#020817] z-20 mb-4 flex items-center justify-evenly border rounded-md h-12 py-2 sticky top-2">
-					<div className={`text-sm ${selectedSession === "posts" && selectedSessionStyle}`} onClick={() => handleSessionChange("posts")}>
+					<div className={`cursor-pointer text-sm ${selectedSession === "posts" && selectedSessionStyle}`} onClick={() => handleSessionChange("posts")}>
 						Publicações
 					</div>
 					<Separator orientation="vertical" />
-					<div className={`text-sm ${selectedSession === "about" && selectedSessionStyle}`} onClick={() => handleSessionChange("about")}>
+					<div className={`cursor-pointer text-sm ${selectedSession === "about" && selectedSessionStyle}`} onClick={() => handleSessionChange("about")}>
 						Sobre mim
 					</div>
 					<Separator orientation="vertical" />
-					<div className={`text-sm ${selectedSession === "media" && selectedSessionStyle}`} onClick={() => handleSessionChange("media")}>
+					<div className={`cursor-pointer text-sm ${selectedSession === "media" && selectedSessionStyle}`} onClick={() => handleSessionChange("media")}>
 						Mídias
 					</div>
 				</div>

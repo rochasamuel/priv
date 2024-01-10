@@ -249,8 +249,8 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 										<p className="font-semibold text-xs ml-1">Público</p>
 									</>
 								)}
-								{/* <PointSeparator />
-                <p className="font-semibold text-xs">{relativePostDate}</p> */}
+								<PointSeparator />
+                <p className="font-semibold text-xs">{relativePostDate}</p>
 							</div>
 						</div>
 					</div>
@@ -429,7 +429,7 @@ export function ActionBar({
 	const handleClipboardCopy = async () => {
 		if (post) {
 			await navigator.clipboard.writeText(
-				`https://privatus.vip/profile/${post.producer.username}/${post.postId}`,
+				`localhost:3003/profile/${post.producer.username}/${post.postId}`,
 			);
 			toast({
 				title: "Link copiado!",

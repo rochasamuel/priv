@@ -69,6 +69,7 @@ const Feed: FunctionComponent<FeedProps> = ({ mode, producerId }) => {
 					{isFetchingNextPage && <PostCardSkeleton />}
 				</div>
 			)}
+			{!isLoading && _posts?.length === 0 && <div className="w-full text-center">Não há nenhum post para ser mostrado.</div>}
 		</>
 	);
 };

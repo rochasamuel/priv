@@ -28,13 +28,18 @@ import {
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ReactElement } from "react";
 import { SideNavItem } from "../SideNav/SideNav";
 
 const MobileNav = () => {
 	const pathName = usePathname();
 	const { data: session, status } = useSession();
+	const router = useRouter();
+
+	const handleRedirect = (username?: string) => {
+		if (username) router.push(`/profile/${username}`);
+	}
 
 	const shouldHighlight = (pathname: string) => {
 		return pathname === pathName;
@@ -69,7 +74,7 @@ const MobileNav = () => {
 				</SheetTrigger>
 				<SheetContent>
 					<SheetHeader>
-						<SheetTitle className="flex items-center justify-start">
+						<SheetTitle className="flex items-center justify-start" onClick={() => handleRedirect(session?.user.username)}>
 							<Avatar className="mr-2 w-9 h-9">
 								<AvatarImage src={session?.user.profilePhotoPresignedGet} />
 								<AvatarFallback>
