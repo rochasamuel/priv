@@ -8,6 +8,11 @@ import { ReferrerService } from "./services/referrer-service";
 import { SubscriptionService } from "./services/subscription-service";
 import { CreditCardService } from "./services/credit-card-service";
 import { ProfileService } from "./services/profile-service";
+import { PlanService } from "./services/plan-service";
+import { AccountService } from "./services/account-service";
+import { TransactionService } from "./services/transaction-service";
+import { MetricService } from "./services/metric-service";
+import { ChatService } from "./services/chat-service";
 
 const defaultHeaders = {
 	"X-Api": 1,
@@ -34,6 +39,11 @@ export const apiClient = (accessToken?: string) => {
 		referrer: ReferrerService(httpClient),
 		creditCard: CreditCardService(httpClient),
 		profile: ProfileService(httpClient),
+		plan: PlanService(httpClient),
+		account: AccountService(httpClient),
+		transaction: TransactionService(httpClient),
+		metrics: MetricService(httpClient),
+		chat: ChatService(httpClient),
 	};
 };
 

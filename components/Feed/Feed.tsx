@@ -17,7 +17,7 @@ const Feed: FunctionComponent<FeedProps> = ({ mode, producerId }) => {
 	const { data: session } = useSession();
 	const { data, fetchNextPage, isFetchingNextPage, isLoading } =
 		useInfiniteQuery({
-			queryKey: ["posts", session?.user.email],
+			queryKey: ["posts", session?.user.email, producerId, mode],
 			queryFn: async ({ pageParam = 1 }) => {
 				const api = apiClient(session?.user.accessToken!);
 

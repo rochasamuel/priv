@@ -13,6 +13,7 @@ import { useSession } from "next-auth/react";
 import { Inter } from "next/font/google";
 import { useRouter } from "next/navigation";
 import "../globals.css";
+import ScrollToTop from "@/components/ScrollToTop/ScrollToTop";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -52,7 +53,9 @@ export default function RootLayout({
 								{children}
 							</div>
 						</div>
+						<MobileNav />
 						<Toaster /> 
+						<ScrollToTop />
 					</ThemeProvider>
 				</Providers>
 			</body>

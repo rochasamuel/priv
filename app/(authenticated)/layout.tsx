@@ -13,6 +13,7 @@ import { Inter } from "next/font/google";
 import "../globals.css";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
+import ScrollToTop from "@/components/ScrollToTop/ScrollToTop";
 config.autoAddCss = false;
 
 const inter = Inter({ subsets: ["latin"] });
@@ -39,18 +40,11 @@ export default function RootLayout({
 						enableSystem
 						disableTransitionOnChange
 					>
-						<div className="flex min-h-full flex-col">
-							<Header
-								actionButton={
-									<RedirectButton
-										destination="/hot"
-										icon={<Flame className="ml-1" />}
-									/>
-								}
-							/>
+						<div className="w-screen flex min-h-full flex-col">
+							<Header />
 
 							<div className="mx-auto flex w-full min-h-[calc(100vh-129px)] max-w-full items-start gap-x-8 px-2 py-4 sm:px-6 lg:px-8 h-full">
-								<aside className="sticky top-8 hidden w-80 shrink-0 lg:block h-full">
+								<aside className="sticky top-8 hidden w-80 shrink-2 lg:block h-full">
 									<SideNav />
 								</aside>
 
@@ -60,6 +54,7 @@ export default function RootLayout({
 						</div>
 						<MobileNav />
 						<Toaster />
+						<ScrollToTop />
 					</ThemeProvider>
 				</Providers>
 			</body>

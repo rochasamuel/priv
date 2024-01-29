@@ -4,85 +4,133 @@ import { Separator } from "@/components/ui/separator";
 import { getAcronym } from "@/utils";
 
 import {
-	CircleDollarSign,
-	CreditCard,
-	FileSignature,
-	Flame,
-	HelpCircle,
-	Home,
-	LogOut,
-	Network,
-	Settings,
+  ChevronRight,
+  CircleDollarSign,
+  CreditCard,
+  FileEdit,
+  FileSignature,
+  Flame,
+  FlameIcon,
+  HelpCircle,
+  Home,
+  LogOut,
+  MessageCircle,
+  Network,
+  Receipt,
+  Settings,
+  UserRound,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ReactElement } from "react";
+import { ReactElement, useState } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
 
 export default function SideNav() {
-	const { data: session, status } = useSession();
-	const router = useRouter();
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-	const handleRedirect = (username?: string) => {
-		if (username) router.push(`/profile/${username}`);
-	}
+  const [isOpen, setIsOpen] = useState(true);
 
-	return (
-		<>
-			<div className="flex gap-2 items-center cursor-pointer">
-				<Avatar onClick={() => handleRedirect(session?.user.username)}>
-					<AvatarImage src={session?.user.profilePhotoPresignedGet} />
-					<AvatarFallback>
-						{getAcronym(session?.user.presentationName ?? "")}
-					</AvatarFallback>
-				</Avatar>
-				<p className="text-lg font-bold" onClick={() => handleRedirect(session?.user.username)}>{session?.user.presentationName}</p>
-				<LogOut
-					onClick={() => signOut()}
-					size={38}
-					className="ml-auto rounded-sm p-2"
-				/>
-			</div>
+  const handleRedirect = (username?: string) => {
+    if (username) router.push(`/profile/${username}`);
+  };
 
-			<Separator className="mt-4 mb-4" />
+  return (
+    <>
+      <div className="flex gap-2 items-center cursor-pointer">
+        <Avatar onClick={() => handleRedirect(session?.user.username)}>
+          <AvatarImage src={session?.user.profilePhotoPresignedGet} />
+          <AvatarFallback>
+            {getAcronym(session?.user.presentationName ?? "")}
+          </AvatarFallback>
+        </Avatar>
+        <p
+          className="text-lg font-bold"
+          onClick={() => handleRedirect(session?.user.username)}
+        >
+          {session?.user.presentationName}
+        </p>
+        <LogOut
+          onClick={() => signOut()}
+          size={38}
+          className="ml-auto rounded-sm p-2"
+        />
+      </div>
 
-			<div className="flex flex-col gap-4">
-				<Link href={"/"}>
-					<SideNavItem icon={<Home />} name="Início" />
-				</Link>
-				<Link href={"/subscriptions"}>
-					<SideNavItem icon={<FileSignature />} name="Inscrições" />
-				</Link>
-				<Link href={"/cards"}>
-					<SideNavItem icon={<CreditCard />} name="Cartões" />
-				</Link>
-				<Link href={"/affiliates"}>
-					<SideNavItem icon={<Network />} name="Afiliados" />
-				</Link>
-				<Link href={"/dashboard"}>
-					<SideNavItem icon={<CircleDollarSign />} name="Dashboard" />
-				</Link>
-				<Link href={"/settings"}>
-					<SideNavItem name="Configurações" icon={<Settings />} />
-				</Link>
-				<Link href={"https://api.whatsapp.com/send?phone=556196286030&text=Gostaria%20de%20um%20aux%C3%ADlio%20na%20plataforma%2C%20poderia%20me%20ajudar%3F"}>
-					<SideNavItem name="Ajuda e Suporte" icon={<HelpCircle />} />
-				</Link>
-			</div>
-		</>
-	);
+      <Separator className="mt-4 mb-4" />
+
+      <div className="flex flex-col gap-2">
+        <Link href={"/"}>
+          <SideNavItem icon={<Home />} name="Início" />
+        </Link>
+        <Link href={"/subscriptions"}>
+          <SideNavItem icon={<FileSignature />} name="Inscrições" />
+        </Link>
+        <Link href={"/cards"}>
+          <SideNavItem icon={<CreditCard />} name="Cartões" />
+        </Link>
+        <Link href={"/affiliates"}>
+          <SideNavItem icon={<Network />} name="Afiliados" />
+        </Link>
+        <Link href={"/chats"}>
+          <SideNavItem icon={<MessageCircle />} name="Chats" />
+        </Link>
+        <Link href={"/hot"}>
+          <SideNavItem icon={<FlameIcon />} name="Hot" />
+        </Link>
+        <Link href={"/dashboard"}>
+          <SideNavItem icon={<CircleDollarSign />} name="Dashboard" />
+        </Link>
+
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <CollapsibleTrigger className="flex items-center gap-2">
+            <SideNavItem name="Configurações" icon={<Settings />} />{" "}
+            <ChevronRight
+              size={14}
+              className={`${isOpen ? "rotate-90" : ""} transition-all`}
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="flex flex-col pl-8 gap-2">
+            <Link href={"/settings/plans"} className="mt-1">
+              <SideNavItem icon={<FileEdit />} name="Planos" />
+            </Link>
+
+            <Link href={"/settings/account"}>
+              <SideNavItem icon={<UserRound />} name="Conta" />
+            </Link>
+
+            <Link href={"/settings/payments"}>
+              <SideNavItem icon={<Receipt />} name="Pagamentos" />
+            </Link>
+          </CollapsibleContent>
+        </Collapsible>
+        <Link
+          href={
+            "https://api.whatsapp.com/send?phone=556196286030&text=Gostaria%20de%20um%20aux%C3%ADlio%20na%20plataforma%2C%20poderia%20me%20ajudar%3F"
+          }
+        >
+          <SideNavItem name="Ajuda e Suporte" icon={<HelpCircle />} />
+        </Link>
+      </div>
+    </>
+  );
 }
 
 export interface SideNavItemProps {
-	name: string;
-	icon: ReactElement;
+  name: string;
+  icon: ReactElement;
 }
 
 export function SideNavItem({ icon, name }: SideNavItemProps) {
-	return (
-		<div className="flex items-center rounded-sm p-2 cursor-pointer">
-			{icon}
-			<p className="ml-2 font-semibold text-base">{name}</p>
-		</div>
-	);
+  return (
+    <div className="flex items-center rounded-sm p-2 cursor-pointer">
+      {icon}
+      <p className="ml-2 font-semibold text-base">{name}</p>
+    </div>
+  );
 }

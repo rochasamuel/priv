@@ -6,7 +6,7 @@ import {
 import { NextResponse } from "next/server";
 
 const middleware = (request: NextRequestWithAuth) => {
-	const isPrivateRoutes = !request.nextUrl.pathname.startsWith("/auth");
+	const isPrivateRoutes = !request.nextUrl.pathname.startsWith("/auth|/public");
 
 	if (isPrivateRoutes && !request.nextauth.token) {
 		return NextResponse.rewrite(new URL("/auth/login", request.url));
@@ -19,5 +19,5 @@ export default withAuth(middleware, callbackOptions);
 
 // See "Matching Paths" below to learn more
 export const config = {
-	matcher: ["/((?!api|_next/static|_next/image|favicon.ico|auth|hot).*)"],
+	matcher: ["/((?!api|_next/static|_next/image|favicon.ico|auth|public/hot).*)"],
 };

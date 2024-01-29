@@ -73,7 +73,7 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
 						return (
 							<div
 								key={media.presignedUrls[0]}
-								className="h-56 border rounded-md"
+								className="h-56 border rounded-md cursor-pointer"
 								onClick={() => redirectToPost(media.postId)}
                 ref={index === mediaData.length - 1 ? ref : null}
 							>
@@ -88,8 +88,9 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
 
 					return (
 						<div
-							className="h-56 border rounded-md"
+							className="h-56 border rounded-md cursor-pointer"
 							key={media.presignedUrls[0]}
+							onClick={() => redirectToPost(media.postId)}
 						>
 							<video
 								className="h-full max-w-full w-full rounded-md object-cover"
