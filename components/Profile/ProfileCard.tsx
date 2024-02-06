@@ -61,85 +61,89 @@ const ProfileCard: FunctionComponent<ProfileCardProps> = ({ user }) => {
     setOpenPlansDialog(true);
   }, []);
 
-	const handleClosePlansDialog = useCallback(() => {
-		setOpenPlansDialog(false);
-	}, []);
+  const handleClosePlansDialog = useCallback(() => {
+    setOpenPlansDialog(false);
+  }, []);
 
-  return (<>
-    <div className="max-w-[96vw] m-auto mb-4 md:max-w-2xl">
-      <Card className="p-0">
-        <CardHeader className="mb-0 p-0">
-          {user.coverPhotoPresignedGet ? (
-            <img
-              src={user.coverPhotoPresignedGet}
-              alt="Foto de capa"
-              onError={(e) => {}}
-              className="w-full h-full object-cover rounded-md aspect-auto"
-            />
-          ) : (
-            <div className="w-full h-20 bg-slate-600 rounded-md aspect-auto" />
-          )}
-        </CardHeader>
-        <CardContent className="p-4 pb-4 relative flex flex-col justify-center items-center">
-          <Avatar className="w-28 h-28 mb-2 border-4 absolute -top-14">
-            <AvatarImage src={user.profilePhotoPresignedGet} />
-            <AvatarFallback>{getAcronym(user.presentationName)}</AvatarFallback>
-          </Avatar>
-
-          <div className="mt-14">
-            <CardTitle className="text-xl">{user.presentationName}</CardTitle>
-          </div>
-
-          <div className="mt-4 flex gap-2">
-            {isOwn && (
-              <>
-                <Link href="/settings/plans">
-                  <Button>
-                    Planos <FileEdit className="ml-2" size={17} />
-                  </Button>
-                </Link>
-                <Link href="/settings/account">
-                  <Button variant={"secondary"}>
-                    Perfil <Cog className="ml-2" size={18} />
-                  </Button>
-                </Link>
-              </>
+  return (
+    <>
+      <div className="max-w-[96vw] m-auto mb-4 md:max-w-2xl">
+        <Card className="p-0">
+          <CardHeader className="mb-0 p-0">
+            {user.coverPhotoPresignedGet ? (
+              <img
+                src={user.coverPhotoPresignedGet}
+                alt="Foto de capa"
+                onError={(e) => {}}
+                className="w-full h-full object-cover rounded-md aspect-auto"
+              />
+            ) : (
+              <div className="w-full h-20 bg-slate-600 rounded-md aspect-auto" />
             )}
+          </CardHeader>
+          <CardContent className="p-4 pb-4 relative flex flex-col justify-center items-center">
+            <Avatar className="w-28 h-28 mb-2 border-4 absolute -top-14">
+              <AvatarImage src={user.profilePhotoPresignedGet} />
+              <AvatarFallback>
+                {getAcronym(user.presentationName)}
+              </AvatarFallback>
+            </Avatar>
 
-            {!isOwn && (
-              <>
-                {user.isSubscripted ? (
-                  <Button>Ver assinatura</Button>
-                ) : (
-                  <Button onClick={handleOpenPlansDialog}>
-                    Assinar <PenLine className="ml-2" size={18} />
-                  </Button>
-                )}
-
-                <FollowButton user={user} />
-              </>
-            )}
-
-            <Button variant={"outline"} className="w-full">
-              <MessageCircleMore size={18} />
-            </Button>
-          </div>
-
-          <div className="mt-4 flex gap-4">
-            <div className="cursor-pointer flex items-center gap-2">
-              <ImageIcon size={28} /> {user.totalImages}
+            <div className="mt-14">
+              <CardTitle className="text-xl">{user.presentationName}</CardTitle>
             </div>
-            <div className="cursor-pointer flex items-center gap-2">
-              <Video size={28} /> {user.totalVideos}
+
+            <div className="mt-4 flex justify-between gap-2">
+              {isOwn && (
+                <>
+                  <Link href="/settings/plans">
+                    <Button>
+                      Planos <FileEdit className="ml-2" size={17} />
+                    </Button>
+                  </Link>
+                  <Link href="/settings/account">
+                    <Button variant={"secondary"}>
+                      Perfil <Cog className="ml-2" size={18} />
+                    </Button>
+                  </Link>
+                </>
+              )}
+
+              {!isOwn && (
+                <>
+                  {user.isSubscripted ? (
+                    <Button className="w-auto">Ver assinatura</Button>
+                  ) : (
+                    <Button className="w-auto" onClick={handleOpenPlansDialog}>
+                      Assinar <PenLine className="ml-2" size={18} />
+                    </Button>
+                  )}
+
+                  <FollowButton user={user} />
+                </>
+              )}
+
+              <Button variant={"outline"}>
+                <MessageCircleMore size={18} />
+              </Button>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-		{openPlansDialog && (
-			<PlansDialog user={user} closePlansDialog={handleClosePlansDialog} />
-		)}
-		</>);
+
+            <div className="mt-4 flex gap-4">
+              <div className="cursor-pointer flex items-center gap-2">
+                <ImageIcon size={28} /> {user.totalImages}
+              </div>
+              <div className="cursor-pointer flex items-center gap-2">
+                <Video size={28} /> {user.totalVideos}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      {openPlansDialog && (
+        <PlansDialog user={user} closePlansDialog={handleClosePlansDialog} />
+      )}
+    </>
+  );
 };
 
 interface FollowButtonProps {
@@ -178,7 +182,7 @@ export const FollowButton = ({ user }: FollowButtonProps) => {
     <>
       {isFollowing ? (
         <AlertDialog>
-          <AlertDialogTrigger className="w-full">
+          <AlertDialogTrigger>
             <Button variant={"secondary"}>
               Seguindo{" "}
               {loadingFollow ? (

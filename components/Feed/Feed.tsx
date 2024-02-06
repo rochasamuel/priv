@@ -54,7 +54,7 @@ const Feed: FunctionComponent<FeedProps> = ({ mode, producerId }) => {
 	const _posts = data?.pages.flatMap((page) => page);
 
 	return (
-		<>
+		<div className="pb-2">
 			{!session?.user || isLoading ? (
 				Array.from({ length: 4 }).map((_, index) => (
 					<PostCardSkeleton key={index + 1} withPicture={index % 2 === 0} />
@@ -70,7 +70,7 @@ const Feed: FunctionComponent<FeedProps> = ({ mode, producerId }) => {
 				</div>
 			)}
 			{!isLoading && _posts?.length === 0 && <div className="w-full text-center">Não há nenhum post para ser mostrado.</div>}
-		</>
+		</div>
 	);
 };
 

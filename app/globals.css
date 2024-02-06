@@ -74,3 +74,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+* {
+  min-width: 0;
+}
+
+body {
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  /* Customize the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(155, 155, 155, 0.493);
+  border-radius: 50px;
+}

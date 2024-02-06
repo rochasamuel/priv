@@ -35,7 +35,7 @@ const PlansSettings: FunctionComponent = () => {
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       <Alert className="mb-4 max-w-xl">
         <Info className="h-4 w-4" />
         <AlertDescription>

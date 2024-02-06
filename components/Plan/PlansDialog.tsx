@@ -41,7 +41,7 @@ const PlansDialog: FunctionComponent<PlansDialogProps> = ({
 
   return (
     <Dialog defaultOpen onOpenChange={closePlansDialog}>
-      <DialogContent className="max-w-screen-md h-full flex flex-col px-4 md:max-w-[50vw] md:h-auto md:max-h-[90vh] lg:max-w-[45vw]">
+      <DialogContent className="max-w-screen-md h-full flex flex-col px-4 md:max-w-[50vw] md:h-auto md:max-h-[90dvh] lg:max-w-[45vw]">
         <DialogHeader>
           <DialogTitle>Seja um assinante</DialogTitle>
           <p className="text-sm">

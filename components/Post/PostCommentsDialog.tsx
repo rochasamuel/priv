@@ -85,16 +85,16 @@ const PostCommentsDialog = ({
 	return (
 		<Dialog defaultOpen onOpenChange={closeComments}>
 			{/* <DialogTrigger>{trigger}</DialogTrigger> */}
-			<DialogContent className="max-w-screen-md h-screen flex flex-col px-4 md:max-w-[50vw] md:h-auto md:max-h-[90vh] lg:max-w-[45vw]">
+			<DialogContent className="max-w-screen-md h-dvh flex flex-col px-4 md:max-w-[50vw] md:h-auto md:max-h-[90dvh] lg:max-w-[45vw]">
 				<DialogHeader>
 					<DialogTitle>Comentários</DialogTitle>
 				</DialogHeader>
 				{isLoading ? (
-					<div className="w-full flex items-center justify-center h-[80vh]">
+					<div className="w-full flex items-center justify-center h-[80dvh]">
 						Carregando <Loader2 className="animate-spin ml-2" />
 					</div>
 				) : (comments?.length || 0) > 0 || loadingPublish ? (
-					<ScrollArea className="h-[80vh] p-3">
+					<ScrollArea className="h-[80dvh] p-3">
 						{loadingPublish && (
 							<PostCommentCard
 								comment={{
@@ -121,7 +121,7 @@ const PostCommentsDialog = ({
 						))}
 					</ScrollArea>
 				) : (
-					<div className="w-full text-center h-[80vh]">
+					<div className="w-full text-center h-[80dvh]">
 						Nenhum comentário. <br />
 						Seja o primeiro a comentar!
 					</div>

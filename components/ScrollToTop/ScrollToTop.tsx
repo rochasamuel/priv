@@ -32,7 +32,7 @@ const ScrollToTop: FunctionComponent = () => {
 
   return isVisible && <Button
       onClick={() => scrollToTop()}
-      className="fixed w-10 p-0 rounded-full right-4 bottom-20 md:bottom-4"
+      className="fixed w-10 p-0 rounded-full right-4 bottom-20 md:bottom-4 opacity-40"
     >
       <ArrowUpCircle />
     </Button>;

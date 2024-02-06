@@ -27,7 +27,7 @@ const SuggestionList: FunctionComponent = () => {
 					<Loader2 className="ml-2 h-4 w-4 animate-spin" />
 				</div>
 			) : (
-				<ScrollArea className="h-[calc(100vh-270px)] lg:h-[calc(100vh-140px)]">
+				<ScrollArea className="h-[calc(100dvh-270px)] lg:h-[calc(100dvh-140px)]">
 					{recommendations?.map((recommendation) => (
 						<SuggestionCard recommendation={recommendation} />
 					))}

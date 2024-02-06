@@ -55,20 +55,19 @@ export default function HotArea() {
 
   const _posts = data?.pages.flatMap((page) => page);
   return (
-    <div className="m-auto flex flex-col w-full min-w-full">
+    <div className="m-auto flex flex-col w-full">
       {isLoading ? (
         Array.from({ length: 4 }).map((_, index) => (
           <PostCardSkeleton key={index + 1} withPicture={index % 2 === 0} />
         ))
-      ) : (
-        <div>
+      ) : (<div>
           {_posts?.map((post, index) => {
             if (index === _posts.length - 3)
-              return <PostCard post={post} ref={ref} />;
-            return <PostCard post={post} />;
+              return <PostCard key={index+1} post={post} ref={ref} />;
+            return <PostCard key={index+1} post={post} />;
           })}
           {isFetchingNextPage && <PostCardSkeleton />}
-        </div>
+          </div>
       )}
     </div>
   );

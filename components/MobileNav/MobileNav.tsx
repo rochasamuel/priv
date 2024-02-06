@@ -63,7 +63,7 @@ const MobileNav = () => {
   };
 
   return (
-    <div className="w-full h-16 bg-gray-900 flex items-center justify-between p-6 sticky -bottom-[1px] z-50 lg:hidden">
+    <div className="w-full h-16 bg-gray-900 flex items-center justify-between p-6 z-50 lg:hidden">
       <Link href={"/"}>
         <Home color={shouldHighlight("/") ? "#b759d9" : "#FFF"} />
       </Link>
