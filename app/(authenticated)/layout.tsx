@@ -40,8 +40,8 @@ export default function RootLayout({
           >
             <main className="w-dvw h-dvh">
               <Header />
-              <div className="h-[calc(100dvh-129px)] lg:h-[calc(100dvh-66px)] overflow-y-auto p-2 py-2 gap-8 mx-auto flex max-w-full items-start sm:px-6 lg:py-6 lg:px-8">
-                <aside className="sticky top-0 hidden w-80 shrink-2 lg:block h-full">
+              <div className="h-[calc(100dvh-129px)] lg:h-[calc(100dvh-66px)] overflow-y-auto p-4 gap-8 mx-auto flex max-w-full items-start sm:px-6 lg:py-6 lg:px-8">
+                <aside className="sticky top-0 hidden min-w-80 shrink-2 lg:block h-full">
                   <SideNav />
                 </aside>
 

@@ -1,4 +1,5 @@
-import Login from "@/components/Login/Login";
+import Login, { RegisterForm } from "@/components/Login/Login";
+import Register from "@/components/Register/Register";
 
 const LoginPage = () => {
 	return (
@@ -12,7 +13,7 @@ const LoginPage = () => {
 				<img className="w-full" src="https://d384rvovcanpvp.cloudfront.net/assets/img/logos/logo-white-text.svg" alt="" />
 				<div className="lg:text-2xl mt-2">Desfrute do prazer de fazer parte!</div>
 			</div>
-			<Login />
+			<Register />
 		</div>
 	);
 };

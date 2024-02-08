@@ -27,7 +27,9 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
-      const maxScrollHeight = chatContainerRef.current.scrollHeight - chatContainerRef.current.clientHeight;
+      const maxScrollHeight =
+        chatContainerRef.current.scrollHeight -
+        chatContainerRef.current.clientHeight;
       chatContainerRef.current.scrollTop = maxScrollHeight;
     }
   };
@@ -48,12 +50,6 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
     }
   };
 
-  const router = useRouter();
-
-  const handleBack = () => {
-    router.back();
-  };
-
   const { data: chat } = useQuery({
     queryKey: ["chat", session?.user.username, chatId],
     queryFn: async () => {
@@ -67,21 +63,15 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
     },
   });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     scrollToBottom();
   }, [chat?.messages]);
 
   return (
     <div className="w-full h-full flex flex-col justify-between">
-      {/* {chat && (
-        <div className="flex items-center justify-start gap-2">
-          <Button
-            className="px-0 w-8 h-8"
-            variant={"ghost"}
-            onClick={handleBack}
-          >
-            <ChevronLeft />
-          </Button>
+      {chat && (
+        <div className="items-center justify-start gap-2 mb-2 hidden lg:block">
           <div className="flex items-center gap-2">
             <Avatar className="w-10 h-10 border-2">
               <AvatarImage src={chat.avatarReference} />
@@ -90,38 +80,12 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
             <div className="font-semibold">{chat.name}</div>
           </div>
         </div>
-      )} */}
+      )}
 
-        <div className="w-full overflow-y-auto overflow-x-hidden flex flex-col" ref={chatContainerRef}>
-          {chat?.messages.map((message, index) => (
-            <div
-              className={cn(
-                "flex gap-2 whitespace-pre-wrap my-2",
-                message.direction !== ChatMessageDirection.Incoming
-                  ? "justify-end"
-                  : "justify-start"
-              )}
-            >
-              <span className="text-sm bg-accent p-2 rounded-md max-w-xs">
-                {message.data.text}
-              </span>
-            </div>
-          ))}
-        </div>
-        <div className="pt-2 flex justify-between w-full items-center gap-2">
-          <Textarea
-            autoComplete="off"
-            name="message"
-            value={message}
-            onKeyDown={handleKeyPress}
-            onChange={handleInputChange}
-            placeholder="Aa"
-            className="w-full border rounded-sm h-10 flex items-center resize-none overflow-hidden bg-background mt-auto"
-          />
-          <Button><Send /></Button>
-        </div>
-
-      {/* <ScrollArea className="w-full flex flex-col">
+      <div
+        className="w-full overflow-y-auto overflow-x-hidden flex flex-col"
+        ref={chatContainerRef}
+      >
         {chat?.messages.map((message, index) => (
           <div
             className={cn(
@@ -136,16 +100,21 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
             </span>
           </div>
         ))}
-      </ScrollArea>
-      <Textarea
-        autoComplete="off"
-        name="message"
-        value={message}
-        onKeyDown={handleKeyPress}
-        onChange={handleInputChange}
-        placeholder="Aa"
-        className="w-full border rounded-sm h-10 flex items-center resize-none overflow-hidden bg-background mt-auto"
-      /> */}
+      </div>
+      <div className="pt-2 flex justify-between w-full items-center gap-2">
+        <Textarea
+          autoComplete="off"
+          name="message"
+          value={message}
+          onKeyDown={handleKeyPress}
+          onChange={handleInputChange}
+          placeholder="Mensagem"
+          className="w-full border rounded-sm h-10 flex items-center resize-none overflow-hidden bg-background mt-auto"
+        />
+        <Button>
+          <Send />
+        </Button>
+      </div>
     </div>
   );
 };

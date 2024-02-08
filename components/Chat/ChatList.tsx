@@ -10,7 +10,7 @@ import { getAcronym } from "@/utils";
 import { Separator } from "../ui/separator";
 import { DateTime } from "luxon";
 import { getChatRelativeTime } from "@/utils/date";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Skeleton } from "../ui/skeleton";
 import { MessageCirclePlus } from "lucide-react";
 import { Button } from "../ui/button";
@@ -48,7 +48,7 @@ const ChatList: FunctionComponent = () => {
           ))
         : chats?.map((chat) => <ChatCard key={chat.idChat} chatInfo={chat} />)}
 
-      <Button className="rounded-full w-12 h-12 p-2 opacity-95 fixed bottom-20 right-4" onClick={handleClickNewChat}>
+      <Button className="rounded-full w-12 h-12 p-2 opacity-95 fixed lg:absolute lg:bottom-0 lg:right-0 bottom-20 right-4" onClick={handleClickNewChat}>
         <MessageCirclePlus />
       </Button>
       {newChatDialogOpen && <NewChatDialog closeComments={handleCloseComments} />}
@@ -61,16 +61,33 @@ interface ChatCardProps {
 }
 
 export const ChatCard: FunctionComponent<ChatCardProps> = ({ chatInfo }) => {
+  const searchParams = useSearchParams();
+
   const router = useRouter();
 
-  const handleRedirect = (chatId: string) => {
-    router.push(`/chats/conversation/${chatId}`);
+  const handleChatClick = (chatId: string) => {
+    const mobileMediaQuery = window.matchMedia('(max-width: 1024px)');
+    const isMobile = mobileMediaQuery.matches;
+    if (isMobile) {
+      router.push(`/chats/conversation/${chatId}`);
+    } else {
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      current.set("selectedChat", chatId);
+
+      if (!chatId) {
+        current.delete("selectedChat");
+      } else {
+        current.set("selectedChat", chatId);
+      }
+
+      router.push(`chats?${current.toString()}`);
+    }
   };
 
   return (
     <div
       className="w-full flex items-center justify-between cursor-pointer"
-      onClick={() => handleRedirect(chatInfo.idChat)}
+      onClick={() => handleChatClick(chatInfo.idChat)}
     >
       <div className="flex items-center w-full">
         <Avatar className="w-12 h-12 border-2 mr-4">
@@ -83,7 +100,7 @@ export const ChatCard: FunctionComponent<ChatCardProps> = ({ chatInfo }) => {
             <div className="font-semibold text-ellipsis overflow-hidden whitespace-nowrap">
               {chatInfo.name}
             </div>
-            <div className="text-xs">
+            <div className="text-xs flex-none">
               {getChatRelativeTime(chatInfo.lastMessageDate)}
             </div>
           </div>

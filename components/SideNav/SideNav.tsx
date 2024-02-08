@@ -42,7 +42,7 @@ export default function SideNav() {
 
   return (
     <>
-      <div className="flex gap-2 items-center cursor-pointer">
+      <div className="flex gap-2 items-center cursor-pointer justify-between">
         <Avatar onClick={() => handleRedirect(session?.user.username)}>
           <AvatarImage src={session?.user.profilePhotoPresignedGet} />
           <AvatarFallback>
@@ -57,8 +57,7 @@ export default function SideNav() {
         </p>
         <LogOut
           onClick={() => signOut()}
-          size={38}
-          className="ml-auto rounded-sm p-2"
+          className="ml-auto rounded-sm p-2 min-w-9 h-9 cursor-pointer hover:bg-accent transition-all"
         />
       </div>
 
