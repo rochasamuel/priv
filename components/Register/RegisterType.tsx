@@ -55,13 +55,13 @@ export default function RegisterType() {
         <CardDescription>O que você prefere?</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
-        <RegisterForm />
+        <RegisterTypeForm />
       </CardContent>
     </Card>
   );
 }
 
-export const RegisterForm = () => {
+export const RegisterTypeForm = () => {
   const [selectedOption, setSelectedOption] = useState("consumer");
   const router = useRouter();
 

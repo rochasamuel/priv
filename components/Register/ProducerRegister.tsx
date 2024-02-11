@@ -20,7 +20,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { RegisterForm } from "./Register";
 import { ChevronLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -69,8 +68,8 @@ const producerFormSchema = z.object({
   }),
   email: z
     .string({ required_error: "Campo obrigatório" })
-    .min(8, {
-      message: "O email deve ter no mínimo 8 caracteres.",
+    .min(4, {
+      message: "O email deve ter no mínimo 4 caracteres.",
     })
     .email({ message: "Email inválido" }),
   password: z.string({ required_error: "Campo obrigatório" }).min(8, {

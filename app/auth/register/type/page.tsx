@@ -1,5 +1,3 @@
-import Login, { RegisterForm } from "@/components/Login/Login";
-import Register from "@/components/Register/Register";
 import RegisterType from "@/components/Register/RegisterType";
 
 const RegisterTypePage = () => {

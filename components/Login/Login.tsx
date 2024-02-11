@@ -40,18 +40,6 @@ const formSchemaLogin = z.object({
   }),
 });
 
-const formSchemaRegister = z.object({
-  name: z.string({ required_error: "Campo obrigatório" }).min(3, {
-    message: "O nome de usuário deve ter no mínimo 2 carcteres.",
-  }),
-  email: z.string({ required_error: "Campo obrigatório" }).min(8, {
-    message: "A senha deve ter no mínimo 8 caracteres.",
-  }).email(),
-  password: z.string({ required_error: "Campo obrigatório" }).min(8, {
-    message: "A senha deve ter no mínimo 8 caracteres.",
-  }),
-});
-
 export default function Login() {
   return (
     <Card className="w-full lg:w-1/3 max-w-[90dvw] backdrop-blur bg-black/60">
@@ -66,19 +54,6 @@ export default function Login() {
       </CardContent>
     </Card>
   );
-  {
-    /* <Card>
-        <CardHeader>
-          <CardTitle>Crie sua conta</CardTitle>
-          <CardDescription>
-            Crie sua conta e começe a desfrutar dos prazeres da Privatus.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <RegisterForm />
-        </CardContent>
-      </Card> */
-  }
 }
 
 export function ButtonLoading() {
@@ -192,84 +167,6 @@ export const LoginForm = () => {
         <div className="text-sm w-full flex justify-center items-center">
           Não tem uma conta? <Link href="/auth/register/type" className="ml-1 underline">Crie agora</Link>
         </div>
-      </form>
-    </Form>
-  );
-};
-
-export const RegisterForm = () => {
-  // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchemaRegister>>({
-    resolver: zodResolver(formSchemaRegister),
-  });
-
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchemaRegister>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log("register", values);
-  }
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem className="space-y-1">
-              <FormLabel>Nome</FormLabel>
-              <FormControl>
-                <Input
-                  id="username"
-                  type="email"
-                  placeholder="Seu nome"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem className="space-y-1">
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input
-                  id="username"
-                  type="email"
-                  placeholder="Seu email"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem className="space-y-1">
-              <FormLabel>Senha</FormLabel>
-              <FormControl>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Sua senha"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button className="w-full" type="submit">
-          Criar minha conta
-        </Button>
       </form>
     </Form>
   );

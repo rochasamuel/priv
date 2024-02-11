@@ -20,9 +20,12 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { RegisterForm } from "./Register";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useMutation } from "react-query";
+import apiClient from "@/backend-sdk";
+import { toast, useToast } from "../ui/use-toast";
+import { useState } from "react";
 
 const consumerFormSchema = z.object({
   name: z.string({ required_error: "Campo obrigatório" }).min(4, {
@@ -31,8 +34,8 @@ const consumerFormSchema = z.object({
   presentationName: z.string({ required_error: "Campo obrigatório" }).min(2, {
     message: "O nome de apresentação deve ter no mínimo 8 caracteres.",
   }),
-  username: z.string({ required_error: "Campo obrigatório" }).min(8, {
-    message: "O username deve ter no mínimo 8 caracteres.",
+  username: z.string({ required_error: "Campo obrigatório" }).min(4, {
+    message: "O username deve ter no mínimo 4 caracteres.",
   }),
   email: z
     .string({ required_error: "Campo obrigatório" })
@@ -76,7 +79,38 @@ export default function ConsumerRegister() {
 
 export const ConsumerForm = () => {
   const searchParams = useSearchParams();
+  const [successfullRequest, setSuccessfullRequest] = useState(false);
   const router = useRouter();
+
+  const { mutate, isLoading } = useMutation({
+    mutationFn: async (values: z.infer<typeof consumerFormSchema>) => {
+      const api = apiClient();
+      const referrer = searchParams.get("referrer") ?? "";
+      const result = await api.auth.createAccount({...values, referrer});
+      return result;
+    },
+    onError(error: any) {
+      toast({
+        variant: "destructive",
+        title: "Ops.",
+        description: error.response.data.message,
+      });
+    },
+    onSuccess(data, variables) {
+      localStorage.setItem("registerEmail", variables.email);
+      localStorage.setItem("registerPassword", variables.password);
+      setSuccessfullRequest(true);
+      toast({
+        variant: "default",
+        title: "Sucesso!",
+        description: "Conta criada com sucesso!",
+      });
+
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      current.set("verify", "true");
+      router.push(`consumer?${current.toString()}`);
+    },
+  })
 
   const form = useForm<z.infer<typeof consumerFormSchema>>({
     resolver: zodResolver(consumerFormSchema),
@@ -86,9 +120,10 @@ export const ConsumerForm = () => {
   });
 
   function onSubmit(values: z.infer<typeof consumerFormSchema>) {
-    const current = new URLSearchParams(Array.from(searchParams.entries()));
-    current.set("verify", "true");
-    router.push(`consumer?${current.toString()}`);
+    mutate(values);
+    // const current = new URLSearchParams(Array.from(searchParams.entries()));
+    // current.set("verify", "true");
+    // router.push(`consumer?${current.toString()}`);
     console.log("register", values);
   }
 
@@ -187,8 +222,15 @@ export const ConsumerForm = () => {
           )}
         />
 
-        <Button className="w-full" type="submit">
-          Criar minha conta
+        <Button disabled={isLoading || successfullRequest} className="w-full" type="submit">
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 size-4 animate-spin" />
+              Aguarde
+            </>
+          ) : (
+            <>Criar minha conta</>
+          )}
         </Button>
       </form>
     </Form>
