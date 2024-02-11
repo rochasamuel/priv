@@ -1,7 +1,8 @@
 import Login, { RegisterForm } from "@/components/Login/Login";
 import Register from "@/components/Register/Register";
+import RegisterType from "@/components/Register/RegisterType";
 
-const LoginPage = () => {
+const RegisterTypePage = () => {
 	return (
 		<div
 			className="w-full min-h-dvh flex flex-col items-center justify-center gap-10 lg:flex-row lg:gap-36 p-4 
@@ -13,9 +14,9 @@ const LoginPage = () => {
 				<img className="w-full" src="https://d384rvovcanpvp.cloudfront.net/assets/img/logos/logo-white-text.svg" alt="" />
 				<div className="lg:text-2xl mt-2">Desfrute do prazer de fazer parte!</div>
 			</div>
-			<Register />
+			<RegisterType />
 		</div>
 	);
 };
 
-export default LoginPage;
+export default RegisterTypePage;

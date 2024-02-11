@@ -46,7 +46,7 @@ const formSchemaRegister = z.object({
   }),
   email: z.string({ required_error: "Campo obrigatório" }).min(8, {
     message: "A senha deve ter no mínimo 8 caracteres.",
-  }),
+  }).email(),
   password: z.string({ required_error: "Campo obrigatório" }).min(8, {
     message: "A senha deve ter no mínimo 8 caracteres.",
   }),
@@ -54,7 +54,7 @@ const formSchemaRegister = z.object({
 
 export default function Login() {
   return (
-    <Card className="w-96 max-w-[90dvw] backdrop-blur bg-black/60">
+    <Card className="w-full lg:w-1/3 max-w-[90dvw] backdrop-blur bg-black/60">
       <CardHeader>
         <CardTitle>Entrar</CardTitle>
         <CardDescription>
@@ -182,7 +182,7 @@ export const LoginForm = () => {
         <Button disabled={isSendindRequest} className="w-full" type="submit">
           {isSendindRequest ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 size-4 animate-spin" />
               Aguarde
             </>
           ) : (
@@ -190,7 +190,7 @@ export const LoginForm = () => {
           )}
         </Button>
         <div className="text-sm w-full flex justify-center items-center">
-          Não tem uma conta? <Link href="/auth/register" className="ml-1 underline">Crie agora</Link>
+          Não tem uma conta? <Link href="/auth/register/type" className="ml-1 underline">Crie agora</Link>
         </div>
       </form>
     </Form>
