@@ -20,7 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { ChevronLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "react-query";
 import apiClient from "@/backend-sdk";
@@ -43,9 +43,46 @@ const consumerFormSchema = z.object({
       message: "O email deve ter no mínimo 8 caracteres.",
     })
     .email({ message: "Email inválido" }),
-  password: z.string({ required_error: "Campo obrigatório" }).min(8, {
-    message: "A senha deve ter no mínimo 8 caracteres.",
-  }),
+  password: z
+    .string({ required_error: "Campo obrigatório" })
+    .min(8, {
+      message: "A senha deve ter no mínimo 8 caracteres.",
+    })
+    .superRefine((password, ctx) => {
+      const lowercaseRegex = /[a-z]/;
+      if (!lowercaseRegex.test(password)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "A senha deve conter pelo menos 1 letra minúscula",
+        });
+      }
+
+      const uppercaseRegex = /[A-Z]/;
+      if (!uppercaseRegex.test(password)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "A senha deve conter pelo menos 1 letra maiúscula",
+        });
+      }
+
+      const numberRegex = /[0-9]/;
+      if (!numberRegex.test(password)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "A senha deve conter pelo menos 1 número",
+        });
+      }
+
+      const symbolRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
+      if (!symbolRegex.test(password)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "A senha deve conter pelo menos 1 caractere especial",
+        });
+      }
+
+      return true;
+    }),
 });
 
 export default function ConsumerRegister() {
@@ -81,12 +118,13 @@ export const ConsumerForm = () => {
   const searchParams = useSearchParams();
   const [successfullRequest, setSuccessfullRequest] = useState(false);
   const router = useRouter();
+  const [peekingPassword, setPeekingPassword] = useState(false);
 
   const { mutate, isLoading } = useMutation({
     mutationFn: async (values: z.infer<typeof consumerFormSchema>) => {
       const api = apiClient();
       const referrer = searchParams.get("referrer") ?? "";
-      const result = await api.auth.createAccount({...values, referrer});
+      const result = await api.auth.createAccount({ ...values, referrer });
       return result;
     },
     onError(error: any) {
@@ -110,7 +148,7 @@ export const ConsumerForm = () => {
       current.set("verify", "true");
       router.push(`consumer?${current.toString()}`);
     },
-  })
+  });
 
   const form = useForm<z.infer<typeof consumerFormSchema>>({
     resolver: zodResolver(consumerFormSchema),
@@ -118,6 +156,10 @@ export const ConsumerForm = () => {
       username: "",
     },
   });
+
+  const handleTogglePasswordPeek = () => {
+    setPeekingPassword(!peekingPassword);
+  }
 
   function onSubmit(values: z.infer<typeof consumerFormSchema>) {
     mutate(values);
@@ -208,11 +250,16 @@ export const ConsumerForm = () => {
           name="password"
           render={({ field }) => (
             <FormItem className="space-y-1">
-              <FormLabel>Senha</FormLabel>
+              <FormLabel className="flex items-center gap-2">
+                Senha{" "}
+                <Button type="button" onClick={() => handleTogglePasswordPeek()} className="p-1 h-6" variant={"ghost"}>
+                  {peekingPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </Button>
+              </FormLabel>
               <FormControl>
                 <Input
                   id="password"
-                  type="password"
+                  type={peekingPassword ? "text" : "password"}
                   placeholder="Crie uma senha forte"
                   {...field}
                 />
@@ -222,7 +269,11 @@ export const ConsumerForm = () => {
           )}
         />
 
-        <Button disabled={isLoading || successfullRequest} className="w-full" type="submit">
+        <Button
+          disabled={isLoading || successfullRequest}
+          className="w-full"
+          type="submit"
+        >
           {isLoading ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
@@ -236,3 +287,5 @@ export const ConsumerForm = () => {
     </Form>
   );
 };
+
+// export PasswordValidator

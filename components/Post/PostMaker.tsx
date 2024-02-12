@@ -44,6 +44,8 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({algo}) => {
 	const queryClient = useQueryClient();
 
 	const [postDescription, setPostDescription] = useState("");
+	const [postPrivacy, setPostPrivacy] = useState("private");
+	const [postMedias, setPostMedias] = useState(null);
 
 	const {
 		isLoading: isLoadingPublishPost,
@@ -88,12 +90,12 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({algo}) => {
 								{getAcronym(session?.user.presentationName || "Anonymous")}
 							</AvatarFallback>
 						</Avatar>
-						<div className="text-sm">Compartilhar com:</div>
-						<Select defaultValue="private">
-							<SelectTrigger className="w-44">
+						<div className="text-sm min-w-max">Compartilhar com:</div>
+						<Select onValueChange={(value) => setPostPrivacy(value)} defaultValue="private">
+							<SelectTrigger className="w-full lg:w-44">
 								<SelectValue />
 							</SelectTrigger>
-							<SelectContent>
+							<SelectContent defaultValue={"private"}>
 								<SelectItem value="private">
 									<div className="flex items-center">
 										Assinantes <Lock className="text-pink-600 ml-2" size={14} />
