@@ -5,7 +5,7 @@ import ChatList from "@/components/Chat/ChatList";
 import { useSearchParams } from "next/navigation";
 import { FunctionComponent, useMemo } from "react";
 
-export const Chats: FunctionComponent = () => {
+const Chats: FunctionComponent = () => {
   const searchParams = useSearchParams();
 
   const selectedChat = useMemo(() => searchParams.get("selectedChat"), [searchParams]);
