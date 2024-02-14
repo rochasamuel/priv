@@ -64,8 +64,8 @@ export default function HotArea() {
         <div>
           {_posts?.map((post, index) => {
             if (index === _posts.length - 3)
-              return <PostCard post={post} ref={ref} />;
-            return <PostCard post={post} />;
+              return <PostCard key={index + 1} post={post} ref={ref} />;
+            return <PostCard key={index + 1} post={post} />;
           })}
           {isFetchingNextPage && <PostCardSkeleton />}
         </div>
