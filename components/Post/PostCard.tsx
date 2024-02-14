@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 "use client";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -327,8 +328,8 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
           {post.medias.length > 1 ? (
             <Carousel>
               <CarouselContent>
-                {post.medias.map((media: Media) => (
-                  <CarouselItem>
+                {post.medias.map((media: Media, index: number) => (
+                  <CarouselItem key={index+1}>
                     <PostMediaVisualization
                       aspectRatioResult={aspectRatioResult}
                       post={post}

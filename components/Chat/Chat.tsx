@@ -88,6 +88,7 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
       >
         {chat?.messages.map((message, index) => (
           <div
+            key={index+1}
             className={cn(
               "flex gap-2 whitespace-pre-wrap my-2",
               message.direction !== ChatMessageDirection.Incoming

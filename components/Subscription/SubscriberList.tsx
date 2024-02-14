@@ -61,12 +61,12 @@ const SubscriberList = () => {
 			<div className="mt-4">
 				{isLoading ? (
 					Array.from({ length: 10 }).map((_, index) => (
-						<SubscriberCardSkeleton key={index} />
+						<SubscriberCardSkeleton key={index+1} />
 					))
 				) : (
 					<>
 						{searchResult?.map((subscriber: Subscriber, index) => (
-							<SubscriberCard key={index} subscriber={subscriber} />
+							<SubscriberCard key={index+1} subscriber={subscriber} />
 						))}
 					</>
 				)}

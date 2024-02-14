@@ -29,7 +29,7 @@ const SuggestionList: FunctionComponent = () => {
 			) : (
 				<ScrollArea className="h-[calc(100dvh-270px)] lg:h-[calc(100dvh-140px)]">
 					{recommendations?.map((recommendation) => (
-						<SuggestionCard recommendation={recommendation} />
+						<SuggestionCard key={recommendation.username} recommendation={recommendation} />
 					))}
 				</ScrollArea>
 			)}

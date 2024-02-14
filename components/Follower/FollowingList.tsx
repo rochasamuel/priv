@@ -60,12 +60,12 @@ const FollowingList = () => {
 			<div className="mt-4">
 				{isLoading ? (
 					Array.from({ length: 10 }).map((_, index) => (
-						<FollowerCardSkeleton key={index} />
+						<FollowerCardSkeleton key={index+1} />
 					))
 				) : (
 					<>
 						{searchResult?.map((following: Following, index: number) => (
-							<FollowerCard key={index} follower={following} />
+							<FollowerCard key={index+1} follower={following} />
 						))}
 					</>
 				)}

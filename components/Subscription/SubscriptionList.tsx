@@ -65,7 +65,7 @@ const SubscriptionList = () => {
 				) : (
 					<>
 						{searchResult?.map((subscription: Subscription) => (
-							<SubscriptionCard subscription={subscription} />
+							<SubscriptionCard key={subscription.idProducer} subscription={subscription} />
 						))}
 					</>
 				)}

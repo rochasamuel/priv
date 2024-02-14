@@ -53,7 +53,7 @@ const PlansDialog: FunctionComponent<PlansDialogProps> = ({
         <div className="h-full my-4">
           <RadioGroup className="h-full flex flex-col gap-4">
             {isLoading ? <PlansSkeleton /> : plans?.map((plan: Plan) => (
-              <div className="flex items-center px-3 space-x-2 border w-full rounded-md cursor-pointer">
+              <div key={plan.planId} className="flex items-center px-3 space-x-2 border w-full rounded-md cursor-pointer">
                 <RadioGroupItem value={plan.planId} id={plan.planId} />
                 <Label htmlFor={plan.planId} className="w-full h-full py-3">
                   <div className="ml-2 flex flex-col gap-1 w-full cursor-pointer font-medium">

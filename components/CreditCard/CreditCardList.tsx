@@ -76,7 +76,7 @@ const CreditCardList: FunctionComponent = () => {
 					creditCardData={creditCard}
 				/>
 			))}
-			{isLoading && [1, 2, 3].map((_) => <CreditCardSkeleton />)}
+			{isLoading && [1, 2, 3].map((num) => <CreditCardSkeleton key={num} />)}
 		</div>
 	);
 };

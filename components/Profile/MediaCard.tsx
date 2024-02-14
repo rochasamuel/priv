@@ -68,7 +68,7 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
 	return (
 		<div className="w-full border rounded-md p-4">
 			<div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-				{isLoading ? Array.from([1, 2, 3, 4]).map((_) => <MediaCardSkeleton />  ): mediaData?.map((media: any, index: number) => {
+				{isLoading ? Array.from([1, 2, 3, 4]).map((num) => <MediaCardSkeleton key={num} />  ): mediaData?.map((media: any, index: number) => {
 					if (media.mediaTypeId === MediaType.Image) {
 						return (
 							<div
