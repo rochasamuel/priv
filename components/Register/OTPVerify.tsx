@@ -23,12 +23,7 @@ import {
 } from "../ui/card";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import {
-  useRef,
-  useState,
-  ClipboardEvent,
-  useEffect,
-} from "react";
+import { useRef, useState, ClipboardEvent, useEffect } from "react";
 import { toast } from "../ui/use-toast";
 import apiClient from "@/backend-sdk";
 import { useMutation } from "react-query";
@@ -44,7 +39,7 @@ export default function OTPVerify() {
   const [canResend, setCanResend] = useState(false);
   const [error, setError] = useState(false);
 
-  const userEmail = localStorage.getItem("registerEmail") ?? "";
+  const userEmail = typeof window !== 'undefined' ? localStorage.getItem("registerEmail") : "";
 
   const { mutate, isLoading } = useMutation({
     mutationFn: async (values: { userEmail: string; otpCode: string }) => {
@@ -68,7 +63,7 @@ export default function OTPVerify() {
       toast({
         variant: "default",
         title: "Sucesso!",
-        description: "Email confirmado com sucesso!",
+        description: "Email confirmado!",
       });
 
       try {
@@ -188,7 +183,7 @@ export default function OTPVerify() {
       return;
     }
 
-    mutate({userEmail, otpCode});
+    mutate({ userEmail, otpCode });
   };
 
   const handleBack = () => {
@@ -218,11 +213,13 @@ export default function OTPVerify() {
         <div className="w-full flex gap-2 items-center justify-between">
           {otp.map((digit, index) => (
             <Input
-              className={`w-14 h-14 text-center text-lg font-medium ${error ? "border-red-800" : ""}`}
+              className={`w-14 h-14 text-center text-lg font-medium ${
+                error ? "border-red-800" : ""
+              }`}
               key={index + 1}
-              type="text"
+              type="number"
               value={digit}
-              onKeyDown={(e) => handleKeyDown(e, index)}
+              onKeyUp={(e) => handleKeyDown(e, index)}
               onPaste={handlePaste}
               maxLength={1}
               ref={(el) => assignRef(el, index)}
