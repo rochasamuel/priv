@@ -6,9 +6,13 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "react-query";
 
-export const LonelyPost = ({
+interface LonelyPostProps {
+	params: { postId: string; username: string };
+}
+
+const LonelyPost = ({
 	params,
-}: { params: { postId: string; username: string } }) => {
+}: LonelyPostProps) => {
 	const { data: session } = useSession();
 	const router = useRouter();
 

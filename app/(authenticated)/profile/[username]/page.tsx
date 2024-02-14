@@ -14,7 +14,11 @@ import { useSession } from "next-auth/react";
 import { FunctionComponent, useState } from "react";
 import { useQuery } from "react-query";
 
-const ProfileComponent = ({ params }: { params: { username: string } }) => {
+interface ProfileComponentProps {
+	params: { username: string };
+}
+
+const ProfileComponent = ({ params }: ProfileComponentProps) => {
 	const [selectedSession, setSelectedSession] = useState("posts");
 
 	const { data: session } = useSession();

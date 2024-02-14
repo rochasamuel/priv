@@ -23,7 +23,7 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
   const { data: session } = useSession();
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
 
-  const chatContainerRef = useRef(null);
+  const chatContainerRef: any = useRef(null);
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {

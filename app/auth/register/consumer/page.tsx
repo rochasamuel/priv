@@ -1,6 +1,5 @@
 "use client";
 import ConsumerRegister from "@/components/Register/ConsumerRegister";
-import OTPInput from "@/components/Register/OTPInput";
 import OTPVerify from "@/components/Register/OTPVerify";
 import { useSearchParams } from "next/navigation";
 
