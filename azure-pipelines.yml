@@ -1,0 +1,30 @@
+trigger:
+- main # You can adjust the branch name as needed
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  vercelToken: '12EfDNZDYTO9fm3i2oBjtamh' # Replace with your Vercel token
+  vercelProjectName: 'privatus' # Replace with your Vercel project name
+
+jobs:
+- job: BuildAndDeploy
+  displayName: 'Build and Deploy Job'
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+    displayName: 'Install Node.js'
+
+  - script: |
+      curl -o- -L https://unpkg.com/@pnpm/self-installer | node
+      pnpm install
+      pnpm run build
+    displayName: 'Install pnpm dependencies and build'
+
+  - script: |
+      npm install -g vercel
+      vercel login --token $(vercelToken)
+      vercel --prod --token $(vercelToken) --confirm
+    displayName: 'Deploy to Vercel'
