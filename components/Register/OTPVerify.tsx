@@ -39,7 +39,7 @@ export default function OTPVerify() {
   const [canResend, setCanResend] = useState(false);
   const [error, setError] = useState(false);
 
-  const userEmail = typeof window !== 'undefined' ? localStorage.getItem("registerEmail") : "";
+  const userEmail = (typeof window !== 'undefined' && localStorage.getItem("registerEmail")) || "";
 
   const { mutate, isLoading } = useMutation({
     mutationFn: async (values: { userEmail: string; otpCode: string }) => {
