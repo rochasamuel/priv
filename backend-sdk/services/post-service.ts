@@ -142,7 +142,7 @@ export const PostService = (httpClient: AxiosInstance) => {
 							},
 							onUploadProgress: (progressEvent) => {
 									const percentCompleted = Math.round(
-											(progressEvent.loaded * 100) / progressEvent.total,
+											(progressEvent.loaded * 100) / (progressEvent.total ?? 0),
 									);
 	
 									// Update individual promise progress
