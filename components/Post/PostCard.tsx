@@ -107,10 +107,10 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
   );
 
   const isPrivate = useMemo(
-    () =>
-      post?.medias.some((media) => media.isPublic === false) &&
-      session?.user.userId !== post.producer.producerId,
-    [post, session]
+    () => {
+      return post?.medias.some((media) => media.isPublic === false) && session?.user.userId !== post.producer.producerId
+    },
+    [post, session,]
   );
 
   const relativePostDate = DateTime.fromISO(post.registrationDate, {
@@ -252,7 +252,7 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
                   @{post.producer.username}
                 </Link>
                 <PointSeparator />
-                {isPrivate ? (
+                {post?.medias.some((media) => media.isPublic === false) ? (
                   <>
                     <Lock className=" text-pink-600" size={14} />
                     <p className="font-semibold text-xs ml-1">Assinantes</p>

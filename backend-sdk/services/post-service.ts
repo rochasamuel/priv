@@ -1,5 +1,6 @@
+import { MediaToSend, PresignedUrl } from "@/components/Post/PostMaker";
 import { Post, PostComment } from "@/types/post";
-import { AxiosInstance, AxiosResponse } from "axios";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
 
 interface QueryOptions {
 	itemsPerPage: number;
@@ -14,12 +15,15 @@ interface ApiActionResponse {
 
 export const PostService = (httpClient: AxiosInstance) => {
 	return {
-		getPosts: async (queryOptions: QueryOptions, producerId?: string): Promise<Post[]> => {
+		getPosts: async (
+			queryOptions: QueryOptions,
+			producerId?: string,
+		): Promise<Post[]> => {
 			const response: AxiosResponse = await httpClient.get("/post", {
 				params: {
 					itemsPerPage: queryOptions.itemsPerPage,
 					pageNumber: queryOptions.pageNumber,
-					producerId
+					producerId,
 				},
 			});
 
@@ -59,7 +63,7 @@ export const PostService = (httpClient: AxiosInstance) => {
 
 			return response.data as ApiActionResponse;
 		},
-		createPost: async (description: string, medias: string[] = []) => {
+		createPost: async (description: string, medias: MediaToSend[] = []) => {
 			const response: AxiosResponse = await httpClient.post("/post", {
 				description,
 				medias,
@@ -77,5 +81,94 @@ export const PostService = (httpClient: AxiosInstance) => {
 
 			return response.data.result as Post[];
 		},
+		// uploadFiles: async (
+		// 	presignedUrls: PresignedUrl[],
+		// 	files: File[],
+		// 	setUploadProgress: (progress: number) => void,
+		// ) => {
+		// 	console.log(presignedUrls)
+		// 	const promises = presignedUrls.map((presignedUrl, index) => {
+		// 		const formData = new FormData();
+		// 		Object.entries(presignedUrl.fields).forEach(([key, value]) => {
+		// 			if (key === "id") {
+		// 				return;
+		// 			}
+		// 			formData.append(key, value);
+		// 		});
+		// 		formData.append("file", files[index]);
+
+		// 		return axios.post(presignedUrl.url, formData, {
+		// 			headers: {
+		// 				"X-Amz-Server-Side-Encryption": "AES256",
+		// 			},
+		// 			onUploadProgress: (progressEvent) => {
+		// 				console.log(progressEvent)
+		// 				const percentCompleted = Math.round(
+		// 					(progressEvent.loaded * 100) / progressEvent.total,
+		// 				);
+		// 				setUploadProgress(percentCompleted);
+		// 			},
+		// 		});
+		// 	});
+
+		// 	console.log(promises)
+
+		// 	return Promise.all(promises);
+		// },
+		uploadFiles: async (
+			presignedUrls: PresignedUrl[],
+			files: File[],
+			setUploadProgress: (progress: number) => void,
+	) => {
+			console.log(presignedUrls);
+	
+			const totalPromises = presignedUrls.length;
+			let completedPromises = 0;
+			let overallProgress = 0;
+	
+			const promises = presignedUrls.map((presignedUrl, index) => {
+					const formData = new FormData();
+					for (const [key, value] of Object.entries(presignedUrl.fields)) {
+							if (key === "id") {
+									continue;
+							}
+							formData.append(key, value);
+					}
+					formData.append("file", files[index]);
+	
+					return axios.post(presignedUrl.url, formData, {
+							headers: {
+									"X-Amz-Server-Side-Encryption": "AES256",
+							},
+							onUploadProgress: (progressEvent) => {
+									const percentCompleted = Math.round(
+											(progressEvent.loaded * 100) / progressEvent.total,
+									);
+	
+									// Update individual promise progress
+									setUploadProgress(percentCompleted);
+	
+									// Calculate and update overall progress
+									overallProgress =
+											((completedPromises * overallProgress) + percentCompleted) /
+											(completedPromises + 1);
+	
+									setUploadProgress(overallProgress);
+							},
+					})
+					.finally(() => {
+							completedPromises++;
+	
+							// Check if all promises are completed and set overall progress to 100%
+							if (completedPromises === totalPromises) {
+									setUploadProgress(100);
+							}
+					});
+			});
+	
+			console.log(promises);
+	
+			return Promise.all(promises);
+	},
 	};
 };
