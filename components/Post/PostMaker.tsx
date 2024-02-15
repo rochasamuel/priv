@@ -222,14 +222,16 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
                   <Button
                     className="p-1 w-6 h-6 absolute top-2 right-2 bg-black bg-opacity-80"
                     type="button"
+                    disabled={isLoadingPublishPost}
                     variant={"outline"}
                     onClick={() => handleDeleteFile(index)}
                   >
                     <X size={12} />
                   </Button>
-                  <Button
+                  {file.type.startsWith('image') && <Button
                     className="p-1 w-6 h-6 absolute bottom-2 left-2 bg-black bg-opacity-80"
                     type="button"
+                    disabled={isLoadingPublishPost}
                     variant={"outline"}
                     onClick={() => {
                       setCurrentEditingImage(file);
@@ -237,7 +239,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
                     }}
                   >
                     <Pencil size={12} />
-                  </Button>
+                  </Button>}
                 </div>
               ))}
             </div>
