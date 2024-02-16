@@ -3,7 +3,7 @@
 import apiClient from "@/backend-sdk";
 import { ChatInfo } from "@/types/chat";
 import { useSession } from "next-auth/react";
-import { FunctionComponent, useCallback, useState } from "react";
+import { FunctionComponent, useCallback, useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { getAcronym } from "@/utils";
@@ -16,9 +16,15 @@ import { MessageCirclePlus } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import NewChatDialog from "./NewChatDialog";
+import { useMenuStore } from "@/store/useMenuStore";
 
 const ChatList: FunctionComponent = () => {
   const [newChatDialogOpen, setNewChatDialogOpen] = useState(false);
+  const setPageTitle = useMenuStore((state) => state.setPageTitle);
+
+	useEffect(() => {
+		setPageTitle("Chats");
+	}, [setPageTitle])
 
   const { data: session } = useSession();
 

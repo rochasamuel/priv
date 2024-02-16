@@ -1,9 +1,12 @@
+"use client";
+
 import apiClient from "@/backend-sdk";
 import { useSession } from "next-auth/react";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect } from "react";
 import { useQuery } from "react-query";
 import CreditCardView, { CreditCardSkeleton } from "./CreditCardView";
 import { CreditCard, CreditCardFlag } from "@/types/credit-card";
+import { useMenuStore } from "@/store/useMenuStore";
 
 const mock: CreditCard[] = [
 	{
@@ -58,7 +61,7 @@ const mock: CreditCard[] = [
 
 const CreditCardList: FunctionComponent = () => {
 	const { data: session } = useSession();
-
+	
 	const { data: creditCards, isLoading } = useQuery({
 		queryKey: "creditCards",
 		queryFn: () => {

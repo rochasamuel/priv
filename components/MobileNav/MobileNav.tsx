@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sheet";
 import { getAcronym } from "@/utils";
 import {
-	ChevronRight,
+  ChevronRight,
   CircleDollarSign,
   CreditCard,
   FileEdit,
@@ -29,7 +29,7 @@ import {
   Search,
   Settings,
   Share2,
-	UserRound,
+  UserRound,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -48,7 +48,7 @@ const MobileNav = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-	const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(true);
 
   const handleRedirect = (username?: string) => {
     if (username) router.push(`/profile/${username}`);
@@ -90,20 +90,22 @@ const MobileNav = () => {
         </SheetTrigger>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle
-              className="flex items-center justify-start"
-              onClick={() => handleRedirect(session?.user.username)}
-            >
-              <Avatar className="mr-2 w-9 h-9">
-                <AvatarImage src={session?.user.profilePhotoPresignedGet} />
-                <AvatarFallback>
-                  {getAcronym(session?.user.presentationName || "")}
-                </AvatarFallback>
-              </Avatar>
-              <div className="text-sm text-left">
-                {session?.user.presentationName}
-              </div>
-            </SheetTitle>
+            <SheetClose asChild>
+              <SheetTitle
+                className="flex items-center justify-start"
+                onClick={() => handleRedirect(session?.user.username)}
+              >
+                <Avatar className="mr-2 w-9 h-9">
+                  <AvatarImage src={session?.user.profilePhotoPresignedGet} />
+                  <AvatarFallback>
+                    {getAcronym(session?.user.presentationName || "")}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-sm text-left">
+                  {session?.user.presentationName}
+                </div>
+              </SheetTitle>
+            </SheetClose>
           </SheetHeader>
           <div className="flex flex-col justify-between h-full pb-4 pt-4">
             <div className="mt-2 flex flex-col">
@@ -131,35 +133,30 @@ const MobileNav = () => {
                 </Link>
               </SheetClose>
 
-              <Collapsible open={isOpen} onOpenChange={setIsOpen} >
+              <Collapsible open={isOpen} onOpenChange={setIsOpen}>
                 <CollapsibleTrigger className="flex items-center gap-2">
-                  <MobileNavItem name="Configurações" icon={<Settings />} /> <ChevronRight size={14} className={`${isOpen ? "rotate-90" : ""} transition-all`} />
+                  <MobileNavItem name="Configurações" icon={<Settings />} />{" "}
+                  <ChevronRight
+                    size={14}
+                    className={`${isOpen ? "rotate-90" : ""} transition-all`}
+                  />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="flex flex-col pl-8">
                   <SheetClose asChild>
                     <Link href={"/settings/plans"}>
-                      <MobileNavItem
-                        name="Planos"
-                        icon={<FileEdit />}
-                      />
+                      <MobileNavItem name="Planos" icon={<FileEdit />} />
                     </Link>
                   </SheetClose>
 
                   <SheetClose asChild>
                     <Link href={"/settings/account"}>
-                      <MobileNavItem
-                        name="Conta"
-                        icon={<UserRound />}
-                      />
+                      <MobileNavItem name="Conta" icon={<UserRound />} />
                     </Link>
                   </SheetClose>
 
                   <SheetClose asChild>
                     <Link href={"/settings/payments"}>
-                      <MobileNavItem
-                        name="Pagamentos"
-                        icon={<Receipt />}
-                      />
+                      <MobileNavItem name="Pagamentos" icon={<Receipt />} />
                     </Link>
                   </SheetClose>
                 </CollapsibleContent>
@@ -176,7 +173,7 @@ const MobileNav = () => {
                 </Link>
               </SheetClose>
             </div>
-            <div className="mb-3" onClick={handleLogout}>
+            <div className="mb-3 w-min" onClick={handleLogout}>
               <MobileNavItem name="Sair" icon={<LogOut />} />
             </div>
           </div>

@@ -1,12 +1,10 @@
-import Balance from "@/components/Dashboard/Balance";
-import Charts from "@/components/Dashboard/Charts";
-import StatementTable from "@/components/Dashboard/Statement/StatementTable";
+import DashboardPage from "@/components/pages/DashboardPage";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+};
 
 export default function Dashboard() {
-	return <div className="w-full">
-		<div className="text-lg font-bold">Dashboard</div>
-		<Balance />
-		<Charts />
-		<StatementTable	/>
-	</div>;
+	return <DashboardPage />;
 }
