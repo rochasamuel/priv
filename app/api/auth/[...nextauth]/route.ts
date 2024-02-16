@@ -60,8 +60,13 @@ const authOptions: NextAuthOptions = {
 		maxAge: 1 * 60 * 60, //1 hour
 	},
 	callbacks: {
-		jwt: async ({ token, user }) => {
+		jwt: async ({ token, user, session, trigger }) => {
 			const customUser = user as unknown as any;
+
+			// update token and session on sessionUpdate
+			if(trigger === 'update') {
+				token = {...token, ...session.user};
+			}
 
 			if (user) {
 				return {

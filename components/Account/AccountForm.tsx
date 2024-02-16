@@ -1,8 +1,8 @@
 "use client";
 import apiClient from "@/backend-sdk";
 import { useSession } from "next-auth/react";
-import { FunctionComponent } from "react";
-import { useMutation, useQuery } from "react-query";
+import { FunctionComponent, createRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -24,22 +24,55 @@ import { useToast } from "../ui/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { getAcronym } from "@/utils";
 import { Skeleton } from "../ui/skeleton";
+import { Dialog, DialogContent } from "../ui/dialog";
+import { CropperRef, FixedCropperRef } from "react-advanced-cropper";
+import AccountImageCropper from "../Cropper/AccountImageCropper";
 
 interface AccountFormProps {
   user: User;
 }
 
 const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
   const { toast } = useToast();
+  const [isCoverCropperOpen, setIsCoverCropperOpen] = useState(false);
+  const [selectedCoverImage, setSelectedCoverImage] = useState<Blob>();
+  const [isProfileCropperOpen, setIsProfileCropperOpen] = useState(false);
+  const [selectedProfileImage, setSelectedProfileImage] = useState<Blob>();
+  const queryClient = useQueryClient();
 
   const { mutate, isLoading: isSendindRequest } = useMutation({
     mutationFn: async (payload: User) => {
       const api = apiClient(session?.user.accessToken!);
-      const result = await api.account.updateUserAccountData(payload);
+      const payloadToSend = {
+        ...payload,
+        profilePhotoOption: selectedProfileImage ? 1 : undefined,
+        coverPhotoOption: selectedCoverImage ? 1 : undefined,
+      };
+      const result = await api.account.updateUserAccountData(payloadToSend);
       return result;
     },
-    onSuccess: () => {
+    onSuccess: async (data, variables) => {
+      const coverPresignedUrl = data.cover;
+      const profilePresignedUrl = data.profile;
+
+      if (coverPresignedUrl) {
+        await apiClient(session?.user.accessToken!).account.uploadAccountImage(
+          coverPresignedUrl,
+          selectedCoverImage!
+        );
+      }
+      
+      if (profilePresignedUrl) {
+        await apiClient(session?.user.accessToken!).account.uploadAccountImage(
+          profilePresignedUrl,
+          selectedProfileImage!
+          );
+      }
+
+      updateSession({ user: { ...variables, profilePhotoPresignedGet: user.profilePhotoPresignedGet } });
+      queryClient.refetchQueries(["user", session?.user.userId]);
+
       toast({
         variant: "default",
         title: "Sucesso!",
@@ -82,11 +115,70 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
     mutate(values as User);
   }
 
+  const handleCoverImageFileInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (e.target.files) {
+      setSelectedCoverImage(e.target.files[0]);
+      setIsCoverCropperOpen(true);
+    }
+  };
+
+  const saveCoverImageCrop = (blob: Blob) => {
+    setIsCoverCropperOpen(false);
+    setSelectedCoverImage(blob);
+    user.coverPhotoPresignedGet = URL.createObjectURL(blob);
+  };
+
+  const handleProfileImageFileInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (e.target.files) {
+      setSelectedProfileImage(e.target.files[0]);
+      setIsProfileCropperOpen(true);
+    }
+  };
+
+  const saveProfileImageCrop = (blob: Blob) => {
+    setIsProfileCropperOpen(false);
+    setSelectedProfileImage(blob);
+    user.profilePhotoPresignedGet = URL.createObjectURL(blob);
+  };
+
   return (
     <>
+      {isCoverCropperOpen && selectedCoverImage ? (
+        <ImageCropperDialog
+          type="cover"
+          saveCrop={saveCoverImageCrop}
+          closeCropper={() => setIsCoverCropperOpen(false)}
+          src={URL.createObjectURL(selectedCoverImage)}
+        />
+      ) : null}
+      {isProfileCropperOpen && selectedProfileImage ? (
+        <ImageCropperDialog
+          type="profile"
+          saveCrop={saveProfileImageCrop}
+          closeCropper={() => setIsProfileCropperOpen(false)}
+          src={URL.createObjectURL(selectedProfileImage)}
+        />
+      ) : null}
       <div className="relative">
         <div className="absolute cursor-pointer top-0 right-0 z-10 p-1 bg-slate-600 rounded-sm opacity-70 flex items-center gap-2 text-sm">
-          <ImagePlus color="#FFFFFF" /> Alterar foto de capa
+          <label
+            htmlFor="cover-image-input"
+            className="cursor-pointer flex gap-2"
+          >
+            <ImagePlus color="#FFFFFF" /> Alterar foto de capa
+          </label>
+          <input
+            onChange={handleCoverImageFileInputChange}
+            id="cover-image-input"
+            className="hidden"
+            type="file"
+            accept="image/*"
+            multiple
+          />
         </div>
         {user.coverPhotoPresignedGet ? (
           <img
@@ -101,7 +193,20 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
       </div>
       <div className="p-4 pb-4 mb-12 relative flex flex-col justify-center items-center">
         <div className="absolute cursor-pointer -top-4 z-10 p-1 bg-slate-600 rounded-sm opacity-70">
-          <ImagePlus color="#FFFFFF" />
+          <label
+            htmlFor="profile-image-input"
+            className="cursor-pointer flex gap-2"
+          >
+            <ImagePlus color="#FFFFFF" />
+          </label>
+          <input
+            onChange={handleProfileImageFileInputChange}
+            id="profile-image-input"
+            className="hidden"
+            type="file"
+            accept="image/*"
+            multiple
+          />
         </div>
         <Avatar className="w-28 h-28 mb-2 border-4 absolute -top-14">
           <AvatarImage src={user.profilePhotoPresignedGet} />
@@ -238,7 +343,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
             <Button
               className="w-full md:w-64 md:ml-auto"
               type="submit"
-              disabled={isSendindRequest || !form.formState.isDirty}
+              disabled={isSendindRequest || (!form.formState.isDirty && !selectedCoverImage && !selectedProfileImage) }
             >
               {isSendindRequest ? (
                 <>
@@ -259,6 +364,43 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
   );
 };
 
+interface ImageCropperDialogProps {
+  closeCropper: () => void;
+  saveCrop: (blob: Blob) => void;
+  src: string;
+  type?: "cover" | "profile";
+}
+
+const ImageCropperDialog = ({
+  closeCropper,
+  saveCrop,
+  src,
+  type,
+}: ImageCropperDialogProps) => {
+  const cropperRef = createRef<CropperRef>();
+
+  const handleSaveCrop = () => {
+    if (cropperRef.current) {
+      cropperRef.current.getCanvas()?.toBlob((blob) => {
+        if (blob) {
+          saveCrop(blob);
+        }
+      });
+    }
+  };
+
+  return (
+    <Dialog defaultOpen onOpenChange={closeCropper}>
+      <DialogContent className="max-w-screen-md h-dvh flex flex-col gap-4 px-4 md:max-w-[50vw] md:h-auto md:max-h-[90dvh] lg:max-w-[45vw]">
+        <AccountImageCropper imageSrc={src} type={type} ref={cropperRef} />
+        <Button className="" onClick={handleSaveCrop}>
+          Salvar
+        </Button>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 export const AccountFormSkeleton: FunctionComponent = () => {
   return (
     <>
@@ -270,7 +412,7 @@ export const AccountFormSkeleton: FunctionComponent = () => {
           <ImagePlus color="#FFFFFF" />
         </div>
         <Avatar className="w-28 h-28 mb-2 border-4 absolute -top-14">
-          <AvatarImage src=""/>
+          <AvatarImage src="" />
           <AvatarFallback> </AvatarFallback>
         </Avatar>
       </div>
