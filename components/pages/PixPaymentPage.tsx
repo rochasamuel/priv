@@ -35,7 +35,7 @@ export default function PixPaymentPage() {
   const [qrCodeData, setQrCodeData] = useState<{
     qrCode: string;
     expiration: string;
-  }>(null);
+  }>();
   const [confirmedPayment, setConfirmedPayment] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [codeExpired, setCodeExpired] = useState(false);
@@ -269,8 +269,8 @@ export default function PixPaymentPage() {
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Seu QR Code expirou!</AlertTitle>
                   <AlertDescription>
-                    Caso já tenha efetuado o pagamento, aperte o botão <strong>"Já fiz o
-                    meu pagamento"</strong>. Caso contrátrio, refaça o processo de assinatura.
+                    Caso já tenha efetuado o pagamento, aperte o botão <strong>{`"Já fiz o
+                    meu pagamento"`}</strong>. Caso contrátrio, refaça o processo de assinatura.
                   </AlertDescription>
                 </Alert>
               )}
