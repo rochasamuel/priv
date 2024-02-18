@@ -22,6 +22,7 @@ import {
   UserRoundPlus,
   Video,
   Image as ImageIcon,
+  Clock,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useMutation } from "react-query";
@@ -93,7 +94,7 @@ const ProfileCard: FunctionComponent<ProfileCardProps> = ({ user }) => {
               <CardTitle className="text-xl">{user.presentationName}</CardTitle>
             </div>
 
-            <div className="mt-4 flex justify-between gap-2">
+            <div className="mt-4 flex justify-center flex-wrap sm:justify-between gap-2">
               {isOwn && (
                 <>
                   <Link href="/settings/plans">
@@ -113,7 +114,11 @@ const ProfileCard: FunctionComponent<ProfileCardProps> = ({ user }) => {
                 <>
                   {user.isSubscripted ? (
                     <Button className="w-auto">Ver assinatura</Button>
-                  ) : (
+                  ) : (user.subscriptionIdStatusContract === 1) ? (
+                    <Button className="w-auto" onClick={handleOpenPlansDialog}>
+                      Aguardando pagamento <Clock className="ml-2" size={18} />
+                    </Button>
+                  ): (
                     <Button className="w-auto" onClick={handleOpenPlansDialog}>
                       Assinar <PenLine className="ml-2" size={18} />
                     </Button>

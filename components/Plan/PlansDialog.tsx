@@ -1,4 +1,4 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,7 @@ import { Plan } from "@/types/plan";
 import { toCurrency } from "@/utils/currency";
 import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
+import { useRouter } from "next/navigation";
 
 interface PlansDialogProps {
   user: User;
@@ -28,6 +29,8 @@ const PlansDialog: FunctionComponent<PlansDialogProps> = ({
   closePlansDialog,
 }) => {
   const { data: session } = useSession();
+  const router = useRouter();
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
   const { data: plans, isLoading } = useQuery({
     queryKey: ["plans", user.producerId],
@@ -38,6 +41,10 @@ const PlansDialog: FunctionComponent<PlansDialogProps> = ({
     },
     enabled: !!session?.user.email,
   });
+
+  const handleSubscribe = () => {
+    router.push(`/payments/pix?producerId=${user.producerId}&planId=${selectedPlanId}`);
+  }
 
   return (
     <Dialog defaultOpen onOpenChange={closePlansDialog}>
@@ -51,7 +58,7 @@ const PlansDialog: FunctionComponent<PlansDialogProps> = ({
           </p>
         </DialogHeader>
         <div className="h-full my-4">
-          <RadioGroup className="h-full flex flex-col gap-4">
+          <RadioGroup className="h-full flex flex-col gap-4" onValueChange={(value) => setSelectedPlanId(value)}>
             {isLoading ? <PlansSkeleton /> : plans?.map((plan: Plan) => (
               <div key={plan.planId} className="flex items-center px-3 space-x-2 border w-full rounded-md cursor-pointer">
                 <RadioGroupItem value={plan.planId} id={plan.planId} />
@@ -72,7 +79,7 @@ const PlansDialog: FunctionComponent<PlansDialogProps> = ({
           </RadioGroup>
         </div>
         <DialogFooter>
-          <Button className="w-full">Assinar</Button>
+          <Button className="w-full" onClick={handleSubscribe}>Assinar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

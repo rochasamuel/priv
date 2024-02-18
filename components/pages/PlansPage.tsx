@@ -33,7 +33,7 @@ export default function PlansPage() {
   });
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full overflow-auto">
       <Alert className="mb-4 max-w-xl">
         <Info className="h-4 w-4" />
         <AlertDescription>

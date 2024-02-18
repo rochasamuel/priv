@@ -14,6 +14,7 @@ import { TransactionService } from "./services/transaction-service";
 import { MetricService } from "./services/metric-service";
 import { ChatService } from "./services/chat-service";
 import { AuthService } from "./services/auth-service";
+import { PaymentService } from "./services/payment-service";
 
 const defaultHeaders = {
 	"X-Api": 1,
@@ -46,6 +47,7 @@ export const apiClient = (accessToken?: string) => {
 		metrics: MetricService(httpClient),
 		chat: ChatService(httpClient),
 		auth: AuthService(httpClient),
+		payment: PaymentService(httpClient),
 	};
 };
 

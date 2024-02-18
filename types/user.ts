@@ -9,7 +9,7 @@ export interface User {
 	producerId: string;
 	profilePhotoPresignedGet: string;
 	subscriptionExpirationDate: string;
-	subscriptionIdStatusContract: string;
+	subscriptionIdStatusContract: number;
 	totalImages: number;
 	totalPosts: number;
 	totalVideos: number;
