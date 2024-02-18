@@ -6,18 +6,18 @@ import { useSession } from "next-auth/react";
 import { FunctionComponent } from "react";
 import { useQuery } from "react-query";
 import { columns } from "./columns";
+import useBackendClient from "@/hooks/useBackendClient";
 
 const StatementTable: FunctionComponent = () => {
   const { data: session } = useSession();
+  const { api, readyToFetch } = useBackendClient();
 
   const { data: transactions, isLoading } = useQuery({
     queryKey: ["user-transactions", session?.user.userId],
     queryFn: async () => {
-      const api = apiClient(session?.user.accessToken);
-
       return await api.metrics.getTransactionHistory(15)
     },
-    enabled: !!session?.user.userId
+    enabled: readyToFetch,
   })
 
   return <div className="w-full mt-10">

@@ -2,6 +2,7 @@
 
 import apiClient from "@/backend-sdk";
 import PostCard, { PostCardSkeleton } from "@/components/Post/PostCard";
+import useBackendClient from "@/hooks/useBackendClient";
 import { Post } from "@/types/post";
 import { useIntersection } from "@mantine/hooks";
 import { useSession } from "next-auth/react";
@@ -15,12 +16,11 @@ interface FeedProps {
 
 const Feed: FunctionComponent<FeedProps> = ({ mode, producerId }) => {
 	const { data: session } = useSession();
+	const { api, readyToFetch } = useBackendClient();
 	const { data, fetchNextPage, isFetchingNextPage, isLoading } =
 		useInfiniteQuery({
 			queryKey: ["posts", session?.user.email, mode, producerId],
 			queryFn: async ({ pageParam = 1 }) => {
-				const api = apiClient(session?.user.accessToken!);
-
 				return await api.post.getPosts(
 					{
 						itemsPerPage: 7,
@@ -29,8 +29,7 @@ const Feed: FunctionComponent<FeedProps> = ({ mode, producerId }) => {
 					producerId,
 				);
 			},
-			enabled: !!session?.user.accessToken,
-			retry: false,
+			enabled: readyToFetch,
 			onError: (error: any) => {
 				// if (error.response.status === 401) {
 				//   signOut();

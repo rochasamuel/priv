@@ -11,6 +11,7 @@ import { useQuery } from "react-query";
 import IconInput from "../Input/IconInput";
 import SuggestionList from "../Suggestion/SuggestionList";
 import { useMenuStore } from "@/store/useMenuStore";
+import useBackendClient from "@/hooks/useBackendClient";
 
 export default function SearchPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,8 +19,10 @@ export default function SearchPage() {
 	const setPageTitle = useMenuStore((state) => state.setPageTitle);
 
 	const router = useRouter();
-
+	
 	const { data: session } = useSession();
+	const { api, readyToFetch } = useBackendClient();
+
 	const {
 		data: searchResut,
 		isLoading,
@@ -27,10 +30,9 @@ export default function SearchPage() {
 	} = useQuery({
 		queryKey: ["search", searchTerm],
 		queryFn: async () => {
-			const api = apiClient(session?.user.accessToken!);
 			return await api.producer.search(searchTerm);
 		},
-		enabled: searchTerm.length > 0 && !!session?.user.accessToken,
+		enabled: searchTerm.length > 0 && readyToFetch,
 		retry: false,
 		staleTime: 1000,
 	});

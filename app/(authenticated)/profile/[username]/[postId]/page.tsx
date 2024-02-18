@@ -2,6 +2,7 @@
 import apiClient from "@/backend-sdk";
 import PostCard, { PostCardSkeleton } from "@/components/Post/PostCard";
 import SuggestionList from "@/components/Suggestion/SuggestionList";
+import useBackendClient from "@/hooks/useBackendClient";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "react-query";
@@ -13,17 +14,14 @@ interface LonelyPostProps {
 const LonelyPost = ({
 	params,
 }: LonelyPostProps) => {
-	const { data: session } = useSession();
-	const router = useRouter();
+	const { api, readyToFetch } = useBackendClient();
 
 	const { data: lonelyPost, isLoading } = useQuery({
 		queryKey: ["post", params.username, params.postId],
 		queryFn: async () => {
-			const api = apiClient(session?.user.accessToken!);
-
 			return await api.post.getPostById(params.postId);
 		},
-		enabled: !!session?.user.accessToken,
+		enabled: readyToFetch,
 	});
 
 	return (

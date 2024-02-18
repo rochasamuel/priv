@@ -6,9 +6,11 @@ import { DataTable } from "../DataTable/Datatable";
 import { columns } from "@/app/(authenticated)/settings/payments/columns";
 import { useMenuStore } from "@/store/useMenuStore";
 import { useEffect } from "react";
+import useBackendClient from "@/hooks/useBackendClient";
 
 export default function PaymentsPage() {
   const { data: session } = useSession();
+  const { api, readyToFetch } = useBackendClient();
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
 
 	useEffect(() => {
@@ -18,11 +20,9 @@ export default function PaymentsPage() {
   const { data: transactions, isLoading } = useQuery({
     queryKey: ["transactions", session?.user.userId],
     queryFn: async () => {
-      const api = apiClient(session?.user.accessToken);
-
       return await api.transaction.getTransactionsHistory({ period: 99 })
     },
-    enabled: !!session?.user.userId
+    enabled: readyToFetch,
   })
 
   return <div className="w-full">

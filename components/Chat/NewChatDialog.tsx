@@ -21,6 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { getAcronym } from "@/utils";
 import { ContactSearchResult } from "@/backend-sdk/services/chat-service";
 import { useRouter } from "next/navigation";
+import useBackendClient from "@/hooks/useBackendClient";
 
 interface NewChatDialogProps {
   closeComments: () => void;
@@ -28,17 +29,13 @@ interface NewChatDialogProps {
 
 const NewChatDialog = ({ closeComments }: NewChatDialogProps) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const { api, readyToFetch } = useBackendClient();
 
 	const router = useRouter();
 
   const { toast } = useToast();
 
   const { data: session } = useSession();
-
-  const api = useMemo(
-    () => apiClient(session?.user.accessToken!),
-    [session?.user.accessToken]
-  );
 
   const {
     data: searchResut,
@@ -49,7 +46,7 @@ const NewChatDialog = ({ closeComments }: NewChatDialogProps) => {
     queryFn: async () => {
       return await api.chat.searchContacts(searchTerm);
     },
-    enabled: searchTerm.length > 0 && !!session?.user.accessToken,
+    enabled: searchTerm.length > 0 && readyToFetch,
     retry: false,
     staleTime: 1000
   });

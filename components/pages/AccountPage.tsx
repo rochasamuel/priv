@@ -5,9 +5,11 @@ import { useQuery } from "react-query";
 import AccountForm, { AccountFormSkeleton } from "../Account/AccountForm";
 import { useMenuStore } from "@/store/useMenuStore";
 import { useEffect } from "react";
+import useBackendClient from "@/hooks/useBackendClient";
 
 export default function AccountPage() {
   const { data: session } = useSession();
+  const { api, readyToFetch } = useBackendClient();
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
 
 	useEffect(() => {
@@ -16,10 +18,8 @@ export default function AccountPage() {
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["user", session?.user?.userId],
-    enabled: !!session?.user?.userId,
+    enabled: readyToFetch,
     queryFn: async () => {
-      const api = apiClient(session?.user?.accessToken);
-
       return await api.account.getUserAccountData();
     },
   });

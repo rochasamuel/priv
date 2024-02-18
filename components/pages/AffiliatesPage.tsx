@@ -10,9 +10,11 @@ import { useToast } from "../ui/use-toast";
 import Link from "next/link";
 import { useMenuStore } from "@/store/useMenuStore";
 import { useEffect } from "react";
+import useBackendClient from "@/hooks/useBackendClient";
 
 export default function AffiliatesPage() {
   const { data: session, status } = useSession();
+	const { api, readyToFetch } = useBackendClient();
 	const { toast } = useToast();
 	const setPageTitle = useMenuStore((state) => state.setPageTitle);
 
@@ -23,13 +25,11 @@ export default function AffiliatesPage() {
 	const { data: referrerMetrics, isLoading } = useQuery({
 		queryKey: ["referrerMetrics", session?.user.referrerCode],
 		queryFn: async () => {
-			const api = apiClient(session?.user.accessToken);
 			const result = await api.referrer.getMetrics();
 
-			console.log(result.metrics);
 			return result;
 		},
-		enabled: status === "authenticated",
+		enabled: readyToFetch,
 	});
 
 	const handleClipboardCopy = async () => {

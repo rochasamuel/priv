@@ -43,11 +43,12 @@ const authOptions: NextAuthOptions = {
 
 				const user = {
 					accessToken: tokenResponse.access_token,
+					refreshToken: tokenResponse.refresh_token,
 					...userResponse.user,
 				};
 
 				if (user) {
-					return user;
+					return { ...user };
 				}
 
 				return null;
@@ -56,7 +57,6 @@ const authOptions: NextAuthOptions = {
 	],
 	session: {
 		strategy: "jwt",
-		// maxAge: 2 * 24 * 60 * 60 //2 days,
 		maxAge: 1 * 60 * 60, //1 hour
 	},
 	callbacks: {
@@ -64,8 +64,8 @@ const authOptions: NextAuthOptions = {
 			const customUser = user as unknown as any;
 
 			// update token and session on sessionUpdate
-			if(trigger === 'update') {
-				token = {...token, ...session.user};
+			if (trigger === "update") {
+				token = { ...token, ...session.user };
 			}
 
 			if (user) {
@@ -83,6 +83,7 @@ const authOptions: NextAuthOptions = {
 				user: {
 					...session.user,
 					accessToken: token.accessToken,
+					refreshToken: token.refreshToken,
 					username: token.username,
 					userId: token.userId,
 					presentationName: token.presentationName,

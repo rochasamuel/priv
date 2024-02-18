@@ -7,6 +7,7 @@ import { useQuery } from "react-query";
 import CreditCardView, { CreditCardSkeleton } from "./CreditCardView";
 import { CreditCard, CreditCardFlag } from "@/types/credit-card";
 import { useMenuStore } from "@/store/useMenuStore";
+import useBackendClient from "@/hooks/useBackendClient";
 
 const mock: CreditCard[] = [
 	{
@@ -61,14 +62,14 @@ const mock: CreditCard[] = [
 
 const CreditCardList: FunctionComponent = () => {
 	const { data: session } = useSession();
+	const { api, readyToFetch } = useBackendClient();
 	
 	const { data: creditCards, isLoading } = useQuery({
 		queryKey: "creditCards",
 		queryFn: () => {
-			const api = apiClient(session?.user.accessToken);
 			return api.creditCard.getCreditCards();
 		},
-		enabled: !!session?.user.accessToken,
+		enabled: readyToFetch,
 	});
 
 	return (

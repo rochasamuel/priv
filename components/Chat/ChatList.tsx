@@ -17,10 +17,12 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import NewChatDialog from "./NewChatDialog";
 import { useMenuStore } from "@/store/useMenuStore";
+import useBackendClient from "@/hooks/useBackendClient";
 
 const ChatList: FunctionComponent = () => {
   const [newChatDialogOpen, setNewChatDialogOpen] = useState(false);
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
+  const { api, readyToFetch } = useBackendClient();
 
 	useEffect(() => {
 		setPageTitle("Chats");
@@ -31,11 +33,9 @@ const ChatList: FunctionComponent = () => {
   const { data: chats } = useQuery({
     queryKey: ["chats", session?.user.username],
     queryFn: async () => {
-      const api = apiClient(session?.user.accessToken!);
-
       return await api.chat.getActiveChats();
     },
-    enabled: !!session?.user.email,
+    enabled: readyToFetch,
   });
 
   const handleClickNewChat = () => {

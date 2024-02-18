@@ -5,18 +5,18 @@ import { FunctionComponent } from "react";
 import { useQuery } from "react-query";
 import { ScrollArea } from "../ui/scroll-area";
 import SuggestionCard from "./SuggestionCard";
+import useBackendClient from "@/hooks/useBackendClient";
 
 const SuggestionList: FunctionComponent = () => {
 	const { data: session, status } = useSession();
+	const { api, readyToFetch } = useBackendClient();
 
 	const { data: recommendations, isLoading } = useQuery({
 		queryKey: ["recommendations"],
 		queryFn: async () => {
-			const api = apiClient(session?.user.accessToken!);
-
 			return await api.reccomendation.getRecommendations();
 		},
-		enabled: !!session?.user.accessToken,
+		enabled: readyToFetch,
 	});
 
 	return (

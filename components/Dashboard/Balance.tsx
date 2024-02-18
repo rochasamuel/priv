@@ -8,29 +8,27 @@ import { DateTime } from "luxon";
 import { Button } from "../ui/button";
 import { Banknote, Eye, EyeOff, FileSignature, Info, Loader2, Lock } from "lucide-react";
 import { toCurrency } from "@/utils/currency";
+import useBackendClient from "@/hooks/useBackendClient";
 
 const Balance: FunctionComponent = () => {
   const [shouldHideMoney, setShouldHideMoney] = useState(false);
+  const { api, readyToFetch } = useBackendClient();
 
   const { data: session } = useSession();
 
   const { data: producerData } = useQuery({
     queryKey: ["producerData", session?.user?.userId],
     queryFn: async () => {
-      const api = apiClient(session?.user?.accessToken);
-
       const activeSubscribersCount =
         await api.producer.getProducerActiveSubscribersCount();
       const balance = await api.producer.getProducerBalance();
-
-      console.log({ activeSubscribersCount, ...balance });
 
       return {
         activeSubscribersCount,
         ...balance,
       };
     },
-    enabled: !!session?.user?.userId,
+    enabled: readyToFetch,
   });
 
   return (

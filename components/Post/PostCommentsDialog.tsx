@@ -16,6 +16,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { useToast } from "../ui/use-toast";
 import PostCommentCard from "./PostCommentCard";
+import useBackendClient from "@/hooks/useBackendClient";
 
 interface PostCommentsDialogProps {
 	post: Post;
@@ -32,16 +33,12 @@ const PostCommentsDialog = ({
 	const { toast } = useToast();
 
 	const { data: session } = useSession();
-
-	const api = useMemo(
-		() => apiClient(session?.user.accessToken!),
-		[session?.user.accessToken],
-	);
+	const { api, readyToFetch } = useBackendClient();
 
 	const { data: comments, isLoading } = useQuery({
 		queryKey: ["post", post.postId, "comments"],
 		queryFn: () => api.post.getPostComments(post.postId),
-		enabled: !!session?.user.accessToken,
+		enabled: readyToFetch,
 		onSuccess: (data) => {
 			updateCommentsCount(data.length);
 		},

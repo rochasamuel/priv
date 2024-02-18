@@ -45,6 +45,7 @@ import { Label } from "../ui/label";
 import ImageCropper from "../Cropper/ImageCropper";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { CropperRef } from "react-mobile-cropper";
+import useBackendClient from "@/hooks/useBackendClient";
 interface PostMakerProps {
   algo?: string;
 }
@@ -64,6 +65,7 @@ export interface MediaToSend {
 
 const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
   const { data: session } = useSession();
+  const { api, readyToFetch } = useBackendClient();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -83,7 +85,6 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
       postDescription: string;
       postMedias?: MediaToSend[];
     }) => {
-      const api = apiClient(session?.user.accessToken!);
       return api.post.createPost(postData.postDescription, postData.postMedias);
     },
     onSuccess: async (data: any) => {

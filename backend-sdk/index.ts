@@ -15,6 +15,7 @@ import { MetricService } from "./services/metric-service";
 import { ChatService } from "./services/chat-service";
 import { AuthService } from "./services/auth-service";
 import { PaymentService } from "./services/payment-service";
+import { useSession } from "next-auth/react";
 
 const defaultHeaders = {
 	"X-Api": 1,

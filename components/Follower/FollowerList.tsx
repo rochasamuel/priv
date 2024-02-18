@@ -6,23 +6,23 @@ import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import FollowerCard, { FollowerCardSkeleton } from "./FollowerCard";
+import useBackendClient from "@/hooks/useBackendClient";
 
 const FollowerList = () => {
 	const [searchTerm, setSeachTerm] = useState("");
 
 	const { data: session, status } = useSession();
+	const { api, readyToFetch } = useBackendClient();
 
 	const { data: followers, isLoading } = useQuery({
 		queryKey: ["followers", session?.user.email],
 		queryFn: async () => {
-			const api = apiClient(session?.user.accessToken!);
-
 			return await api.follow.getFollowers();
 		},
 		refetchOnMount: false,
 		refetchOnWindowFocus: false,
 		refetchOnReconnect: false,
-		enabled: !!session?.user.email,
+		enabled: readyToFetch,
 	});
 
 	const searchResult = useMemo(() => {

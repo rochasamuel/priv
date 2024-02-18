@@ -21,6 +21,7 @@ import { useState } from "react";
 import { useMutation } from "react-query";
 import { ToastAction } from "../ui/toast";
 import { useToast } from "../ui/use-toast";
+import useBackendClient from "@/hooks/useBackendClient";
 
 interface PostCommentCardProps {
 	comment: PostComment;
@@ -36,6 +37,7 @@ const PostCommentCard = ({
 	updateCommentsCount,
 }: PostCommentCardProps) => {
 	const { data: session } = useSession();
+	const { api, readyToFetch } = useBackendClient();
 	const [isDeleted, setIsDeleted] = useState(false);
 	const { toast } = useToast();
 
@@ -47,7 +49,6 @@ const PostCommentCard = ({
 		mutate,
 	} = useMutation({
 		mutationFn: (commentId: string) => {
-			const api = apiClient(session?.user.accessToken!);
 			return api.comment.deletePostComment(postId, commentId);
 		},
 		onSuccess: () => {

@@ -43,6 +43,7 @@ import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { Skeleton } from "../ui/skeleton";
 import PlansDialog from "../Plan/PlansDialog";
 import Link from "next/link";
+import useBackendClient from "@/hooks/useBackendClient";
 
 interface ProfileCardProps {
   user: User;
@@ -157,6 +158,7 @@ interface FollowButtonProps {
 
 export const FollowButton = ({ user }: FollowButtonProps) => {
   const { data: session } = useSession();
+  const { api, readyToFetch } = useBackendClient();
   const { toast } = useToast();
 
   const [isFollowing, setIsFollowing] = useState(user.isFollower);
@@ -167,7 +169,6 @@ export const FollowButton = ({ user }: FollowButtonProps) => {
     mutate,
   } = useMutation({
     mutationFn: async (producerId: string) => {
-      const api = apiClient(session?.user.accessToken!);
       const result = await api.profile.toggleFollow(producerId);
       return result;
     },

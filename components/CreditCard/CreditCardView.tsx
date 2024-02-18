@@ -20,6 +20,7 @@ import { useMutation } from "react-query";
 import { useToast } from "../ui/use-toast";
 import { useSession } from "next-auth/react";
 import { Button } from "../ui/button";
+import useBackendClient from "@/hooks/useBackendClient";
 
 interface CreditCardProps {
 	creditCardData: CreditCard;
@@ -53,11 +54,11 @@ const CreditCardView: FunctionComponent<CreditCardProps> = ({
 }) => {
 	const { toast } = useToast();
 	const { data: session } = useSession();
+	const { api, readyToFetch } = useBackendClient();
 	const [openDialog, setOpenDialog] = useState(false);
 
 	const { mutate: deleteCreditCard, isLoading } = useMutation({
 		mutationFn: async () => {
-			const api = apiClient(session?.user.accessToken!);
 			const result = await api.creditCard.deleteCreditCard(
 				creditCardData.cardId,
 			);

@@ -27,9 +27,11 @@ import { BillingType, PaymentPayload, PaymentResponse } from "@/types/payment";
 import Image from "next/image";
 import { DateTime, Duration } from "luxon";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import useBackendClient from "@/hooks/useBackendClient";
 
 export default function PixPaymentPage() {
   const { data: session } = useSession();
+  const { api, readyToFetch } = useBackendClient();
   const searchParams = useSearchParams();
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
   const [qrCodeData, setQrCodeData] = useState<{
@@ -46,10 +48,9 @@ export default function PixPaymentPage() {
   const { data: plans, isLoading } = useQuery({
     queryKey: ["plans", producerId],
     queryFn: async () => {
-      const api = apiClient(session?.user.accessToken!);
       return await api.plan.getProducerPlans(producerId!);
     },
-    enabled: !!producerId,
+    enabled: !!producerId && readyToFetch,
   });
 
   const { mutate: generateQrCode, isLoading: loadingQrCode } = useMutation({
@@ -235,7 +236,7 @@ export default function PixPaymentPage() {
                     <FormItem className="w-full">
                       <FormLabel>Telefone *</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} type="tel" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

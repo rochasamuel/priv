@@ -49,7 +49,7 @@ export default function RootLayout({
 								}
 							/>
 
-							<div className="mx-auto flex w-full min-h-[calc(100dvh-129px)] max-w-full items-start gap-x-8 px-2 py-4 sm:px-6 lg:px-8 h-full">
+							<div className="mx-auto flex w-full min-h-[calc(100dvh-129px)] max-w-full items-start gap-x-8 px-2 py-4 sm:px-6 lg:px-8 h-full overflow-auto">
 								{children}
 							</div>
 						</div>

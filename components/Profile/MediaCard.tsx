@@ -7,6 +7,7 @@ import { FunctionComponent, useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { Skeleton } from "../ui/skeleton";
 import { useIntersection } from "@mantine/hooks";
+import useBackendClient from "@/hooks/useBackendClient";
 
 interface MediaCardProps {
 	user: User;
@@ -18,13 +19,12 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
 	const router = useRouter();
 
 	const { data: session } = useSession();
+	const { api, readyToFetch } = useBackendClient();
 
   const { data, fetchNextPage, isFetchingNextPage, isLoading } =
 		useInfiniteQuery({
 			queryKey: ["posts-medias", session?.user.email],
 			queryFn: async ({ pageParam = 1 }) => {
-				const api = apiClient(session?.user.accessToken!);
-
 				return await api.post.getPosts(
 					{
 						itemsPerPage: 12,
@@ -33,7 +33,7 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
 					user.producerId,
 				);
 			},
-			enabled: !!session?.user.accessToken,
+			enabled: readyToFetch,
 			getNextPageParam: (_, pages) => {
 				return pages.length + 1;
 			},

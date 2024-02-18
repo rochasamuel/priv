@@ -7,6 +7,7 @@ import PlanSettingsCard, { PlanSettingsCardSkeleton } from "../Plan/PlanSettings
 import { Alert, AlertDescription } from "../ui/alert";
 import { useMenuStore } from "@/store/useMenuStore";
 import { useEffect } from "react";
+import useBackendClient from "@/hooks/useBackendClient";
 
 enum PlanType {
   Monthly = "Mensal",
@@ -17,6 +18,7 @@ enum PlanType {
 
 export default function PlansPage() {
   const { data: session } = useSession();
+  const { api, readyToFetch } = useBackendClient();
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
 
 	useEffect(() => {
@@ -26,10 +28,9 @@ export default function PlansPage() {
   const { data: plans, isLoading } = useQuery({
     queryKey: ["plans", session?.user.userId],
     queryFn: async () => {
-      const api = apiClient(session?.user.accessToken!);
       return await api.plan.getProducerPlans(session?.user.userId!);
     },
-    enabled: !!session?.user.email,
+    enabled: readyToFetch,
   });
 
   return (

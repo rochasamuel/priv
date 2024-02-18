@@ -7,6 +7,7 @@ import RecommendationCard from "@/components/Suggestion/SuggestionCard";
 import SuggestionList from "@/components/Suggestion/SuggestionList";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
+import useBackendClient from "@/hooks/useBackendClient";
 import { Post } from "@/types/post";
 import { useIntersection } from "@mantine/hooks";
 import { signOut, useSession } from "next-auth/react";
@@ -15,15 +16,14 @@ import { useInfiniteQuery, useQuery } from "react-query";
 
 export default function Home() {
 	const { data: session, status } = useSession();
+	const { api, readyToFetch } = useBackendClient();
 
 	const { data: recommendations } = useQuery({
 		queryKey: ["recommendations"],
 		queryFn: async () => {
-			const api = apiClient(session?.user.accessToken!);
-
 			return await api.reccomendation.getRecommendations();
 		},
-		enabled: !!session?.user.accessToken,
+		enabled: readyToFetch,
 	});
 
 	return (

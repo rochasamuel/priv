@@ -83,6 +83,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import useBackendClient from "@/hooks/useBackendClient";
 
 interface PostCardProps {
   post: Post;
@@ -90,6 +91,7 @@ interface PostCardProps {
 
 export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
   const { data: session, status } = useSession();
+  const { api, readyToFetch } = useBackendClient();
 
   const [deletedPost, setDeletedPost] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -137,7 +139,6 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 
   const { mutate } = useMutation({
     mutationFn: async (postId: string) => {
-      const api = apiClient(session?.user.accessToken!);
       const result = await api.post.deletePost(postId);
       return result;
     },
@@ -165,7 +166,6 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 
   const { mutate: mutateEditPost, isLoading } = useMutation({
     mutationFn: async (description: string) => {
-      const api = apiClient(session?.user.accessToken!);
       const result = await api.post.editPost(post.postId, description);
       return result;
     },

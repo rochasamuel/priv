@@ -7,23 +7,23 @@ import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import SubscriberCard, { SubscriberCardSkeleton } from "./SubscriberCard";
+import useBackendClient from "@/hooks/useBackendClient";
 
 const SubscriberList = () => {
 	const [searchTerm, setSeachTerm] = useState("");
 
 	const { data: session, status } = useSession();
+	const { api, readyToFetch } = useBackendClient();
 
 	const { data: subscribers, isLoading } = useQuery({
 		queryKey: ["subscribers", session?.user.email],
 		queryFn: async () => {
-			const api = apiClient(session?.user.accessToken!);
-
 			return await api.subscription.getSubscribers();
 		},
 		refetchOnMount: false,
 		refetchOnWindowFocus: false,
 		refetchOnReconnect: false,
-		enabled: !!session?.user.email,
+		enabled: readyToFetch,
 	});
 
 	const searchResult = useMemo(() => {

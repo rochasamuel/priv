@@ -1,6 +1,7 @@
 "use client";
 
 import apiClient from "@/backend-sdk";
+import useBackendClient from "@/hooks/useBackendClient";
 import { toCurrency } from "@/utils/currency";
 import { Loader2 } from "lucide-react";
 import { DateTime } from "luxon";
@@ -22,12 +23,11 @@ import {
 
 const Charts: FunctionComponent = () => {
   const { data: session } = useSession();
+  const { api, readyToFetch } = useBackendClient();
 
   const { data: producerMetrics } = useQuery({
     queryKey: ["producerMetrics", session?.user?.userId],
     queryFn: async () => {
-      const api = apiClient(session?.user?.accessToken);
-
       const socialMetrics = await api.metrics.getSocialMetrics("2024-01-25");
       const profitMetrics = await api.metrics.getProfitMetrics("2024-01-25");
 

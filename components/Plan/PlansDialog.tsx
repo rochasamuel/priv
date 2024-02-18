@@ -18,6 +18,7 @@ import { toCurrency } from "@/utils/currency";
 import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
 import { useRouter } from "next/navigation";
+import useBackendClient from "@/hooks/useBackendClient";
 
 interface PlansDialogProps {
   user: User;
@@ -29,17 +30,16 @@ const PlansDialog: FunctionComponent<PlansDialogProps> = ({
   closePlansDialog,
 }) => {
   const { data: session } = useSession();
+  const { api, readyToFetch } = useBackendClient();
   const router = useRouter();
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
   const { data: plans, isLoading } = useQuery({
     queryKey: ["plans", user.producerId],
     queryFn: async () => {
-      const api = apiClient(session?.user.accessToken!);
-
       return await api.plan.getProducerPlans(user.producerId);
     },
-    enabled: !!session?.user.email,
+    enabled: readyToFetch,
   });
 
   const handleSubscribe = () => {

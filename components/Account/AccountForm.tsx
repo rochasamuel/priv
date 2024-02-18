@@ -27,6 +27,7 @@ import { Skeleton } from "../ui/skeleton";
 import { Dialog, DialogContent } from "../ui/dialog";
 import { CropperRef, FixedCropperRef } from "react-advanced-cropper";
 import AccountImageCropper from "../Cropper/AccountImageCropper";
+import useBackendClient from "@/hooks/useBackendClient";
 
 interface AccountFormProps {
   user: User;
@@ -39,11 +40,11 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
   const [selectedCoverImage, setSelectedCoverImage] = useState<Blob>();
   const [isProfileCropperOpen, setIsProfileCropperOpen] = useState(false);
   const [selectedProfileImage, setSelectedProfileImage] = useState<Blob>();
+  const { api, readyToFetch } = useBackendClient();
   const queryClient = useQueryClient();
 
   const { mutate, isLoading: isSendindRequest } = useMutation({
     mutationFn: async (payload: User) => {
-      const api = apiClient(session?.user.accessToken!);
       const payloadToSend = {
         ...payload,
         profilePhotoOption: selectedProfileImage ? 1 : undefined,
@@ -57,14 +58,14 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
       const profilePresignedUrl = data.profile;
 
       if (coverPresignedUrl) {
-        await apiClient(session?.user.accessToken!).account.uploadAccountImage(
+        await api.account.uploadAccountImage(
           coverPresignedUrl,
           selectedCoverImage!
         );
       }
       
       if (profilePresignedUrl) {
-        await apiClient(session?.user.accessToken!).account.uploadAccountImage(
+        await api.account.uploadAccountImage(
           profilePresignedUrl,
           selectedProfileImage!
           );

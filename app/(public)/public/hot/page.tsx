@@ -55,7 +55,7 @@ export default function HotArea() {
 
   const _posts = data?.pages.flatMap((page) => page);
   return (
-    <div className="m-auto flex flex-col w-full min-w-full">
+    <div className="m-auto flex flex-col w-full min-w-full overflow-y-auto">
       {isLoading ? (
         Array.from({ length: 4 }).map((_, index) => (
           <PostCardSkeleton key={index + 1} withPicture={index % 2 === 0} />

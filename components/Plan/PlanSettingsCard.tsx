@@ -1,33 +1,27 @@
-import { Plan } from "@/types/plan";
-import { FunctionComponent, useState } from "react";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import MoneyInput from "../Input/MoneyInput";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "../ui/separator";
-import { Button } from "../ui/button";
-import { Loader2, Save } from "lucide-react";
-import { Label } from "../ui/label";
-import { Switch } from "../ui/switch";
-import { access } from "fs";
-import { Skeleton } from "../ui/skeleton";
-import { useSession } from "next-auth/react";
-import apiClient from "@/backend-sdk";
-import { useMutation } from "react-query";
-import { toast } from "sonner";
-import { useToast } from "../ui/use-toast";
+import useBackendClient from "@/hooks/useBackendClient";
+import { Plan } from "@/types/plan";
 import { toCurrency } from "@/utils/currency";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, Save } from "lucide-react";
+import { FunctionComponent } from "react";
+import { useForm } from "react-hook-form";
+import { useMutation } from "react-query";
+import * as z from "zod";
+import MoneyInput from "../Input/MoneyInput";
+import { Button } from "../ui/button";
+import { Skeleton } from "../ui/skeleton";
+import { Switch } from "../ui/switch";
+import { useToast } from "../ui/use-toast";
 
 interface PlanSettingsCardProps {
   plan: Plan;
@@ -46,7 +40,7 @@ export interface PlanSettingsPayload {
 const PlanSettingsCard: FunctionComponent<PlanSettingsCardProps> = ({
   plan,
 }) => {
-  const { data: session } = useSession();
+  const { api, readyToFetch } = useBackendClient();
   const { toast } = useToast();
 
   const planTypeId: { [key: string]: number } = {
@@ -58,7 +52,6 @@ const PlanSettingsCard: FunctionComponent<PlanSettingsCardProps> = ({
 
   const { mutate, isLoading: isSendindRequest } = useMutation({
     mutationFn: async (payload: PlanSettingsPayload) => {
-      const api = apiClient(session?.user.accessToken!);
       const result = await api.plan.savePlans(payload);
       form.reset(payload.formValues);
       return result;

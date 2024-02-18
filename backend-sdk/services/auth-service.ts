@@ -41,5 +41,22 @@ export const AuthService = (httpClient: AxiosInstance) => {
 
 			return response.data.result;
 		},
+		refreshAccessToken: async (refreshToken: string): Promise<any> => {
+			const response: AxiosResponse = await httpClient.post(
+				"/token",
+				{
+					client_id: "autenticador",
+					grant_type: "refresh_token",
+					refresh_token: refreshToken,
+				},
+				{
+					headers: {
+						"Content-Type": "application/x-www-form-urlencoded",
+					},
+				},
+			);
+
+			return response.data;
+		},
 	};
 };

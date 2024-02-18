@@ -14,6 +14,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Textarea } from "../ui/textarea";
 import Header from "../Header/Header";
 import { useMenuStore } from "@/store/useMenuStore";
+import useBackendClient from "@/hooks/useBackendClient";
 
 interface ChatProps {
   chatId: string;
@@ -21,6 +22,7 @@ interface ChatProps {
 
 const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
   const { data: session } = useSession();
+  const { api, readyToFetch } = useBackendClient();
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
 
   const chatContainerRef: any = useRef(null);
@@ -53,11 +55,9 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
   const { data: chat } = useQuery({
     queryKey: ["chat", session?.user.username, chatId],
     queryFn: async () => {
-      const api = apiClient(session?.user.accessToken!);
-
       return await api.chat.getChatData(chatId);
     },
-    enabled: !!session?.user.accessToken,
+    enabled: readyToFetch,
     onSuccess(data) {
       setPageTitle(data.name);
     },

@@ -12,6 +12,7 @@ import MediaCard from "../Profile/MediaCard";
 import ProfileCard, { ProfileCardSkeleton } from "../Profile/ProfileCard";
 import SuggestionList from "../Suggestion/SuggestionList";
 import { useMenuStore } from "@/store/useMenuStore";
+import useBackendClient from "@/hooks/useBackendClient";
 
 interface ProfilePageProps {
   params: { username: string };
@@ -22,18 +23,17 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
 
 	const { data: session } = useSession();
+	const { api, readyToFetch } = useBackendClient();
 	const { data: user, isLoading } = useQuery({
 		queryKey: ["user", params.username],
 		queryFn: async () => {
       setPageTitle('Carregando...');
-			const api = apiClient(session?.user.accessToken!);
-
 			return await api.profile.getByUsername(params.username);
 		},
     onSuccess(data) {
       setPageTitle(data.presentationName);
     },
-		enabled: !!session?.user.accessToken,
+		enabled: readyToFetch,
 	});
 
 	const handleSessionChange = (session: "posts" | "about" | "media") => {
