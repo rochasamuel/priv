@@ -153,11 +153,11 @@ const MobileNav = () => {
                     </Link>
                   </SheetClose>}
 
-                  <SheetClose asChild>
+                  {isProducerProfile && <SheetClose asChild>
                     <Link href={"/settings/account"}>
                       <MobileNavItem name="Conta" icon={<UserRound />} />
                     </Link>
-                  </SheetClose>
+                  </SheetClose>}
 
                   <SheetClose asChild>
                     <Link href={"/settings/payments"}>

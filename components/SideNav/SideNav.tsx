@@ -104,9 +104,9 @@ export default function SideNav() {
               <SideNavItem icon={<FileEdit />} name="Planos" />
             </Link>}
 
-            <Link href={"/settings/account"}>
+            {isProducerProfile && <Link href={"/settings/account"}>
               <SideNavItem icon={<UserRound />} name="Conta" />
-            </Link>
+            </Link>}
 
             <Link href={"/settings/payments"}>
               <SideNavItem icon={<Receipt />} name="Pagamentos" />
