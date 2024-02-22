@@ -119,7 +119,7 @@ export default function OTPVerify() {
     e: React.KeyboardEvent<HTMLInputElement>,
     index: number
   ) => {
-    if ((e.key === "Backspace" || e.keyCode === 8) && index >= 0) {
+    if ((e.key === "Backspace" || (e.keyCode || e.which) === 8) && index >= 0) {
       e.preventDefault(); // Prevent the default behavior of Backspace in some browsers
       const newOTP = [...otp];
       newOTP[index] = "";
@@ -133,6 +133,8 @@ export default function OTPVerify() {
       if (index < otp.length - 1 && inputRefs.current[index + 1]) {
         inputRefs.current[index + 1]?.focus();
       }
+    } else {
+      return;
     }
   };
 
