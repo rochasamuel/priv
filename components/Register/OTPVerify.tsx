@@ -135,6 +135,7 @@ export default function OTPVerify() {
         inputRefs.current[index + 1]?.focus();
       }
     } else {
+      alert('Invalid key pressed. Only numbers are allowed.')
       e.preventDefault();
       setOTP([...otp]);
       return;
