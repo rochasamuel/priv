@@ -15,6 +15,7 @@ import { Textarea } from "../ui/textarea";
 import Header from "../Header/Header";
 import { useMenuStore } from "@/store/useMenuStore";
 import useBackendClient from "@/hooks/useBackendClient";
+import useWebSocket from "@/hooks/useWebSocket";
 
 interface ChatProps {
   chatId: string;
@@ -24,9 +25,9 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
   const { data: session } = useSession();
   const { api, readyToFetch } = useBackendClient();
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
+  const { socket } = useWebSocket();
 
   const chatContainerRef: any = useRef(null);
-
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       const maxScrollHeight =
@@ -112,7 +113,7 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
           placeholder="Mensagem"
           className="w-full border rounded-sm h-10 flex items-center resize-none overflow-hidden bg-background mt-auto"
         />
-        <Button>
+        <Button onClick={() => socket?.send(message)}>
           <Send />
         </Button>
       </div>

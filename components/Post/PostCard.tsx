@@ -20,13 +20,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Media, MediaType, Post } from "@/types/post";
+import { PostMedia, MediaType, Post } from "@/types/post";
 import {
   Bookmark,
   ChevronRight,
   Forward,
   Globe2,
   Heart,
+  ImageIcon,
   Loader2,
   Lock,
   LockKeyhole,
@@ -108,12 +109,13 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
     [session, post]
   );
 
-  const isPrivate = useMemo(
-    () => {
-      return post?.medias.some((media) => media.isPublic === false) && session?.user.userId !== post.producer.producerId
-    },
-    [post, session,]
-  );
+  const isPrivate = useMemo(() => {
+    return (
+      post?.medias.some((media) => media.isPublic === false) &&
+      session?.user.userId !== post.producer.producerId &&
+      post.medias.flatMap((media) => media.presignedUrls).length === 0
+    );
+  }, [post, session]);
 
   const relativePostDate = DateTime.fromISO(post.registrationDate, {
     locale: "pt-BR",
@@ -230,7 +232,10 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
               </AlertDialog>
             </div>
           )}
-          <div className="flex items-center gap-3">
+          <div
+            className="flex items-center gap-3"
+            onClick={() => handleRedirect(post.producer.username)}
+          >
             <Avatar>
               <AvatarImage src={post.producer.presignedUrlProfile} />
               <AvatarFallback>
@@ -324,12 +329,12 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
         </CardContent>
       )}
       {postHasMedias && !isPrivate && (
-        <CardContent className="pl-0 pr-0">
+        <CardContent className="pl-0 pr-0 pb-0">
           {post.medias.length > 1 ? (
             <Carousel>
               <CarouselContent>
-                {post.medias.map((media: Media, index: number) => (
-                  <CarouselItem key={index+1}>
+                {post.medias.map((media: PostMedia, index: number) => (
+                  <CarouselItem key={index + 1}>
                     <PostMediaVisualization
                       aspectRatioResult={aspectRatioResult}
                       post={post}
@@ -351,7 +356,7 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
         </CardContent>
       )}
       {!isPrivate && status !== "unauthenticated" && (
-        <CardFooter>
+        <CardFooter className={`${postHasMedias ? "pt-6" : "pt-0"}`}>
           <ActionBar
             isLiked={post.isLiked}
             totalComments={post.totalComments}
@@ -366,7 +371,7 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
 });
 
 interface PostMediaVisualizationProps {
-  media: Media;
+  media: PostMedia;
   post: Post;
   aspectRatioResult: any;
 }
@@ -376,18 +381,24 @@ export const PostMediaVisualization = ({
   post,
   aspectRatioResult,
 }: PostMediaVisualizationProps) => {
+  const [isLoading, setIsLoading] = useState(true);
+
   return (
-    <AspectRatio
-      ratio={aspectRatioResult.data ?? 16 / 9}
-      className="bg-slate-100"
-    >
+    <AspectRatio ratio={aspectRatioResult.data ?? 16 / 9} className="bg-black">
+      {isLoading && media.mediaTypeId === MediaType.Image && (
+        <div className="w-full h-full flex items-center justify-center animate-pulse bg-slate-900">
+          <ImageIcon className="h-10 w-10 m-auto" />
+        </div>
+      )}
       {media.mediaTypeId === MediaType.Image ? (
         <Image
           key={post.postId}
           fill={true}
           src={media.presignedUrls.at(0)!}
           alt="Image"
+          loading="lazy"
           className="object-contain"
+          onLoad={() => setIsLoading(false)}
         />
       ) : (
         <video
@@ -565,7 +576,7 @@ export const PostCardSkeleton = ({
         </CardContent>
       )}
       <CardFooter>
-        <div className="flex justify-between w-full">
+        <div className="flex justify-between w-full mt-6">
           <div className="flex gap-4">
             <Skeleton className="animate-pulse w-7 h-7 rounded-sm" />
             <Skeleton className="animate-pulse w-7 h-7 rounded-sm" />

@@ -106,7 +106,7 @@ export default function OTPVerify() {
       toast({
         variant: "default",
         title: "Sucesso!",
-        description: `Email reenviado para ${userEmail}!`,
+        description: `Um novo email de confirmação foi enviado para ${userEmail}!`,
       });
     },
   });

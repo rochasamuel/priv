@@ -26,6 +26,7 @@ import { useMutation } from "react-query";
 import apiClient from "@/backend-sdk";
 import { toast, useToast } from "../ui/use-toast";
 import { useState } from "react";
+import Link from "next/link";
 
 const consumerFormSchema = z.object({
   name: z.string({ required_error: "Campo obrigatório" }).min(4, {
@@ -159,14 +160,10 @@ export const ConsumerForm = () => {
 
   const handleTogglePasswordPeek = () => {
     setPeekingPassword(!peekingPassword);
-  }
+  };
 
   function onSubmit(values: z.infer<typeof consumerFormSchema>) {
     mutate(values);
-    // const current = new URLSearchParams(Array.from(searchParams.entries()));
-    // current.set("verify", "true");
-    // router.push(`consumer?${current.toString()}`);
-    console.log("register", values);
   }
 
   return (
@@ -252,7 +249,12 @@ export const ConsumerForm = () => {
             <FormItem className="space-y-1">
               <FormLabel className="flex items-center gap-2">
                 Senha{" "}
-                <Button type="button" onClick={() => handleTogglePasswordPeek()} className="p-1 h-6" variant={"ghost"}>
+                <Button
+                  type="button"
+                  onClick={() => handleTogglePasswordPeek()}
+                  className="p-1 h-6"
+                  variant={"ghost"}
+                >
                   {peekingPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </Button>
               </FormLabel>
@@ -269,20 +271,46 @@ export const ConsumerForm = () => {
           )}
         />
 
-        <Button
-          disabled={isLoading || successfullRequest}
-          className="w-full"
-          type="submit"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 size-4 animate-spin" />
-              Aguarde
-            </>
-          ) : (
-            <>Criar minha conta</>
-          )}
-        </Button>
+        <div className="text-xs w-full pt-4">
+          Ao criar minha conta declaro que li e concordo com os{" "}
+          <Link href="/public/terms" className="underline opacity-75">
+            Termos de Uso
+          </Link>
+          ,{" "}
+          <Link href="/public/privacy-policy" className="underline opacity-75">
+            Política de Privacidade
+          </Link>{" "}
+          e{" "}
+          <Link href="/public/cookies" className="underline opacity-75">
+            Política de Cookies
+          </Link>
+          . E confirmo ter pelo menos 18 anos.
+        </div>
+
+        <div>
+          <Button
+            disabled={isLoading || successfullRequest}
+            className="w-full mt-4"
+            type="submit"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Aguarde
+              </>
+            ) : (
+              <>Criar minha conta</>
+            )}
+          </Button>
+        </div>
+
+        <div className="flex items-center w-full justify-center">
+          <Link href="/auth/login" className="underline">
+            <Button variant="link" className="p-0 h-min font-normal" type="button">
+              Ja tem uma conta? Faça login.
+            </Button>
+          </Link>
+        </div>
       </form>
     </Form>
   );

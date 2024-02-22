@@ -2,16 +2,31 @@
 import { useSearchParams } from "next/navigation";
 import Chat from "../Chat/Chat";
 import ChatList from "../Chat/ChatList";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMenuStore } from "@/store/useMenuStore";
+import { useSession } from "next-auth/react";
+import useWebSocket from "@/hooks/useWebSocket";
 
 export default function ChatsPage() {
   const searchParams = useSearchParams();
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
+  const { socket } = useWebSocket();
 
 	useEffect(() => {
 		setPageTitle("Mensagens");
-	}, [])
+	}, [setPageTitle])
+
+  useEffect(() => {
+    if(socket) {
+      socket.onopen = () => {
+        console.log('WebSocket connection opened');
+      };
+
+      socket.onmessage = (event) => {
+        console.log('WebSocket message received:', event.data);
+      }
+    }
+  }, [socket])
 
   const selectedChat = useMemo(() => searchParams.get("selectedChat"), [searchParams]);
   

@@ -1,8 +1,14 @@
 export default function Footer() {
 	return (
-		<footer className="shrink-0 border-t border-gray-200 bg-white h-24">
-			<div className="mx-auto flex h-16 max-w-full items-center justify-between px-4 sm:px-6 lg:px-8 sticky bottom-0">
-				djskjkladkljs
+		<footer className="border-t h-20 flex justify-around p-2">
+			<div className="text-xs flex flex-col justify-center items-center gap-1">
+				<a href="/">© {new Date().getFullYear()} Privatus</a>
+				<a href="/public/privacy-policy">Política de Privacidade</a>
+				<a href="/public/help">Ajuda</a>
+			</div>
+			<div className="text-xs flex flex-col justify-center items-center gap-1">
+				<a href="/public/terms">Termos de Uso</a>
+				<a href="/public/cookies">Política de Cookies</a>
 			</div>
 		</footer>
 	);

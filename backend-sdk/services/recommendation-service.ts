@@ -1,10 +1,12 @@
 import { Recommendation } from "@/types/recommendation";
 import { AxiosInstance, AxiosResponse } from "axios";
 
-export const RecommendationService = (httpClient: AxiosInstance) => {
+export const SuggestionService = (httpClient: AxiosInstance) => {
 	return {
-		getRecommendations: async (): Promise<Recommendation[]> => {
-			const response: AxiosResponse = await httpClient.get("/recomendations");
+		getSuggestions: async (): Promise<Recommendation[]> => {
+			const response: AxiosResponse = await httpClient.get("/recomendations", {
+				params: { itemsPerPage: 20, pageNumber: 1 },
+			});
 
 			return response.data.result as Recommendation[];
 		},

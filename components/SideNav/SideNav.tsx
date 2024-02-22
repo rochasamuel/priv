@@ -23,7 +23,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ReactElement, useState } from "react";
+import { ReactElement, useMemo, useState } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -39,6 +39,11 @@ export default function SideNav() {
   const handleRedirect = (username?: string) => {
     if (username) router.push(`/profile/${username}`);
   };
+
+  const isProducerProfile = useMemo(() => {
+    return session?.user.activeProducer;
+  }
+  , [session]);
 
   return (
     <>
@@ -82,9 +87,9 @@ export default function SideNav() {
         <Link href={"/hot"}>
           <SideNavItem icon={<FlameIcon />} name="Hot" />
         </Link>
-        <Link href={"/dashboard"}>
+        {isProducerProfile && <Link href={"/dashboard"}>
           <SideNavItem icon={<CircleDollarSign />} name="Dashboard" />
-        </Link>
+        </Link>}
 
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <CollapsibleTrigger className="flex items-center gap-2">
@@ -95,9 +100,9 @@ export default function SideNav() {
             />
           </CollapsibleTrigger>
           <CollapsibleContent className="flex flex-col pl-8 gap-2">
-            <Link href={"/settings/plans"} className="mt-1">
+            {isProducerProfile && <Link href={"/settings/plans"} className="mt-1">
               <SideNavItem icon={<FileEdit />} name="Planos" />
-            </Link>
+            </Link>}
 
             <Link href={"/settings/account"}>
               <SideNavItem icon={<UserRound />} name="Conta" />

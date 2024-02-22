@@ -30,7 +30,8 @@ export default function PrivateHotAreaPage() {
         //   signOut();
         // }
       },
-      getNextPageParam: (_, pages) => {
+      getNextPageParam: (posts, pages) => {
+        if(posts.length === 0) return;
         return pages.length + 1;
       },
       enabled: status === "authenticated",

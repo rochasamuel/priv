@@ -1,5 +1,5 @@
 import apiClient from "@/backend-sdk";
-import { Media, MediaType, Post } from "@/types/post";
+import { PostMedia, MediaType, Post } from "@/types/post";
 import { User } from "@/types/user";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -8,109 +8,133 @@ import { useInfiniteQuery, useQuery } from "react-query";
 import { Skeleton } from "../ui/skeleton";
 import { useIntersection } from "@mantine/hooks";
 import useBackendClient from "@/hooks/useBackendClient";
+import Image from "next/image";
+import { Media } from "@/types/media";
+import { Lock, LockKeyhole, PlayCircle } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface MediaCardProps {
-	user: User;
+  user: User;
 }
 
 const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
-	const [medias, setMedias] = useState<Media[]>([]);
+  const [medias, setMedias] = useState<PostMedia[]>([]);
 
-	const router = useRouter();
+  const router = useRouter();
 
-	const { data: session } = useSession();
-	const { api, readyToFetch } = useBackendClient();
+  const { data: session } = useSession();
+  const { api, readyToFetch } = useBackendClient();
 
   const { data, fetchNextPage, isFetchingNextPage, isLoading } =
-		useInfiniteQuery({
-			queryKey: ["posts-medias", session?.user.email],
-			queryFn: async ({ pageParam = 1 }) => {
-				return await api.post.getPosts(
-					{
-						itemsPerPage: 12,
-						pageNumber: pageParam,
-					},
-					user.producerId,
-				);
-			},
-			enabled: readyToFetch,
-			getNextPageParam: (_, pages) => {
-				return pages.length + 1;
-			},
-		});
+    useInfiniteQuery({
+      queryKey: ["medias", user.username],
+      queryFn: async ({ pageParam = 1 }) => {
+        return await api.post.getMedias(user.producerId, {
+          itemsPerPage: 12,
+          pageNumber: pageParam,
+        });
+      },
+      enabled: readyToFetch,
+      getNextPageParam: (_, pages) => {
+        return pages.length + 1;
+      },
+      staleTime: 1000 * 60 * 5, //5 minutes
+    });
 
-	const infiniteTriggerPostRef = useRef<HTMLElement>(null);
-	const { ref, entry } = useIntersection({
-		root: infiniteTriggerPostRef.current,
-		threshold: 0.2,
-	});
+  const infiniteTriggerPostRef = useRef<HTMLElement>(null);
+  const { ref, entry } = useIntersection({
+    root: infiniteTriggerPostRef.current,
+    threshold: 0.2,
+  });
 
-	useEffect(() => {
-		if (!isFetchingNextPage && entry?.isIntersecting) fetchNextPage();
-	}, [entry?.isIntersecting]);
+  useEffect(() => {
+    if (!isFetchingNextPage && entry?.isIntersecting) fetchNextPage();
+  }, [entry?.isIntersecting]);
 
-	const redirectToPost = (postId: string) => {
-		router.push(`/profile/${user.username}/${postId}`);
-	};
+  const redirectToPost = (postId: string) => {
+    router.push(`/profile/${user.username}/${postId}`);
+  };
 
-  const posts = useMemo(() => {
-    if (data?.pages && data?.pages.length > 0)
-      return data?.pages.flatMap((page) => page);
-  }, [data]);
+  const isPrivate = (media: Media) => {
+    return media.isPublic === false && media.presignedUrls.length === 0;
+  };
 
-	const mediaData = useMemo(() => {
-		if (posts && posts?.length > 0)
-			return posts?.flatMap((post: Post) =>
-				post.medias.map((media) => ({ ...media, postId: post.postId })),
-			);
-	}, [posts]);
+  const _medias = data?.pages.flatMap((page) => page);
 
-	return (
-		<div className="w-full border rounded-md p-4">
-			<div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-				{isLoading ? Array.from([1, 2, 3, 4]).map((num) => <MediaCardSkeleton key={num} />  ): mediaData?.map((media: any, index: number) => {
-					if (media.mediaTypeId === MediaType.Image) {
-						return (
-							<div
-								key={media.presignedUrls[0]}
-								className="h-56 border rounded-md cursor-pointer"
-								onClick={() => redirectToPost(media.postId)}
-                ref={index === mediaData.length - 1 ? ref : null}
-							>
-								<img
-									className="h-full max-w-full w-full rounded-md object-cover"
-									src={media.presignedUrls[0]}
-									alt=""
-								/>
-							</div>
-						);
-					}
+  return (
+    <div className="w-full border rounded-md p-4">
+      {!isLoading && !_medias && (
+        <div className="w-full text-center">Nenhuma mídia encontrada.</div>
+      )}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+        {isLoading
+          ? Array.from([1, 2, 3, 4]).map((num) => (
+              <MediaCardSkeleton key={num} />
+            ))
+          : _medias?.map((media: any, index: number) => {
+              if (media.mediaTypeId === MediaType.Image) {
+                return (
+                  <div
+                    key={media.presignedUrls[0]}
+                    className="h-56 border rounded-md cursor-pointer bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900"
+                    onClick={() => redirectToPost(media.postId)}
+                    ref={index === _medias.length - 2 ? ref : null}
+                  >
+                    {isPrivate(media) ? (
+                      <div className="h-full flex flex-col gap-4 justify-center items-center backdrop-blur-3xl bg-black bg-opacity-50 p-4">
+                        <LockKeyhole />
+                        <div className="w-full text-center">
+                          Conteúdo exclusivo para assinantes
+                        </div>
+                      </div>
+                    ) : (
+                      <img
+                        className="h-full max-w-full w-full rounded-md object-cover"
+                        src={media.presignedUrls[0]}
+                        alt=""
+                      />
+                    )}
+                  </div>
+                );
+              }
 
-					return (
-						<div
-							className="h-56 border rounded-md cursor-pointer"
-							key={media.presignedUrls[0]}
-							onClick={() => redirectToPost(media.postId)}
-						>
-							<video
-								className="h-full max-w-full w-full rounded-md object-cover"
-								src={media.presignedUrls[0]}
-							/>
-						</div>
-					);
-				})}
-				{isFetchingNextPage && <MediaCardSkeleton />}
-			</div>
-		</div>
-	);
+              return (
+                <div
+                  className="h-56 border rounded-md cursor-pointer bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 relative"
+                  key={media.presignedUrls[0]}
+                  onClick={() => redirectToPost(media.postId)}
+                >
+                  {isPrivate(media) ? (
+                    <div className="h-full flex flex-col gap-4 justify-center items-center backdrop-blur-3xl bg-black bg-opacity-50 p-4">
+                      <LockKeyhole />
+                      <div className="w-full text-center">
+                        Conteúdo exclusivo para assinantes
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-full h-full relative flex items-center justify-center">
+                      <video
+                        className="h-full max-w-full w-full rounded-md object-cover"
+                        src={media.presignedUrls[0]}
+                      />
+                      <PlayCircle size={60} className="absolute opacity-50" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+        {isFetchingNextPage && <MediaCardSkeleton />}
+      </div>
+    </div>
+  );
 };
 
 export const MediaCardSkeleton: FunctionComponent = () => {
-	return (
-			<div className="h-56 w-full border rounded-md">
-				<Skeleton className="animate-pulse h-full rounded-md" />
-			</div>
-	);
+  return (
+    <div className="h-56 w-full border rounded-md">
+      <Skeleton className="animate-pulse h-full rounded-md" />
+    </div>
+  );
 };
 
 export default MediaCard;

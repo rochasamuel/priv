@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import Providers from "@/providers/providers";
 import { VenetianMask } from "lucide-react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { useSession } from "next-auth/react";
 import { Inter } from "next/font/google";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,11 @@ import "../globals.css";
 import ScrollToTop from "@/components/ScrollToTop/ScrollToTop";
 
 const inter = Inter({ subsets: ["latin"] });
+
+export const viewport: Viewport = {
+  initialScale: 1,
+  maximumScale: 1,
+}
 
 export default function RootLayout({
 	children,
@@ -34,7 +39,7 @@ export default function RootLayout({
 						enableSystem
 						disableTransitionOnChange
 					>
-						<div className="flex min-h-full flex-col">
+						<div className="flex h-dvh flex-col">
 							<Header
 								actionButton={
 									<Button

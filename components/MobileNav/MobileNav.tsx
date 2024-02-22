@@ -34,7 +34,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ReactElement, useState } from "react";
+import { ReactElement, useMemo, useState } from "react";
 import { SideNavItem } from "../SideNav/SideNav";
 
 import {
@@ -57,6 +57,11 @@ const MobileNav = () => {
   const shouldHighlight = (pathname: string) => {
     return pathname === pathName;
   };
+
+  const isProducerProfile = useMemo(() => {
+    return session?.user.activeProducer;
+  }
+  , [session]);
 
   const handleLogout = () => {
     signOut();
@@ -127,11 +132,11 @@ const MobileNav = () => {
                 </Link>
               </SheetClose>
 
-              <SheetClose asChild>
+              {isProducerProfile && <SheetClose asChild>
                 <Link href={"/dashboard"}>
                   <MobileNavItem name="Dashboard" icon={<CircleDollarSign />} />
                 </Link>
-              </SheetClose>
+              </SheetClose>}
 
               <Collapsible open={isOpen} onOpenChange={setIsOpen}>
                 <CollapsibleTrigger className="flex items-center gap-2">
@@ -142,11 +147,11 @@ const MobileNav = () => {
                   />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="flex flex-col pl-8">
-                  <SheetClose asChild>
+                  {isProducerProfile && <SheetClose asChild>
                     <Link href={"/settings/plans"}>
                       <MobileNavItem name="Planos" icon={<FileEdit />} />
                     </Link>
-                  </SheetClose>
+                  </SheetClose>}
 
                   <SheetClose asChild>
                     <Link href={"/settings/account"}>

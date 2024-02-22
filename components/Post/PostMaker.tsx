@@ -103,7 +103,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
     onError: (error) => {
       toast({
         variant: "destructive",
-        title: "Erro ao excluir comentário",
+        title: "Erro ao criar o post",
         description: "Tente novamente mais tarde",
       });
       console.error(error);

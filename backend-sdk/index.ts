@@ -3,7 +3,7 @@ import { CommentService } from "./services/comment-service";
 import { FollowService } from "./services/follow-service";
 import { PostService } from "./services/post-service";
 import { ProducerService } from "./services/producer-service";
-import { RecommendationService } from "./services/recommendation-service";
+import { SuggestionService } from "./services/recommendation-service";
 import { ReferrerService } from "./services/referrer-service";
 import { SubscriptionService } from "./services/subscription-service";
 import { CreditCardService } from "./services/credit-card-service";
@@ -36,7 +36,7 @@ export const apiClient = (accessToken?: string) => {
 		post: PostService(httpClient),
 		subscription: SubscriptionService(httpClient),
 		follow: FollowService(httpClient),
-		reccomendation: RecommendationService(httpClient),
+		suggestion: SuggestionService(httpClient),
 		comment: CommentService(httpClient),
 		producer: ProducerService(httpClient),
 		referrer: ReferrerService(httpClient),

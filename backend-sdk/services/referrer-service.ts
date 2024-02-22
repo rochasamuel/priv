@@ -15,5 +15,10 @@ export const ReferrerService = (httpClient: AxiosInstance) => {
 
 			return response.data as ReferrerMetricsResponse;
 		},
+		generateReferralCode: async (): Promise<string> => {
+			const response: AxiosResponse = await httpClient.post("/referrer/generate");
+
+			return response.data.referrerCode as string;
+		}
 	};
 };

@@ -1,4 +1,5 @@
 import { MediaToSend, PresignedUrl } from "@/components/Post/PostMaker";
+import { Media } from "@/types/media";
 import { Post, PostComment } from "@/types/post";
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 
@@ -81,94 +82,72 @@ export const PostService = (httpClient: AxiosInstance) => {
 
 			return response.data.result as Post[];
 		},
-		// uploadFiles: async (
-		// 	presignedUrls: PresignedUrl[],
-		// 	files: File[],
-		// 	setUploadProgress: (progress: number) => void,
-		// ) => {
-		// 	console.log(presignedUrls)
-		// 	const promises = presignedUrls.map((presignedUrl, index) => {
-		// 		const formData = new FormData();
-		// 		Object.entries(presignedUrl.fields).forEach(([key, value]) => {
-		// 			if (key === "id") {
-		// 				return;
-		// 			}
-		// 			formData.append(key, value);
-		// 		});
-		// 		formData.append("file", files[index]);
+		getMedias: async (producerId: string, queryOptions: QueryOptions) => {
+			const response = await httpClient.get("/medias", {
+				params: {
+					producerId,
+					itemsPerPage: queryOptions.itemsPerPage,
+					pageNumber: queryOptions.pageNumber,
+				},
+			});
 
-		// 		return axios.post(presignedUrl.url, formData, {
-		// 			headers: {
-		// 				"X-Amz-Server-Side-Encryption": "AES256",
-		// 			},
-		// 			onUploadProgress: (progressEvent) => {
-		// 				console.log(progressEvent)
-		// 				const percentCompleted = Math.round(
-		// 					(progressEvent.loaded * 100) / progressEvent.total,
-		// 				);
-		// 				setUploadProgress(percentCompleted);
-		// 			},
-		// 		});
-		// 	});
-
-		// 	console.log(promises)
-
-		// 	return Promise.all(promises);
-		// },
+			return response.data.result as Media[];
+		},
 		uploadFiles: async (
 			presignedUrls: PresignedUrl[],
 			files: File[],
 			setUploadProgress: (progress: number) => void,
-	) => {
+		) => {
 			console.log(presignedUrls);
-	
+
 			const totalPromises = presignedUrls.length;
 			let completedPromises = 0;
 			let overallProgress = 0;
-	
+
 			const promises = presignedUrls.map((presignedUrl, index) => {
-					const formData = new FormData();
-					for (const [key, value] of Object.entries(presignedUrl.fields)) {
-							if (key === "id") {
-									continue;
-							}
-							formData.append(key, value);
+				const formData = new FormData();
+				for (const [key, value] of Object.entries(presignedUrl.fields)) {
+					if (key === "id") {
+						continue;
 					}
-					formData.append("file", files[index]);
-	
-					return axios.post(presignedUrl.url, formData, {
-							headers: {
-									"X-Amz-Server-Side-Encryption": "AES256",
-							},
-							onUploadProgress: (progressEvent) => {
-									const percentCompleted = Math.round(
-											(progressEvent.loaded * 100) / (progressEvent.total ?? 0),
-									);
-	
-									// Update individual promise progress
-									setUploadProgress(percentCompleted);
-	
-									// Calculate and update overall progress
-									overallProgress =
-											((completedPromises * overallProgress) + percentCompleted) /
-											(completedPromises + 1);
-	
-									setUploadProgress(overallProgress);
-							},
+					formData.append(key, value);
+				}
+				formData.append("file", files[index]);
+
+				return axios
+					.post(presignedUrl.url, formData, {
+						headers: {
+							"X-Amz-Server-Side-Encryption": "AES256",
+						},
+						onUploadProgress: (progressEvent) => {
+							const percentCompleted = Math.round(
+								(progressEvent.loaded * 100) / (progressEvent.total ?? 0),
+							);
+
+							// Update individual promise progress
+							setUploadProgress(percentCompleted);
+
+							// Calculate and update overall progress
+							overallProgress =
+								(completedPromises * overallProgress + percentCompleted) /
+								(completedPromises + 1);
+
+							setUploadProgress(overallProgress);
+						},
 					})
 					.finally(() => {
-							completedPromises++;
-	
-							// Check if all promises are completed and set overall progress to 100%
-							if (completedPromises === totalPromises) {
-									setUploadProgress(100);
-							}
+						completedPromises++;
+
+						// Check if all promises are completed and set overall progress to 100%
+						if (completedPromises === totalPromises) {
+							setUploadProgress(100);
+						}
 					});
 			});
-	
+
 			console.log(promises);
-	
+
 			return Promise.all(promises);
-	},
+		},
 	};
 };

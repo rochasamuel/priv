@@ -105,10 +105,10 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
       presentationName: user.presentationName,
       username: user.username,
       email: user.email,
-      facebook: user.facebook,
-      instagram: user.instagram,
-      twitter: user.twitter,
-      biography: user.biography,
+      facebook: user.facebook ?? "",
+      instagram: user.instagram ?? "",
+      twitter: user.twitter ?? "",
+      biography: user.biography ?? "",
     },
   });
 
@@ -277,7 +277,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
                 <FormItem>
                   <FormLabel>Facebook</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nome de usuário" {...field} />
+                    <Input {...field} placeholder="Nome de usuário"  />
                   </FormControl>
                   <FormDescription>
                     {field.value?.length ?? 0} / 100

@@ -3,7 +3,7 @@
 import apiClient from "@/backend-sdk";
 import { Separator } from "../ui/separator";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import Feed from "../Feed/Feed";
 import PostMaker from "../Post/PostMaker";
@@ -36,6 +36,10 @@ export default function ProfilePage({ params }: ProfilePageProps) {
 		enabled: readyToFetch,
 	});
 
+	const canMakePosts = useMemo(() => {
+		return session?.user.activeProducer && session?.user.username === params.username;
+	}, [session, params]);
+
 	const handleSessionChange = (session: "posts" | "about" | "media") => {
 		setSelectedSection(session);
 	};
@@ -45,7 +49,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
 			case "posts":
 				return (
 					<>
-						<PostMaker />
+						{canMakePosts && <PostMaker />}
 						<Feed mode="profile" producerId={user?.producerId!} />
 					</>
 				);
@@ -62,10 +66,10 @@ export default function ProfilePage({ params }: ProfilePageProps) {
 
 	return (
 		<>
-			<main className="flex-1 h-full max-w-[96vw] mx-auto md:max-w-2xl">
+			<main className="flex-1 max-w-[96vw] mx-auto md:max-w-2xl">
 				{isLoading && <ProfileCardSkeleton />}
 				{user && !isLoading && <ProfileCard user={user} />}
-				<div className="w-full bg-[#020817] z-20 mb-4 flex items-center justify-evenly border rounded-md h-12 py-2 sticky top-2">
+				<div className="w-full bg-[#020817] z-20 mb-4 flex items-center justify-evenly border rounded-md h-12 py-2 sticky -top-[20px]">
 					<div className={`cursor-pointer text-sm ${selectedSection === "posts" && selectedSessionStyle}`} onClick={() => handleSessionChange("posts")}>
 						Publicações
 					</div>
@@ -81,7 +85,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
 				{user && renderSession()}
 			</main>
 
-			<aside className="sticky top-8 hidden w-72 shrink-0 xl:block">
+			<aside className="sticky top-0 hidden w-72 shrink-0 xl:block">
 				<p className="text-lg font-bold mb-4">Sugestões pra você</p>
 				<SuggestionList />
 			</aside>

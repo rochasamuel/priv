@@ -3,7 +3,7 @@ export enum MediaType {
 	Video = 2,
 }
 
-export interface Media {
+export interface PostMedia {
 	isPublic: boolean;
 	mediaTypeId: MediaType;
 	presignedUrls: string[];
@@ -26,7 +26,7 @@ export interface Post {
 	totalComments: number;
 	isLiked: boolean;
 	isSaved: boolean;
-	medias: Media[];
+	medias: PostMedia[];
 }
 
 export interface PostComment {

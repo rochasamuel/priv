@@ -37,7 +37,8 @@ export default function HotArea() {
         //   signOut();
         // }
       },
-      getNextPageParam: (_, pages) => {
+      getNextPageParam: (posts, pages) => {
+        if(pages.length >= 2) return; //limitando área hot publica a 2 páginas
         return pages.length + 1;
       },
     });

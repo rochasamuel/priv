@@ -11,12 +11,13 @@ const SuggestionList: FunctionComponent = () => {
 	const { data: session, status } = useSession();
 	const { api, readyToFetch } = useBackendClient();
 
-	const { data: recommendations, isLoading } = useQuery({
-		queryKey: ["recommendations"],
+	const { data: suggestions, isLoading } = useQuery({
+		queryKey: ["suggestions", session?.user?.userId],
 		queryFn: async () => {
-			return await api.reccomendation.getRecommendations();
+			return await api.suggestion.getSuggestions();
 		},
 		enabled: readyToFetch,
+		staleTime: Infinity
 	});
 
 	return (
@@ -28,8 +29,8 @@ const SuggestionList: FunctionComponent = () => {
 				</div>
 			) : (
 				<ScrollArea className="h-[calc(100dvh-270px)] lg:h-[calc(100dvh-140px)]">
-					{recommendations?.map((recommendation) => (
-						<SuggestionCard key={recommendation.username} recommendation={recommendation} />
+					{suggestions?.map((suggestions) => (
+						<SuggestionCard key={suggestions.username} recommendation={suggestions} />
 					))}
 				</ScrollArea>
 			)}

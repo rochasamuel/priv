@@ -19,5 +19,5 @@ export default withAuth(middleware, callbackOptions);
 
 // See "Matching Paths" below to learn more
 export const config = {
-	matcher: ["/((?!api|_next/static|_next/image|favicon.ico|auth|public/hot).*)"],
+	matcher: ["/((?!api|_next/static|_next/image|favicon.ico|auth|public/*).*)"],
 };
