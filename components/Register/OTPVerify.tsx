@@ -126,6 +126,7 @@ export default function OTPVerify() {
       setOTP(newOTP);
       inputRefs.current[index - 1]?.focus();
     } else if (/^\d$/.test(e.key) && index < otp.length) {
+      e.preventDefault();
       const newOTP = [...otp];
       newOTP[index] = e.key;
       setOTP(newOTP);
@@ -134,6 +135,8 @@ export default function OTPVerify() {
         inputRefs.current[index + 1]?.focus();
       }
     } else {
+      e.preventDefault();
+      setOTP([...otp]);
       return;
     }
   };
