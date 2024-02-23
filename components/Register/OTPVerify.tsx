@@ -137,6 +137,7 @@ export default function OTPVerify() {
       } else {
         (e.target as HTMLInputElement).value = "";
       }
+    }
   };
 
   const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
