@@ -2,7 +2,13 @@
 
 import { getAcronym } from "@/utils";
 import { useSession } from "next-auth/react";
-import { FunctionComponent, createRef, useRef, useState } from "react";
+import {
+  FunctionComponent,
+  createRef,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   Card,
@@ -43,9 +49,17 @@ import { Textarea } from "../ui/textarea";
 import { useToast } from "../ui/use-toast";
 import { Label } from "../ui/label";
 import ImageCropper from "../Cropper/ImageCropper";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 import { CropperRef } from "react-mobile-cropper";
 import useBackendClient from "@/hooks/useBackendClient";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile, toBlobURL } from "@ffmpeg/util";
 interface PostMakerProps {
   algo?: string;
 }
@@ -61,6 +75,9 @@ export interface MediaToSend {
   mimeType: string;
   id: string;
   isPublic: boolean;
+  name: string;
+  resolution?: string;
+  thumbnail?: string;
 }
 
 const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
@@ -71,9 +88,35 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
 
   const [postDescription, setPostDescription] = useState("");
   const [postPrivacy, setPostPrivacy] = useState("private");
-  const [postMedias, setPostMedias] = useState(null);
+
   const [presignedUrls, setPresignedUrls] = useState<PresignedUrl[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  const [loaded, setLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const ffmpegRef = useRef(new FFmpeg());
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const messageRef = useRef<HTMLParagraphElement | null>(null);
+  const [thumb, setThumb] = useState("");
+
+  const loadFFMPEG = async () => {
+    const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
+    const ffmpeg = ffmpegRef.current;
+    ffmpeg.on("log", ({ message }) => {
+      console.log("ffmpeg", message);
+    });
+    await ffmpeg.load({
+      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
+      wasmURL: await toBlobURL(
+        `${baseURL}/ffmpeg-core.wasm`,
+        "application/wasm"
+      ),
+    });
+  };
+
+  useEffect(() => {
+    loadFFMPEG();
+  }, []);
 
   const {
     isLoading: isLoadingPublishPost,
@@ -81,23 +124,33 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
     isSuccess,
     mutate: createPost,
   } = useMutation({
-    mutationFn: (postData: {
+    mutationFn: async (postData: {
       postDescription: string;
       postMedias?: MediaToSend[];
     }) => {
-      return api.post.createPost(postData.postDescription, postData.postMedias);
+      return await api.post.createPost(postData.postDescription, postData.postMedias);
     },
     onSuccess: async (data: any) => {
       setPresignedUrls(data.result.medias);
-      await apiClient(session?.user.accessToken!).post.uploadFiles(data.result.medias, files, setUploadProgress);
-      queryClient.refetchQueries(["posts", session?.user.email, "feed", undefined]);
+      await apiClient(session?.user.accessToken!).post.uploadFiles(
+        data.result.medias,
+        files,
+        setUploadProgress
+      );
+      queryClient.refetchQueries([
+        "posts",
+        session?.user.email,
+        "feed",
+        undefined,
+      ]);
       setUploadProgress(0); //reset progress
       setFiles([]); //clear files
       setPostDescription(""); //clear post description
       toast({
         variant: "default",
         title: "Sucesso",
-        description: "Seu post está sendo processado, após alguns segundos ele estará disponível",
+        description:
+          "Seu post está sendo processado, após alguns segundos ele estará disponível",
       });
     },
     onError: (error) => {
@@ -145,16 +198,58 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
     setOpenImageCropper(false);
   };
 
-  const getMediasToSendFromFiles = () => {
-    return files.map((file) => {
-      return {
-        mimeType: file.type,
-        id: crypto.randomUUID(),
-        isPublic: postPrivacy === "public",
-        resolution: file.type.startsWith('video') ? '1280 x 720' : undefined
-      };
-    });
-  }
+  const getVideoThumbnail = async (file: File) => {
+    const ffmpeg = ffmpegRef.current;
+    if (ffmpeg) {
+      await ffmpeg.writeFile(file!.name, await fetchFile(file!));
+      const extension = file!.name.split(".").pop();
+      await ffmpeg.exec([
+        "-i",
+        file!.name,
+        "-ss",
+        "00:00:05",
+        "-vframes",
+        "1",
+        file!.name.replace(`.${extension}`, ".png"),
+      ]);
+      const data = await ffmpeg.readFile(
+        file!.name.replace(`.${extension}`, ".png")
+      );
+      const blob = new Blob([data], { type: "image/png" });
+      const url = URL.createObjectURL(blob);
+      return blob;
+    }
+  };
+
+  const getMediasToSendFromFiles = async (): Promise<MediaToSend[]> => {
+    const mediaArray: MediaToSend[] = await Promise.all(
+      files.map(async (file) => {
+        const mimeType = file.type;
+        const id = crypto.randomUUID();
+        const isPublic = postPrivacy === "public";
+        const name = file.name;
+  
+        let thumbnail;
+        let resolution;
+  
+        if (file.type.startsWith("video")) {
+          thumbnail = await getVideoThumbnail(file);
+          resolution = "1280 x 720";
+        }
+  
+        return {
+          mimeType,
+          id,
+          isPublic,
+          name,
+          thumbnail,
+          resolution,
+        } as MediaToSend;
+      })
+    );
+  
+    return mediaArray;
+  };
 
   return (
     <div className="max-w-[96vw] m-auto mb-4 md:max-w-2xl">
@@ -229,18 +324,20 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
                   >
                     <X size={12} />
                   </Button>
-                  {file.type.startsWith('image') && <Button
-                    className="p-1 w-6 h-6 absolute bottom-2 left-2 bg-black bg-opacity-80"
-                    type="button"
-                    disabled={isLoadingPublishPost}
-                    variant={"outline"}
-                    onClick={() => {
-                      setCurrentEditingImage(file);
-                      setOpenImageCropper(true);
-                    }}
-                  >
-                    <Pencil size={12} />
-                  </Button>}
+                  {file.type.startsWith("image") && (
+                    <Button
+                      className="p-1 w-6 h-6 absolute bottom-2 left-2 bg-black bg-opacity-80"
+                      type="button"
+                      disabled={isLoadingPublishPost}
+                      variant={"outline"}
+                      onClick={() => {
+                        setCurrentEditingImage(file);
+                        setOpenImageCropper(true);
+                      }}
+                    >
+                      <Pencil size={12} />
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>
@@ -249,10 +346,9 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
             <ImageCropperDialog
               src={URL.createObjectURL(currentEditingImage!)}
               closeCropper={() => setOpenImageCropper(false)}
-							saveCrop={handleFinishCrop}
+              saveCrop={handleFinishCrop}
             />
           )}
-
         </CardContent>
         <CardFooter className="flex justify-between p-4">
           <div className="flex gap-8">
@@ -281,8 +377,16 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
             />
           </div>
           <Button
-            disabled={(postDescription.length <= 0 && files.length <= 0) || isLoadingPublishPost}
-            onClick={() => createPost({ postDescription, postMedias: getMediasToSendFromFiles() })}
+            disabled={
+              (postDescription.length <= 0 && files.length <= 0) ||
+              isLoadingPublishPost
+            }
+            onClick={async () =>
+              createPost({
+                postDescription,
+                postMedias: await getMediasToSendFromFiles(),
+              })
+            }
           >
             {isLoadingPublishPost ? (
               <>
@@ -305,24 +409,30 @@ interface ImageCropperDialogProps {
   src: string;
 }
 
-const ImageCropperDialog = ({ closeCropper, saveCrop,  src }: ImageCropperDialogProps) => {
-	const cropperRef = createRef<CropperRef>();
+const ImageCropperDialog = ({
+  closeCropper,
+  saveCrop,
+  src,
+}: ImageCropperDialogProps) => {
+  const cropperRef = createRef<CropperRef>();
 
-	const handleSaveCrop = () => {
-		if (cropperRef.current) {
-			cropperRef.current.getCanvas()?.toBlob((blob) => {
-				if (blob) {
-					saveCrop(blob);
-				}
-			});
-		}
-	}
+  const handleSaveCrop = () => {
+    if (cropperRef.current) {
+      cropperRef.current.getCanvas()?.toBlob((blob) => {
+        if (blob) {
+          saveCrop(blob);
+        }
+      });
+    }
+  };
 
   return (
     <Dialog defaultOpen onOpenChange={closeCropper}>
       <DialogContent className="max-w-screen-md h-dvh flex flex-col gap-4 px-4 md:max-w-[50vw] md:h-auto md:max-h-[90dvh] lg:max-w-[45vw]">
-				<ImageCropper imageSrc={src} ref={cropperRef} />
-				<Button className="" onClick={handleSaveCrop}>Salvar</Button>
+        <ImageCropper imageSrc={src} ref={cropperRef} />
+        <Button className="" onClick={handleSaveCrop}>
+          Salvar
+        </Button>
       </DialogContent>
     </Dialog>
   );

@@ -43,13 +43,21 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
   const { api, readyToFetch } = useBackendClient();
   const queryClient = useQueryClient();
 
+  const isProducer = session?.user.activeProducer;
+
   const { mutate, isLoading: isSendindRequest } = useMutation({
     mutationFn: async (payload: User) => {
-      const payloadToSend = {
-        ...payload,
-        profilePhotoOption: selectedProfileImage ? 1 : undefined,
-        coverPhotoOption: selectedCoverImage ? 1 : undefined,
-      };
+      const payloadToSend = isProducer
+        ? {
+            ...payload,
+            profilePhotoOption: selectedProfileImage ? 1 : undefined,
+            coverPhotoOption: selectedCoverImage ? 1 : undefined,
+          }
+        : {
+            presentationName: payload.presentationName,
+            profilePhotoOption: selectedProfileImage ? 1 : undefined,
+            coverPhotoOption: selectedCoverImage ? 1 : undefined,
+          };
       const result = await api.account.updateUserAccountData(payloadToSend);
       return result;
     },
@@ -63,15 +71,20 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
           selectedCoverImage!
         );
       }
-      
+
       if (profilePresignedUrl) {
         await api.account.uploadAccountImage(
           profilePresignedUrl,
           selectedProfileImage!
-          );
+        );
       }
 
-      updateSession({ user: { ...variables, profilePhotoPresignedGet: user.profilePhotoPresignedGet } });
+      updateSession({
+        user: {
+          ...variables,
+          profilePhotoPresignedGet: user.profilePhotoPresignedGet,
+        },
+      });
       queryClient.refetchQueries(["user", session?.user.userId]);
 
       toast({
@@ -90,9 +103,17 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
   });
 
   const formSchema = z.object({
-    presentationName: z.string().min(2).max(60),
-    username: z.string().min(2).max(30),
-    email: z.string().email(),
+    presentationName: z
+      .string({ required_error: "É obrigatório preencher este campo" })
+      .min(2, "É usuário deve ter no mínimo 2 caracteres")
+      .max(60, "É usuário deve ter no maximo 30 caracteres"),
+    username: z
+      .string({ required_error: "É obrigatório preencher este campo" })
+      .min(2, "É usuário deve ter no mínimo 2 caracteres")
+      .max(30, "É usuário deve ter no maximo 30 caracteres"),
+    email: z
+      .string({ required_error: "É obrigatório preencher este campo" })
+      .email(),
     facebook: z.string().max(50).optional(),
     instagram: z.string().max(30).optional(),
     twitter: z.string().max(15).optional(),
@@ -242,7 +263,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
                 <FormItem className="w-full">
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input readOnly={!isProducer} {...field} />
                   </FormControl>
                   <FormDescription>
                     {field.value?.length ?? 0} / 30
@@ -261,7 +282,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input readOnly={!isProducer} {...field} />
                   </FormControl>
                   <FormDescription>
                     {field.value?.length ?? 0} / 100
@@ -273,11 +294,12 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
             <FormField
               control={form.control}
               name="facebook"
+              disabled={!isProducer}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Facebook</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Nome de usuário"  />
+                    <Input {...field} placeholder="Nome de usuário" />
                   </FormControl>
                   <FormDescription>
                     {field.value?.length ?? 0} / 100
@@ -292,6 +314,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
             <FormField
               control={form.control}
               name="instagram"
+              disabled={!isProducer}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Instagram</FormLabel>
@@ -308,6 +331,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
             <FormField
               control={form.control}
               name="twitter"
+              disabled={!isProducer}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Twitter X</FormLabel>
@@ -326,6 +350,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
           <FormField
             control={form.control}
             name="biography"
+            disabled={!isProducer}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Sobre mim</FormLabel>
@@ -344,7 +369,12 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
             <Button
               className="w-full md:w-64 md:ml-auto"
               type="submit"
-              disabled={isSendindRequest || (!form.formState.isDirty && !selectedCoverImage && !selectedProfileImage) }
+              disabled={
+                isSendindRequest ||
+                (!form.formState.isDirty &&
+                  !selectedCoverImage &&
+                  !selectedProfileImage)
+              }
             >
               {isSendindRequest ? (
                 <>

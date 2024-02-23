@@ -29,14 +29,22 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../ui/collapsible";
+import { toast } from "../ui/use-toast";
 
 export default function SideNav() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleRedirect = (username?: string) => {
+    if(!session?.user.activeProducer) {
+      toast({
+        title: "Acesso negado",
+        description: "Recurso exclusivo para produtores"
+      })
+      return;
+    };
     if (username) router.push(`/profile/${username}`);
   };
 
@@ -104,9 +112,9 @@ export default function SideNav() {
               <SideNavItem icon={<FileEdit />} name="Planos" />
             </Link>}
 
-            {isProducerProfile && <Link href={"/settings/account"}>
+            <Link href={"/settings/account"}>
               <SideNavItem icon={<UserRound />} name="Conta" />
-            </Link>}
+            </Link>
 
             <Link href={"/settings/payments"}>
               <SideNavItem icon={<Receipt />} name="Pagamentos" />

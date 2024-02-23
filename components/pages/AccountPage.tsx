@@ -22,6 +22,7 @@ export default function AccountPage() {
     queryFn: async () => {
       return await api.account.getUserAccountData();
     },
+    staleTime: 1000 * 60 * 5,
   });
 
   return ( <div className="w-full">

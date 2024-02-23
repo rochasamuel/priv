@@ -38,6 +38,7 @@ const Feed: FunctionComponent<FeedProps> = ({ mode, producerId }) => {
 			getNextPageParam: (_, pages) => {
 				return pages.length + 1;
 			},
+			staleTime: 1000 * 60 * 60,
 		});
 
 	const infiniteTriggerPostRef = useRef<HTMLElement>(null);

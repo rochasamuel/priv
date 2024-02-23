@@ -431,6 +431,7 @@ export function ActionBar({
   const [commentsCount, setCommentsCount] = useState(Number(totalComments));
   const [openComments, setOpenComments] = useState(false);
 
+  const router = useRouter();
   const { data: session } = useSession();
 
   const {
@@ -479,8 +480,9 @@ export function ActionBar({
 
   const handleClipboardCopy = async () => {
     if (post) {
+      const currentDomain = window.location.hostname ?? '';
       await navigator.clipboard.writeText(
-        `localhost:3003/profile/${post.producer.username}/${post.postId}`
+        `${currentDomain}/profile/${post.producer.username}/${post.postId}`
       );
       toast({
         title: "Link copiado!",

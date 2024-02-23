@@ -17,7 +17,7 @@ import { PostComment } from "@/types/post";
 import { getAcronym } from "@/utils";
 import { Trash } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation } from "react-query";
 import { ToastAction } from "../ui/toast";
 import { useToast } from "../ui/use-toast";
@@ -40,6 +40,7 @@ const PostCommentCard = ({
 	const { api, readyToFetch } = useBackendClient();
 	const [isDeleted, setIsDeleted] = useState(false);
 	const { toast } = useToast();
+	const refD = useRef(null);
 
 	const isOwner = comment.idUser === session?.user.userId;
 
@@ -67,6 +68,7 @@ const PostCommentCard = ({
 
 	return (
 		<div
+			ref={refD}
 			className={`flex items-start justify-start w-full my-4 ${
 				loadingPublish ? "opacity-50" : ""
 			}

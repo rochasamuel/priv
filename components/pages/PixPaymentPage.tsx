@@ -158,12 +158,21 @@ export default function PixPaymentPage() {
         <div className="flex flex-wrap gap-6">
           <div className="flex justify-center flex-col items-center m-auto">
             <div className="border rounded-sm w-72 min-w-dvw aspect-square flex justify-center items-center p-2 text-center m-auto">
-              {!qrCodeData &&
-                !loadingQrCode &&
-                "Preencha seus dados para realizar o pagamento"}
+              {!qrCodeData && !loadingQrCode && (
+                <div className="w-full h-full flex justify-center items-center bg-[#181818]">
+                  <img
+                    src="/privatus-mask.svg"
+                    alt="QR Code"
+                    className="w-32 h-full object-contain"
+                  />
+                </div>
+              )}
               {!qrCodeData && loadingQrCode && (
-                <div className="opacity-50 flex gap-2 items-center justify-center">
-                  Carregando dados <Loader2 className="h-4 w-4 animate-spin" />
+                <div className="w-full h-full flex justify-center items-center bg-[#181818]">
+                  <div className="opacity-50 flex gap-2 items-center justify-center">
+                    Carregando dados{" "}
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </div>
                 </div>
               )}
               {qrCodeData && (

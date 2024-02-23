@@ -1,7 +1,7 @@
 export interface User {
 	biography: string;
 	canEdit: boolean;
-	email: string;
+	email?: string;
 	coverPhotoPresignedGet: string;
 	isFollower: boolean;
 	isSubscripted: boolean;
@@ -13,7 +13,7 @@ export interface User {
 	totalImages: number;
 	totalPosts: number;
 	totalVideos: number;
-	username: string;
+	username?: string;
 	facebook: string;
 	instagram: string;
 	twitter: string;

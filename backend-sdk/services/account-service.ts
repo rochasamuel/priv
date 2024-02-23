@@ -11,7 +11,7 @@ export const AccountService = (httpClient: AxiosInstance) => {
 
 			return response.data.user as User;
 		},
-		updateUserAccountData: async (user: User): Promise<any> => {
+		updateUserAccountData: async (user: Partial<User>): Promise<any> => {
 			const response: AxiosResponse = await httpClient.put("/users", user);
 
 			return response.data.result as any;

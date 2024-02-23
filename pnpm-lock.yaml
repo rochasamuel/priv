@@ -8,6 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@ffmpeg/core':
+        specifier: ^0.12.6
+        version: 0.12.6
+      '@ffmpeg/ffmpeg':
+        specifier: ^0.12.10
+        version: 0.12.10
+      '@ffmpeg/util':
+        specifier: ^0.12.1
+        version: 0.12.1
       '@fortawesome/fontawesome-svg-core':
         specifier: ^6.5.1
         version: 6.5.1
@@ -80,12 +89,6 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.11.7
         version: 8.11.7(react-dom@18.2.0)(react@18.2.0)
-      '@types/inputmask':
-        specifier: ^5.0.7
-        version: 5.0.7
-      '@types/qrcode':
-        specifier: ^1.5.5
-        version: 1.5.5
       axios:
         specifier: ^1.6.0
         version: 1.6.1
@@ -177,12 +180,18 @@ importers:
       '@biomejs/biome':
         specifier: 1.4.1
         version: 1.4.1
+      '@types/inputmask':
+        specifier: ^5.0.7
+        version: 5.0.7
       '@types/luxon':
         specifier: ^3.3.3
         version: 3.3.4
       '@types/node':
         specifier: ^20
         version: 20.9.0
+      '@types/qrcode':
+        specifier: ^1.5.5
+        version: 1.5.5
       '@types/react':
         specifier: ^18
         version: 18.2.37
@@ -329,6 +338,28 @@ packages:
     resolution: {integrity: sha512-Kn7K8dx/5U6+cT1yEhpX1w4PCSg0M+XyRILPgvwcEBjerFWCwQj5sbr3/VmxqV0JGHCBCzyd6LxypEuehypY1w==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
+
+  /@ffmpeg/core@0.12.6:
+    resolution: {integrity: sha512-PrjWBTfGn2WVn9T7wGnzfFwChbqWeZc7tM9vvJZVRadYFUDakfzy7W0LpYC0cvvK0xT82qlBsk38lQhJ/Hps5A==}
+    engines: {node: '>=16.x'}
+    dev: false
+
+  /@ffmpeg/ffmpeg@0.12.10:
+    resolution: {integrity: sha512-lVtk8PW8e+NUzGZhPTWj2P1J4/NyuCrbDD3O9IGpSeLYtUZKBqZO8CNj1WYGghep/MXoM8e1qVY1GztTkf8YYQ==}
+    engines: {node: '>=18.x'}
+    dependencies:
+      '@ffmpeg/types': 0.12.2
+    dev: false
+
+  /@ffmpeg/types@0.12.2:
+    resolution: {integrity: sha512-NJtxwPoLb60/z1Klv0ueshguWQ/7mNm106qdHkB4HL49LXszjhjCCiL+ldHJGQ9ai2Igx0s4F24ghigy//ERdA==}
+    engines: {node: '>=16.x'}
+    dev: false
+
+  /@ffmpeg/util@0.12.1:
+    resolution: {integrity: sha512-10jjfAKWaDyb8+nAkijcsi9wgz/y26LOc1NKJradNMyCIl6usQcBbhkjX5qhALrSBcOy6TOeksunTYa+a03qNQ==}
+    engines: {node: '>=18.x'}
+    dev: false
 
   /@floating-ui/core@1.5.0:
     resolution: {integrity: sha512-kK1h4m36DQ0UHGj5Ah4db7R0rHemTqqO0QLvUqi1/mUUp3LuAWbWxdxSIf/XsnH9VS6rRVPLJCncjRzUvyCLXg==}
@@ -1550,7 +1581,7 @@ packages:
 
   /@types/inputmask@5.0.7:
     resolution: {integrity: sha512-uojbVPWzBQ/n/0jc/d16fLqmGasFIptbrLD2WrCPWArlk+5PgblOqH4EDkI3AoobXLAlOK5yF01V8jMmvMG5qg==}
-    dev: false
+    dev: true
 
   /@types/json5@0.0.29:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
@@ -1564,6 +1595,7 @@ packages:
     resolution: {integrity: sha512-nekiGu2NDb1BcVofVcEKMIwzlx4NjHlcjhoxxKBNLtz15Y1z7MYf549DFvkHSId02Ax6kGwWntIBPC3l/JZcmw==}
     dependencies:
       undici-types: 5.26.5
+    dev: true
 
   /@types/prop-types@15.7.10:
     resolution: {integrity: sha512-mxSnDQxPqsZxmeShFH+uwQ4kO4gcJcGahjjMFeLbKE95IAZiiZyiEepGZjtXJ7hN/yfu0bu9xN2ajcU0JcxX6A==}
@@ -1572,7 +1604,7 @@ packages:
     resolution: {integrity: sha512-CdfBi/e3Qk+3Z/fXYShipBT13OJ2fDO2Q2w5CIP5anLTLIndQG9z6P1cnm+8zCWSpm5dnxMFd/uREtb0EXuQzg==}
     dependencies:
       '@types/node': 20.9.0
-    dev: false
+    dev: true
 
   /@types/react-dom@18.2.15:
     resolution: {integrity: sha512-HWMdW+7r7MR5+PZqJF6YFNSCtjz1T0dsvo/f1BV6HkV+6erD/nA7wd9NM00KVG83zf2nJ7uATPO9ttdIPvi3gg==}
@@ -4546,6 +4578,7 @@ packages:
 
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+    dev: true
 
   /unload@2.2.0:
     resolution: {integrity: sha512-B60uB5TNBLtN6/LsgAf3udH9saB5p7gqJwcFfbOEZ8BcBHnGwCf6G/TGiEqkRAxX7zAFIUtzdrXQSdL3Q/wqNA==}

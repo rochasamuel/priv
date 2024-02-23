@@ -42,15 +42,23 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { toast } from "../ui/use-toast";
 
 const MobileNav = () => {
   const pathName = usePathname();
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleRedirect = (username?: string) => {
+    if(!session?.user.activeProducer) {
+      toast({
+        title: "Acesso negado",
+        description: "Recurso exclusivo para produtores"
+      })
+      return;
+    };
     if (username) router.push(`/profile/${username}`);
   };
 
@@ -153,11 +161,11 @@ const MobileNav = () => {
                     </Link>
                   </SheetClose>}
 
-                  {isProducerProfile && <SheetClose asChild>
+                  <SheetClose asChild>
                     <Link href={"/settings/account"}>
                       <MobileNavItem name="Conta" icon={<UserRound />} />
                     </Link>
-                  </SheetClose>}
+                  </SheetClose>
 
                   <SheetClose asChild>
                     <Link href={"/settings/payments"}>
