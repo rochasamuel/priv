@@ -95,3 +95,12 @@ body {
   background: rgba(155, 155, 155, 0.493);
   border-radius: 50px;
 }
+
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input {
+    -moz-appearance: textfield;
+}

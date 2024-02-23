@@ -125,21 +125,18 @@ export default function OTPVerify() {
       newOTP[index] = "";
       setOTP(newOTP);
       inputRefs.current[index - 1]?.focus();
-    } else if (/^\d$/.test(e.key) && index < otp.length) {
-      e.preventDefault();
-      const newOTP = [...otp];
-      newOTP[index] = e.key;
-      setOTP(newOTP);
-
-      if (index < otp.length - 1 && inputRefs.current[index + 1]) {
-        inputRefs.current[index + 1]?.focus();
-      }
     } else {
-      e.preventDefault();
-      const newOTP = [...otp];
-      newOTP[index] = "";
-      setOTP(newOTP);
-      return;
+      if (/^\d$/.test(e.key) && index < otp.length) {
+        const newOTP = [...otp];
+        newOTP[index] = e.key;
+        setOTP(newOTP);
+  
+        if (index < otp.length - 1 && inputRefs.current[index + 1]) {
+          inputRefs.current[index + 1]?.focus();
+        }
+      } else {
+        e.target.value = "";
+      }
     }
   };
 
@@ -227,6 +224,7 @@ export default function OTPVerify() {
               type="number"
               value={digit}
               onKeyUp={(e) => handleKeyDown(e, index)}
+              pattern="[0-9]"
               onPaste={handlePaste}
               maxLength={1}
               ref={(el) => assignRef(el, index)}
