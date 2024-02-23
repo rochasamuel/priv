@@ -135,7 +135,7 @@ export default function OTPVerify() {
           inputRefs.current[index + 1]?.focus();
         }
       } else {
-        (e.target as HTMLInputElement).value = "";
+        (e.target as HTMLInputElement).value = otp[index] ?? "";
       }
     }
   };
@@ -153,6 +153,7 @@ export default function OTPVerify() {
       }
     }
 
+    inputRefs.current.at(-1)?.focus();
     setOTP(newOTP);
   };
 
