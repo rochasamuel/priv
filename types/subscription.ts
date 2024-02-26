@@ -18,7 +18,7 @@ export enum SubscriptionStatus {
 export interface Subscriber {
 	coverPhotoPresignedGet: string;
 	expirationDate: string;
-	idProducer: boolean;
+	idProducer: string;
 	planType: string;
 	presentationName: string;
 	profilePhotoPresignedGet: string;

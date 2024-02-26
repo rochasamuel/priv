@@ -150,7 +150,7 @@ export const LoginForm = () => {
           )}
         />
         <div className="flex items-center justify-end">
-          <Button variant="link" type="button">
+          <Button variant="link" className="font-semibold text-white" type="button">
             Esqueceu sua senha?
           </Button>
         </div>

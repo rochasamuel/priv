@@ -44,8 +44,8 @@ const FollowerCard = ({ follower }: FollowerCardProps) => {
 					<DropdownMenuLabel>@{follower.username}</DropdownMenuLabel>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem>Remover</DropdownMenuItem>
-					<DropdownMenuItem>Compartilhar</DropdownMenuItem>
-					<DropdownMenuItem>Seguir</DropdownMenuItem>
+					{"isProducer" in follower && follower.isProducer && <DropdownMenuItem>Compartilhar</DropdownMenuItem>}
+					{"isProducer" in follower && follower.isProducer && <DropdownMenuItem>Seguir</DropdownMenuItem>}
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</div>

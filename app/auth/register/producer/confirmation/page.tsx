@@ -1,16 +1,7 @@
 "use client";
-import ConsumerRegister from "@/components/Register/ConsumerRegister";
-import OTPVerify from "@/components/Register/OTPVerify";
-import ProducerAddress from "@/components/Register/ProducerAddress";
-import ProducerBankDetails from "@/components/Register/ProducerBankDetails";
 import ProducerConfirmation from "@/components/Register/ProducerConfirmation";
-import ProducerRegister from "@/components/Register/ProducerRegister";
-import ProducerSelfie from "@/components/Register/ProducerSelfie";
-import { useSearchParams } from "next/navigation";
 
-const ProducerPage = () => {
-	const searchParams = useSearchParams();
-
+const ProducerConfirmationPage = () => {
 	return (
 		<div
 			className="w-full min-h-dvh flex flex-col items-center justify-center gap-10 lg:flex-row lg:gap-36 p-4 
@@ -22,9 +13,9 @@ const ProducerPage = () => {
 				<img className="w-full" src="https://d384rvovcanpvp.cloudfront.net/assets/img/logos/logo-white-text.svg" alt="" />
 				<div className="lg:text-2xl mt-2">Desfrute do prazer de fazer parte!</div>
 			</div>
-			{searchParams.get("verify") === "true" ? <OTPVerify /> : <ProducerRegister />}
+			<ProducerConfirmation />
 		</div>
 	);
 };
 
-export default ProducerPage;
+export default ProducerConfirmationPage;

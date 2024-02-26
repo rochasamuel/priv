@@ -22,7 +22,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import { ChevronLeft, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState, ClipboardEvent, useEffect } from "react";
 import { toast } from "../ui/use-toast";
 import apiClient from "@/backend-sdk";
@@ -33,6 +33,7 @@ const TIME_TO_RESEND = 60;
 
 export default function OTPVerify() {
   const router = useRouter();
+  const pathName = usePathname();
   const [otp, setOTP] = useState<string[]>(["", "", "", "", "", ""]);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [seconds, setSeconds] = useState(TIME_TO_RESEND); // Initial countdown time in seconds
@@ -74,7 +75,11 @@ export default function OTPVerify() {
         });
 
         if (!response?.error) {
-          router.replace("/");
+          if(pathName.includes('producer')) {
+            router.replace("/auth/register/producer/address");
+          } else {
+            router.replace("/");
+          }
         }
       } catch (error) {
         toast({
@@ -235,7 +240,7 @@ export default function OTPVerify() {
         <Button
           disabled={seconds > 0 || !canResend || loadingResendEmail}
           onClick={() => handleResend()}
-          className="flex m-auto"
+          className="flex m-auto text-white"
           variant={"link"}
         >
           Reenviar código {seconds > 0 && `(${seconds})`}{" "}

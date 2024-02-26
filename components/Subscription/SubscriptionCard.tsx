@@ -7,6 +7,8 @@ import { Subscription, SubscriptionStatus } from "@/types/subscription";
 import { getAcronym } from "@/utils";
 import { DateTime } from "luxon";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import PlansDialog from "../Plan/PlansDialog";
 
 interface SubscriptionCardProps {
 	subscription: Subscription;
@@ -14,11 +16,16 @@ interface SubscriptionCardProps {
 
 const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
 	const router = useRouter();
+  const [openPlansDialog, setOpenPlansDialog] = useState(false);
 
 	const handleRedirect = (username: string) => {
 		router.push(`/profile/${username}`);
 	};
-	
+
+	const handleClosePlansDialog = () => {
+    setOpenPlansDialog(false);
+  };
+
 	return (
 		<div className="w-full rounded-sm border-[1px] mt-4 mb-4 pb-4">
 			<div className="w-full flex flex-col items-center rounded-sm">
@@ -59,7 +66,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
 						<Badge className="mt-4 bg-orange-400">Aguardando pagamento</Badge>
 					)}
 				{subscription.idStatusContract === SubscriptionStatus.INACTIVE && (
-					<Button className="mt-4" size={"sm"}>
+					<Button onClick={() => setOpenPlansDialog(true)} className="mt-4" size={"sm"}>
 						Reativar
 					</Button>
 				)}
@@ -90,6 +97,15 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
 						</p>
 					)}
 			</div>
+			{openPlansDialog && (
+        <PlansDialog
+          user={{
+            presentationName: subscription.presentationName,
+            producerId: subscription.idProducer,
+          }}
+					closePlansDialog={handleClosePlansDialog}
+        />
+      )}
 		</div>
 	);
 };
@@ -98,7 +114,7 @@ export const SubscriptionCardSkeleton = () => {
 	return (
 		<div className="w-full rounded-sm border-[1px] mt-4 mb-4 pb-4">
 			<div className="w-full flex flex-col items-center rounded-sm">
-				<Skeleton className="w-full h-20 rounded-sm bg-gray-800" />
+				<Skeleton className="w-full h-20 rounded-sm bg-muted" />
 				<Avatar className="w-16 h-16 -mt-8 border-cyan-50 border-2">
 					<AvatarImage src="" />
 					<AvatarFallback />

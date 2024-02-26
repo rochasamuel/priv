@@ -43,7 +43,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
   const { api, readyToFetch } = useBackendClient();
   const queryClient = useQueryClient();
 
-  const isProducer = session?.user.activeProducer;
+  const isProducer = session?.user.activeProducer && session.user.approved;
 
   const { mutate, isLoading: isSendindRequest } = useMutation({
     mutationFn: async (payload: User) => {

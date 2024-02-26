@@ -98,7 +98,6 @@ export const PostService = (httpClient: AxiosInstance) => {
 			files: File[],
 			setUploadProgress: (progress: number) => void,
 		) => {
-			console.log(presignedUrls);
 
 			const totalPromises = presignedUrls.length;
 			let completedPromises = 0;

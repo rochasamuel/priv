@@ -20,8 +20,17 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { ChevronLeft } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { ChevronLeft, Eye, EyeOff, HelpCircle, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMutation } from "react-query";
+import apiClient from "@/backend-sdk";
+import { toast } from "../ui/use-toast";
+import { useState } from "react";
+import { isValidCpf } from "@/utils/cpf";
+import MaskedInput from "../Input/MaskedInput";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { formatRawStringDate } from "@/utils/date";
 
 export default function ProducerRegister() {
   const router = useRouter();
@@ -41,13 +50,20 @@ export default function ProducerRegister() {
           >
             <ChevronLeft />
           </Button>{" "}
-          EM DESNVOLVIMENTO
+          Criar sua conta de produtor(a)
         </CardTitle>
-        <CardDescription>
-          <div className="w-full">
-
+        <div>
+          <div className="text-lg text-secondary mt-4 font-medium">
+            Dados da conta
           </div>
-        </CardDescription>
+          <div className="w-full flex gap-7 mt-2">
+            <div className="w-1/5 h-1 rounded-sm bg-slate-300" />
+            <div className="w-1/5 h-1 rounded-sm bg-slate-300 opacity-50" />
+            <div className="w-1/5 h-1 rounded-sm bg-slate-300 opacity-50" />
+            <div className="w-1/5 h-1 rounded-sm bg-slate-300 opacity-50" />
+            <div className="w-1/5 h-1 rounded-sm bg-slate-300 opacity-50" />
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-2">
         <ProducerForm />
@@ -59,6 +75,12 @@ export default function ProducerRegister() {
 const producerFormSchema = z.object({
   name: z.string({ required_error: "Campo obrigatório" }).min(4, {
     message: "O nome deve ter no mínimo 4 carcteres.",
+  }),
+  cpf: z.string().refine((cpf: string) => {
+    return isValidCpf(cpf);
+  }, "O CPF informado é inválido."),
+  birthDate: z.string({ required_error: "Campo obrigatório" }).min(8, {
+    message: "A data de nascimento deve ter no mínimo 8 caracteres.",
   }),
   presentationName: z.string({ required_error: "Campo obrigatório" }).min(2, {
     message: "O nome de apresentação deve ter no mínimo 8 caracteres.",
@@ -80,6 +102,42 @@ const producerFormSchema = z.object({
 export const ProducerForm = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [successfullRequest, setSuccessfullRequest] = useState(false);
+  const [peekingPassword, setPeekingPassword] = useState(false);
+
+  const { mutate, isLoading } = useMutation({
+    mutationFn: async (values: z.infer<typeof producerFormSchema>) => {
+      const { cpf, birthDate, ...payload } = values;
+      const api = apiClient();
+      const referrer = searchParams.get("referrer") ?? "";
+      const result = await api.auth.createAccount({ ...payload, referrer });
+      return result;
+    },
+    onError(error: any) {
+      toast({
+        variant: "destructive",
+        title: "Ops.",
+        description: error.response.data.message,
+      });
+    },
+    onSuccess(data, variables) {
+      localStorage.setItem("registerEmail", variables.email);
+      localStorage.setItem("registerPassword", variables.password);
+      localStorage.setItem("fullName", variables.name);
+      localStorage.setItem("cpf", variables.cpf);
+      localStorage.setItem("birthDate", formatRawStringDate(variables.birthDate));
+      setSuccessfullRequest(true);
+      toast({
+        variant: "default",
+        title: "Sucesso!",
+        description: "Conta criada com sucesso!",
+      });
+
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      current.set("verify", "true");
+      router.push(`producer?${current.toString()}`);
+    },
+  });
 
   const form = useForm<z.infer<typeof producerFormSchema>>({
     resolver: zodResolver(producerFormSchema),
@@ -88,11 +146,12 @@ export const ProducerForm = () => {
     },
   });
 
+  const handleTogglePasswordPeek = () => {
+    setPeekingPassword(!peekingPassword);
+  };
+
   function onSubmit(values: z.infer<typeof producerFormSchema>) {
-    const current = new URLSearchParams(Array.from(searchParams.entries()));
-    current.set("verify", "true");
-    router.push(`consumer?${current.toString()}`);
-    console.log("register", values);
+    mutate(values);
   }
 
   return (
@@ -116,12 +175,61 @@ export const ProducerForm = () => {
           )}
         />
 
+        <div className="grid md:grid-cols-2 gap-2">
+          <FormField
+            control={form.control}
+            name="cpf"
+            render={({ field }) => (
+              <FormItem className="space-y-1">
+                <FormLabel>CPF</FormLabel>
+                <FormControl>
+                  <MaskedInput
+                    id="cpf"
+                    mask="999.999.999-99"
+                    placeholder="000.000.000-00"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="birthDate"
+            render={({ field }) => (
+              <FormItem className="space-y-1">
+                <FormLabel>Data de nascimento</FormLabel>
+                <FormControl>
+                  <MaskedInput
+                    id="birthDate"
+                    mask="99/99/9999"
+                    placeholder="00/00/0000"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="presentationName"
           render={({ field }) => (
             <FormItem className="space-y-1">
-              <FormLabel>Nome de apresentação</FormLabel>
+              <FormLabel className="flex items-center gap-2">
+                Nome de apresentação
+                <Popover>
+                  <PopoverTrigger>
+                    <HelpCircle className="h-6" size={16} />
+                  </PopoverTrigger>
+                  <PopoverContent className="text-xs">
+                    O nome de apresentação é como os outros usuários veem seu nome. Pode ser seu nome real ou um não.
+                  </PopoverContent>
+                </Popover>
+              </FormLabel>
               <FormControl>
                 <Input
                   id="presentationName"
@@ -176,11 +284,21 @@ export const ProducerForm = () => {
           name="password"
           render={({ field }) => (
             <FormItem className="space-y-1">
-              <FormLabel>Senha</FormLabel>
+              <FormLabel className="flex items-center gap-2">
+                Senha{" "}
+                <Button
+                  type="button"
+                  onClick={() => handleTogglePasswordPeek()}
+                  className="p-1 h-6"
+                  variant={"ghost"}
+                >
+                  {peekingPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </Button>
+              </FormLabel>
               <FormControl>
                 <Input
                   id="password"
-                  type="password"
+                  type={peekingPassword ? "text" : "password"}
                   placeholder="Crie uma senha forte"
                   {...field}
                 />
@@ -190,9 +308,50 @@ export const ProducerForm = () => {
           )}
         />
 
-        <Button className="w-full" type="submit">
-          Criar minha conta
-        </Button>
+        <div className="text-xs w-full pt-4">
+          Ao criar minha conta declaro que li e concordo com os{" "}
+          <Link href="/public/terms" className="underline opacity-75">
+            Termos de Uso
+          </Link>
+          ,{" "}
+          <Link href="/public/privacy-policy" className="underline opacity-75">
+            Política de Privacidade
+          </Link>{" "}
+          e{" "}
+          <Link href="/public/cookies" className="underline opacity-75">
+            Política de Cookies
+          </Link>
+          . E confirmo ter pelo menos 18 anos.
+        </div>
+
+        <div>
+          <Button
+            disabled={isLoading || successfullRequest}
+            className="w-full mt-4"
+            type="submit"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Aguarde
+              </>
+            ) : (
+              <>Criar minha conta</>
+            )}
+          </Button>
+        </div>
+
+        <div className="flex items-center w-full justify-center">
+          <Link href="/auth/login" className="underline">
+            <Button
+              variant="link"
+              className="p-0 h-min font-semibold text-white"
+              type="button"
+            >
+              Já tem uma conta? Faça login.
+            </Button>
+          </Link>
+        </div>
       </form>
     </Form>
   );

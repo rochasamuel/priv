@@ -114,6 +114,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
     });
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     loadFFMPEG();
   }, []);
@@ -128,7 +129,10 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
       postDescription: string;
       postMedias?: MediaToSend[];
     }) => {
-      return await api.post.createPost(postData.postDescription, postData.postMedias);
+      return await api.post.createPost(
+        postData.postDescription,
+        postData.postMedias
+      );
     },
     onSuccess: async (data: any) => {
       setPresignedUrls(data.result.medias);
@@ -228,15 +232,15 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
         const id = crypto.randomUUID();
         const isPublic = postPrivacy === "public";
         const name = file.name;
-  
+
         let thumbnail;
         let resolution;
-  
+
         if (file.type.startsWith("video")) {
           thumbnail = await getVideoThumbnail(file);
           resolution = "1280 x 720";
         }
-  
+
         return {
           mimeType,
           id,
@@ -247,7 +251,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
         } as MediaToSend;
       })
     );
-  
+
     return mediaArray;
   };
 
@@ -273,12 +277,12 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
               <SelectContent defaultValue={"private"}>
                 <SelectItem value="private">
                   <div className="flex items-center">
-                    Assinantes <Lock className="text-pink-600 ml-2" size={14} />
+                    Assinantes <Lock className="text-secondary ml-2" size={14} />
                   </div>
                 </SelectItem>
                 <SelectItem value="public">
                   <div className="flex items-center">
-                    Todos <Globe2 className="text-pink-600 ml-2" size={14} />
+                    Todos <Globe2 className="text-secondary ml-2" size={14} />
                   </div>
                 </SelectItem>
               </SelectContent>

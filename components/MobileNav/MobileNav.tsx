@@ -52,10 +52,13 @@ const MobileNav = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleRedirect = (username?: string) => {
-    if(!session?.user.activeProducer) {
+    if(!session?.user.activeProducer || !session?.user.approved) {
       toast({
         title: "Acesso negado",
-        description: "Recurso exclusivo para produtores"
+        description:
+          session?.user.activeProducer && !session?.user.approved
+            ? "Recurso exclusivo para produtores. Sua conta de produtor ainda não foi aprovada"
+            : "Recurso exclusivo para produtores",
       })
       return;
     };
@@ -67,7 +70,7 @@ const MobileNav = () => {
   };
 
   const isProducerProfile = useMemo(() => {
-    return session?.user.activeProducer;
+    return session?.user.activeProducer && session?.user.approved;
   }
   , [session]);
 
@@ -76,25 +79,24 @@ const MobileNav = () => {
   };
 
   return (
-    <div className="w-full h-16 bg-gray-900 flex items-center justify-between p-6 z-50 lg:hidden">
+    <div className="w-full h-16 bg-[#161616] flex items-center justify-between p-6 z-50 lg:hidden">
       <Link href={"/"}>
-        <Home color={shouldHighlight("/") ? "#b759d9" : "#FFF"} />
+        <Home className={`${shouldHighlight("/") ? "text-secondary" : "text-white"}`} />
       </Link>
       <Link href={"/hot"}>
-        <Flame color={shouldHighlight("/hot") ? "#b759d9" : "#FFF"} />
+        <Flame className={`${shouldHighlight("/hot") ? "text-secondary" : "text-white"}`} />
       </Link>
       <Link href={"/search"}>
-        <Search color={shouldHighlight("/search") ? "#b759d9" : "#FFF"} />
+        <Search className={`${shouldHighlight("/search") ? "text-secondary" : "text-white"}`} />
       </Link>
-      <Link href={"/"}>
+      {/* <Link href={"/"}>
         <PlusSquare
           color={shouldHighlight("/create-post") ? "#b759d9" : "#FFF"}
         />
-      </Link>
+      </Link> */}
       <Link href={"/chats"}>
         <MessageCircle
-          className="transition-all"
-          color={shouldHighlight("/chats") ? "#b759d9" : "#FFF"}
+          className={`${shouldHighlight("/chats") ? "text-secondary" : "text-white"}`}
         />
       </Link>
       <Sheet>
@@ -123,25 +125,25 @@ const MobileNav = () => {
           <div className="flex flex-col justify-between h-full pb-4 pt-4">
             <div className="mt-2 flex flex-col">
               <SheetClose asChild>
-                <Link href={"/subscriptions"}>
+                <Link href={"/subscriptions"} className={`${shouldHighlight("/subscriptions") ? "text-secondary" : "text-white"}`}>
                   <MobileNavItem name="Inscrições" icon={<FileSignature />} />
                 </Link>
               </SheetClose>
 
               <SheetClose asChild>
-                <Link href={"/cards"}>
+                <Link href={"/cards"} className={`${shouldHighlight("/cards") ? "text-secondary" : "text-white"}`}>
                   <MobileNavItem name="Cartões" icon={<CreditCard />} />
                 </Link>
               </SheetClose>
 
               <SheetClose asChild>
-                <Link href={"/affiliates"}>
+                <Link href={"/affiliates"} className={`${shouldHighlight("/affiliates") ? "text-secondary" : "text-white"}`}>
                   <MobileNavItem name="Afiliados" icon={<Network />} />
                 </Link>
               </SheetClose>
 
               {isProducerProfile && <SheetClose asChild>
-                <Link href={"/dashboard"}>
+                <Link href={"/dashboard"} className={`${shouldHighlight("/dashboard") ? "text-secondary" : "text-white"}`}>
                   <MobileNavItem name="Dashboard" icon={<CircleDollarSign />} />
                 </Link>
               </SheetClose>}
@@ -156,19 +158,19 @@ const MobileNav = () => {
                 </CollapsibleTrigger>
                 <CollapsibleContent className="flex flex-col pl-8">
                   {isProducerProfile && <SheetClose asChild>
-                    <Link href={"/settings/plans"}>
+                    <Link href={"/settings/plans"} className={`${shouldHighlight("/settings/plans") ? "text-secondary" : "text-white"}`}>
                       <MobileNavItem name="Planos" icon={<FileEdit />} />
                     </Link>
                   </SheetClose>}
 
                   <SheetClose asChild>
-                    <Link href={"/settings/account"}>
+                    <Link href={"/settings/account"} className={`${shouldHighlight("/settings/account") ? "text-secondary" : "text-white"}`}>
                       <MobileNavItem name="Conta" icon={<UserRound />} />
                     </Link>
                   </SheetClose>
 
                   <SheetClose asChild>
-                    <Link href={"/settings/payments"}>
+                    <Link href={"/settings/payments"} className={`${shouldHighlight("/settings/payments") ? "text-secondary" : "text-white"}`}>
                       <MobileNavItem name="Pagamentos" icon={<Receipt />} />
                     </Link>
                   </SheetClose>

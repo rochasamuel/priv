@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import useBackendClient from "@/hooks/useBackendClient";
 
 interface PlansDialogProps {
-  user: User;
+  user: Partial<User>;
   closePlansDialog: () => void;
 }
 
@@ -29,7 +29,6 @@ const PlansDialog: FunctionComponent<PlansDialogProps> = ({
   user,
   closePlansDialog,
 }) => {
-  const { data: session } = useSession();
   const { api, readyToFetch } = useBackendClient();
   const router = useRouter();
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
@@ -37,7 +36,7 @@ const PlansDialog: FunctionComponent<PlansDialogProps> = ({
   const { data: plans, isLoading } = useQuery({
     queryKey: ["plans", user.producerId],
     queryFn: async () => {
-      return await api.plan.getProducerPlans(user.producerId);
+      return await api.plan.getProducerPlans(user.producerId!);
     },
     enabled: readyToFetch,
   });

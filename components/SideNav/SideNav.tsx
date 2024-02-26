@@ -38,20 +38,22 @@ export default function SideNav() {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleRedirect = (username?: string) => {
-    if(!session?.user.activeProducer) {
+    if (!session?.user.activeProducer || !session?.user.approved) {
       toast({
         title: "Acesso negado",
-        description: "Recurso exclusivo para produtores"
-      })
+        description:
+          session?.user.activeProducer && !session?.user.approved
+            ? "Recurso exclusivo para produtores. Sua conta de produtor ainda não foi aprovada"
+            : "Recurso exclusivo para produtores",
+      });
       return;
-    };
+    }
     if (username) router.push(`/profile/${username}`);
   };
 
   const isProducerProfile = useMemo(() => {
-    return session?.user.activeProducer;
-  }
-  , [session]);
+    return session?.user.activeProducer && session?.user.approved;
+  }, [session]);
 
   return (
     <>
@@ -95,9 +97,11 @@ export default function SideNav() {
         <Link href={"/hot"}>
           <SideNavItem icon={<FlameIcon />} name="Hot" />
         </Link>
-        {isProducerProfile && <Link href={"/dashboard"}>
-          <SideNavItem icon={<CircleDollarSign />} name="Dashboard" />
-        </Link>}
+        {isProducerProfile && (
+          <Link href={"/dashboard"}>
+            <SideNavItem icon={<CircleDollarSign />} name="Dashboard" />
+          </Link>
+        )}
 
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <CollapsibleTrigger className="flex items-center gap-2">
@@ -108,9 +112,11 @@ export default function SideNav() {
             />
           </CollapsibleTrigger>
           <CollapsibleContent className="flex flex-col pl-8 gap-2">
-            {isProducerProfile && <Link href={"/settings/plans"} className="mt-1">
-              <SideNavItem icon={<FileEdit />} name="Planos" />
-            </Link>}
+            {isProducerProfile && (
+              <Link href={"/settings/plans"} className="mt-1">
+                <SideNavItem icon={<FileEdit />} name="Planos" />
+              </Link>
+            )}
 
             <Link href={"/settings/account"}>
               <SideNavItem icon={<UserRound />} name="Conta" />

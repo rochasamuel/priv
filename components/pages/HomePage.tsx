@@ -10,7 +10,7 @@ export default function HomePage() {
   const { data: session } = useSession();
 
   const canMakePosts = useMemo(() => {
-    return session?.user.activeProducer;
+    return session?.user.activeProducer && session?.user.approved;
   }, [session])
 
 	return (

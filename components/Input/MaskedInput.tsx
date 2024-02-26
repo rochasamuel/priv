@@ -9,24 +9,24 @@ interface MaskedInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export default function MaskedInput({mask, ...props}: MaskedInputProps) {
-  const phoneInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const phoneInput = phoneInputRef.current;
+    const input = inputRef.current;
 
-    if (phoneInput)
+    if (input)
       Inputmask({
         mask: mask,
         showMaskOnFocus: false,
         showMaskOnHover: false,
         removeMaskOnSubmit: true,
         autoUnmask: true,
-      }).mask(phoneInput);
+      }).mask(input);
 
     return () => {
-      if (phoneInput) Inputmask.remove(phoneInput);
+      if (input) Inputmask.remove(input);
     };
   }, [mask]);
 
-  return <Input ref={phoneInputRef} {...props} />;
+  return <Input ref={inputRef} {...props} />;
 }

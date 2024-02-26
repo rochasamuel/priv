@@ -85,6 +85,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import useBackendClient from "@/hooks/useBackendClient";
+import PlansDialog from "../Plan/PlansDialog";
 
 interface PostCardProps {
   post: Post;
@@ -97,6 +98,7 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
   const [deletedPost, setDeletedPost] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [postDescription, setPostDescription] = useState(post.description);
+  const [openPlansDialog, setOpenPlansDialog] = useState(false);
 
   const router = useRouter();
 
@@ -189,184 +191,200 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
     },
   });
 
+  const handleClosePlansDialog = () => {
+    setOpenPlansDialog(false);
+  }
+
   return (
-    <Card
-      className={`max-w-[96vw] m-auto mb-4 md:max-w-2xl ${
-        deletedPost && "hidden"
-      }`}
-      ref={ref as Ref<HTMLDivElement>}
-    >
-      <CardHeader className="space-y-2">
-        <CardTitle className="relative">
-          {isOwn && (
-            <div className="absolute right-0 top-0">
-              <AlertDialog>
-                <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <MoreHorizontal size={18} />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={handleEditPost}>
-                      Editar
-                    </DropdownMenuItem>
-                    <AlertDialogTrigger className="w-full">
-                      <DropdownMenuItem>Excluir</DropdownMenuItem>
-                    </AlertDialogTrigger>
-                  </DropdownMenuContent>
-                  <AlertDialogContent className="max-w-[96vw] lg:max-w-lg">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Um post excluído não pode ser recuperado. Tem certeza
-                        que deseja continuar?
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => mutate(post.postId)}>
-                        Continuar
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </DropdownMenu>
-              </AlertDialog>
-            </div>
-          )}
-          <div
-            className="flex items-center gap-3"
-            onClick={() => handleRedirect(post.producer.username)}
-          >
-            <Avatar>
-              <AvatarImage src={post.producer.presignedUrlProfile} />
-              <AvatarFallback>
-                {getAcronym(post.producer.presentationName)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col w-full">
-              <p
-                className="text-lg font-bold max-w-[90%] line-clamp-1 cursor-pointer"
-                onClick={() => handleRedirect(post.producer.username)}
-              >
-                {post.producer.presentationName}
-              </p>
-              <div className="flex text-sm items-center">
-                <Link
-                  href={`/profile/${post.producer.username}`}
-                  className="font-normal hover:underline"
+    <>
+      <Card
+        className={`max-w-[96vw] m-auto mb-4 md:max-w-2xl ${
+          deletedPost && "hidden"
+        }`}
+        ref={ref as Ref<HTMLDivElement>}
+      >
+        <CardHeader className="space-y-2">
+          <CardTitle className="relative">
+            {isOwn && (
+              <div className="absolute right-0 top-0">
+                <AlertDialog>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <MoreHorizontal size={18} />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={handleEditPost}>
+                        Editar
+                      </DropdownMenuItem>
+                      <AlertDialogTrigger className="w-full">
+                        <DropdownMenuItem>Excluir</DropdownMenuItem>
+                      </AlertDialogTrigger>
+                    </DropdownMenuContent>
+                    <AlertDialogContent className="max-w-[96vw] lg:max-w-lg">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Um post excluído não pode ser recuperado. Tem certeza
+                          que deseja continuar?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => mutate(post.postId)}>
+                          Continuar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </DropdownMenu>
+                </AlertDialog>
+              </div>
+            )}
+            <div
+              className="flex items-center gap-3"
+              onClick={() => handleRedirect(post.producer.username)}
+            >
+              <Avatar>
+                <AvatarImage src={post.producer.presignedUrlProfile} />
+                <AvatarFallback>
+                  {getAcronym(post.producer.presentationName)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col w-full">
+                <p
+                  className="text-lg font-bold max-w-[90%] line-clamp-1 cursor-pointer"
+                  onClick={() => handleRedirect(post.producer.username)}
                 >
-                  @{post.producer.username}
-                </Link>
-                <PointSeparator />
-                {post?.medias.some((media) => media.isPublic === false) ? (
-                  <>
-                    <Lock className=" text-pink-600" size={14} />
-                    <p className="font-semibold text-xs ml-1">Assinantes</p>
-                  </>
-                ) : (
-                  <>
-                    <Globe2 className=" text-pink-600" size={14} />
-                    <p className="font-semibold text-xs ml-1">Público</p>
-                  </>
-                )}
-                {/* <PointSeparator />
+                  {post.producer.presentationName}
+                </p>
+                <div className="flex text-sm items-center">
+                  <Link
+                    href={`/profile/${post.producer.username}`}
+                    className="font-normal hover:underline"
+                  >
+                    @{post.producer.username}
+                  </Link>
+                  <PointSeparator />
+                  {post?.medias.some((media) => media.isPublic === false) ? (
+                    <>
+                      <Lock className=" text-secondary" size={14} />
+                      <p className="font-semibold text-xs ml-1">Assinantes</p>
+                    </>
+                  ) : (
+                    <>
+                      <Globe2 className=" text-secondary" size={14} />
+                      <p className="font-semibold text-xs ml-1">Público</p>
+                    </>
+                  )}
+                  {/* <PointSeparator />
                 <p className="font-semibold text-xs">{relativePostDate}</p> */}
+                </div>
               </div>
             </div>
-          </div>
-        </CardTitle>
-        <CardDescription className="text-gray-900 dark:text-gray-300 whitespace-pre-line">
-          {editMode ? (
-            <div>
-              <Textarea
-                rows={5}
-                maxLength={5000}
-                defaultValue={postDescription}
-                onChange={(e) => setPostDescription(e.target.value)}
-              />
-              <div className="flex justify-between items-start mt-3">
-                <div>{postDescription.length} / 5000</div>
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="secondary"
-                    onClick={() => setEditMode(false)}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    disabled={isLoading}
-                    onClick={() => mutateEditPost(postDescription)}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Editando
-                      </>
-                    ) : (
-                      <>Salvar</>
-                    )}
+          </CardTitle>
+          <CardDescription className="text-gray-900 dark:text-gray-300 whitespace-pre-line">
+            {editMode ? (
+              <div>
+                <Textarea
+                  rows={5}
+                  maxLength={5000}
+                  defaultValue={postDescription}
+                  onChange={(e) => setPostDescription(e.target.value)}
+                />
+                <div className="flex justify-between items-start mt-3">
+                  <div>{postDescription.length} / 5000</div>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="secondary"
+                      onClick={() => setEditMode(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      disabled={isLoading}
+                      onClick={() => mutateEditPost(postDescription)}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Editando
+                        </>
+                      ) : (
+                        <>Salvar</>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              post.description
+            )}
+          </CardDescription>
+        </CardHeader>
+        {isPrivate && (
+          <CardContent className="pl-0 pr-0">
+            <div className="h-60 bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-400 dark:bg-gradient-to-br dark:from-slate-900 dark:via-purple-900 dark:to-slate-900">
+              <div className="w-full h-full bg-white bg-opacity-50 backdrop-blur-3xl p-4 dark:bg-black dark:bg-opacity-50">
+                <div className="w-full h-full opacity-80 flex flex-col gap-4 items-center justify-center">
+                  {/* <LockKeyhole size={40} /> */}
+                  <img src="/privatus-mask.svg" alt="simple logo" />
+                  <p className="w-full text-center font-medium text-lg">
+                    Este conteúdo é secreto! Assine o plano do produtor para
+                    visualizar
+                  </p>
+                  <Button onClick={() => setOpenPlansDialog(true)}>
+                    Assinar{" "}
+                    <strong className="ml-1">
+                      {post.producer.presentationName}
+                    </strong>
                   </Button>
                 </div>
               </div>
             </div>
-          ) : (
-            post.description
-          )}
-        </CardDescription>
-      </CardHeader>
-      {isPrivate && (
-        <CardContent className="pl-0 pr-0">
-          <div className="h-60 bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-400 dark:bg-gradient-to-br dark:from-slate-900 dark:via-purple-900 dark:to-slate-900">
-            <div className="w-full h-full bg-white bg-opacity-50 backdrop-blur-3xl p-4 dark:bg-black dark:bg-opacity-50">
-              <div className="w-full h-full opacity-80 flex flex-col gap-4 items-center justify-center">
-                <LockKeyhole size={40} />
-                <p className="w-full text-center font-medium text-lg">
-                  Este conteúdo é secreto! Assine o plano do produtor para
-                  visualizar
-                </p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      )}
-      {postHasMedias && !isPrivate && (
-        <CardContent className="pl-0 pr-0 pb-0">
-          {post.medias.length > 1 ? (
-            <Carousel>
-              <CarouselContent>
-                {post.medias.map((media: PostMedia, index: number) => (
-                  <CarouselItem key={index + 1}>
-                    <PostMediaVisualization
-                      aspectRatioResult={aspectRatioResult}
-                      post={post}
-                      media={media}
-                    />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-2" />
-              <CarouselNext className="right-2" />
-            </Carousel>
-          ) : (
-            <PostMediaVisualization
-              aspectRatioResult={aspectRatioResult}
+          </CardContent>
+        )}
+        {postHasMedias && !isPrivate && (
+          <CardContent className="pl-0 pr-0 pb-0">
+            {post.medias.length > 1 ? (
+              <Carousel>
+                <CarouselContent>
+                  {post.medias.map((media: PostMedia, index: number) => (
+                    <CarouselItem key={index + 1}>
+                      <PostMediaVisualization
+                        aspectRatioResult={aspectRatioResult}
+                        post={post}
+                        media={media}
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-2" />
+                <CarouselNext className="right-2" />
+              </Carousel>
+            ) : (
+              <PostMediaVisualization
+                aspectRatioResult={aspectRatioResult}
+                post={post}
+                media={post.medias[0]}
+              />
+            )}
+          </CardContent>
+        )}
+        {!isPrivate && status !== "unauthenticated" && (
+          <CardFooter className={`${postHasMedias ? "pt-6" : "pt-0"}`}>
+            <ActionBar
+              isLiked={post.isLiked}
+              totalComments={post.totalComments}
+              totalLikes={post.totalLikes}
+              isSaved={post.isSaved}
               post={post}
-              media={post.medias[0]}
             />
-          )}
-        </CardContent>
+          </CardFooter>
+        )}
+      </Card>
+      {openPlansDialog && (
+        <PlansDialog user={{producerId: post.producer.producerId, presentationName: post.producer.presentationName}} closePlansDialog={handleClosePlansDialog} />
       )}
-      {!isPrivate && status !== "unauthenticated" && (
-        <CardFooter className={`${postHasMedias ? "pt-6" : "pt-0"}`}>
-          <ActionBar
-            isLiked={post.isLiked}
-            totalComments={post.totalComments}
-            totalLikes={post.totalLikes}
-            isSaved={post.isSaved}
-            post={post}
-          />
-        </CardFooter>
-      )}
-    </Card>
+    </>
   );
 });
 
@@ -386,7 +404,7 @@ export const PostMediaVisualization = ({
   return (
     <AspectRatio ratio={aspectRatioResult.data ?? 16 / 9} className="bg-black">
       {isLoading && media.mediaTypeId === MediaType.Image && (
-        <div className="w-full h-full flex items-center justify-center animate-pulse bg-slate-900">
+        <div className="w-full h-full flex items-center justify-center animate-pulse bg-muted">
           <ImageIcon className="h-10 w-10 m-auto" />
         </div>
       )}
@@ -480,7 +498,7 @@ export function ActionBar({
 
   const handleClipboardCopy = async () => {
     if (post) {
-      const currentDomain = window.location.hostname ?? '';
+      const currentDomain = window.location.hostname ?? "";
       await navigator.clipboard.writeText(
         `${currentDomain}/profile/${post.producer.username}/${post.postId}`
       );
@@ -505,7 +523,7 @@ export function ActionBar({
             <Heart
               className={
                 liked
-                  ? "transition-all -scale-x-100 duration-500 fill-pink-500 text-pink-500"
+                  ? "transition-all -scale-x-100 duration-500 fill-secondary text-secondary"
                   : "transition-all -scale-x+100 duration-500"
               }
             />

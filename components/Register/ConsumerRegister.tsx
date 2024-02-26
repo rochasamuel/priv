@@ -306,8 +306,8 @@ export const ConsumerForm = () => {
 
         <div className="flex items-center w-full justify-center">
           <Link href="/auth/login" className="underline">
-            <Button variant="link" className="p-0 h-min font-normal" type="button">
-              Ja tem uma conta? Faça login.
+            <Button variant="link" className="p-0 h-min font-semibold text-white" type="button">
+              Já tem uma conta? Faça login.
             </Button>
           </Link>
         </div>
