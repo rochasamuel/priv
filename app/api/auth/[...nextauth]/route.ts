@@ -57,7 +57,7 @@ const authOptions: NextAuthOptions = {
 	],
 	session: {
 		strategy: "jwt",
-		maxAge: 1 * 60 * 60, //1 hour
+		maxAge: process.env.VERCEL_ENV === "production" ? (60 * 60 * 24 * 2) : (60 * 60),
 	},
 	callbacks: {
 		jwt: async ({ token, user, session, trigger }) => {

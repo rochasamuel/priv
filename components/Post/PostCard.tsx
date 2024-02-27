@@ -403,20 +403,17 @@ export const PostMediaVisualization = ({
 
   return (
     <AspectRatio ratio={aspectRatioResult.data ?? 16 / 9} className="bg-black">
-      {isLoading && media.mediaTypeId === MediaType.Image && (
+      {/* {isLoading && media.mediaTypeId === MediaType.Image && (
         <div className="w-full h-full flex items-center justify-center animate-pulse bg-muted">
           <ImageIcon className="h-10 w-10 m-auto" />
         </div>
-      )}
+      )} */}
       {media.mediaTypeId === MediaType.Image ? (
-        <Image
+        <img
           key={post.postId}
-          fill={true}
           src={media.presignedUrls.at(0)!}
           alt="Image"
-          loading="lazy"
-          className="object-contain"
-          onLoad={() => setIsLoading(false)}
+          className="object-contain w-full h-full m-auto"
         />
       ) : (
         <video
