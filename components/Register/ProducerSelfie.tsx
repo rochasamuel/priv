@@ -182,15 +182,15 @@ export default function ProducerSelfie() {
 
         <div className="text-xs w-full pt-4">
           Ao avançar declaro que li e concordo com os{" "}
-          <Link href="/public/terms" className="underline opacity-75">
+          <Link href="/terms" className="underline opacity-75">
             Termos de Uso
           </Link>
           ,{" "}
-          <Link href="/public/privacy-policy" className="underline opacity-75">
+          <Link href="/privacy" className="underline opacity-75">
             Política de Privacidade
           </Link>{" "}
           e{" "}
-          <Link href="/public/cookies" className="underline opacity-75">
+          <Link href="/cookies" className="underline opacity-75">
             Política de Cookies
           </Link>
           . E confirmo ter pelo menos 18 anos.

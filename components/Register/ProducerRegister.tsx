@@ -94,9 +94,46 @@ const producerFormSchema = z.object({
       message: "O email deve ter no mínimo 4 caracteres.",
     })
     .email({ message: "Email inválido" }),
-  password: z.string({ required_error: "Campo obrigatório" }).min(8, {
-    message: "A senha deve ter no mínimo 8 caracteres.",
-  }),
+    password: z
+    .string({ required_error: "Campo obrigatório" })
+    .min(8, {
+      message: "A senha deve ter no mínimo 8 caracteres.",
+    })
+    .superRefine((password, ctx) => {
+      const lowercaseRegex = /[a-z]/;
+      if (!lowercaseRegex.test(password)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "A senha deve conter pelo menos 1 letra minúscula",
+        });
+      }
+
+      const uppercaseRegex = /[A-Z]/;
+      if (!uppercaseRegex.test(password)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "A senha deve conter pelo menos 1 letra maiúscula",
+        });
+      }
+
+      const numberRegex = /[0-9]/;
+      if (!numberRegex.test(password)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "A senha deve conter pelo menos 1 número",
+        });
+      }
+
+      const symbolRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
+      if (!symbolRegex.test(password)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "A senha deve conter pelo menos 1 caractere especial",
+        });
+      }
+
+      return true;
+    }),
 });
 
 export const ProducerForm = () => {
@@ -141,8 +178,10 @@ export const ProducerForm = () => {
 
   const form = useForm<z.infer<typeof producerFormSchema>>({
     resolver: zodResolver(producerFormSchema),
+    mode: "onChange",
     defaultValues: {
       username: "",
+      password: ""
     },
   });
 
@@ -310,15 +349,15 @@ export const ProducerForm = () => {
 
         <div className="text-xs w-full pt-4">
           Ao criar minha conta declaro que li e concordo com os{" "}
-          <Link href="/public/terms" className="underline opacity-75">
+          <Link href="/terms" className="underline opacity-75">
             Termos de Uso
           </Link>
           ,{" "}
-          <Link href="/public/privacy-policy" className="underline opacity-75">
+          <Link href="/privacy" className="underline opacity-75">
             Política de Privacidade
           </Link>{" "}
           e{" "}
-          <Link href="/public/cookies" className="underline opacity-75">
+          <Link href="/cookies" className="underline opacity-75">
             Política de Cookies
           </Link>
           . E confirmo ter pelo menos 18 anos.

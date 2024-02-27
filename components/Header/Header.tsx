@@ -15,6 +15,7 @@ import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useMenuStore } from "@/store/useMenuStore";
 import Head from "next/head";
+import Link from "next/link";
 
 interface HeaderProps {
   actionButton?: React.ReactNode;
@@ -40,11 +41,13 @@ export default function Header({ actionButton }: HeaderProps) {
   return (
     <header className="border-b">
       <div className="mx-auto flex h-16 max-w-full items-center gap-2 justify-start px-4 sm:px-6 lg:px-8">
+        <Link href="/">
         <img
           className="h-8 w-auto hidden lg:block"
           src="https://privatus.vip/assets/img/splash/logo.png"
           alt="Your Company"
         />
+        </Link>
         <div className="w-full lg:hidden flex gap-2 justify-start">
           {pathName !== "/" ? (
             <>
@@ -60,11 +63,13 @@ export default function Header({ actionButton }: HeaderProps) {
               </div>
             </>
           ) : (
+            <Link href="/">
             <img
               className="h-8 w-auto"
               src="https://privatus.vip/assets/img/splash/logo.png"
               alt="Your Company"
             />
+            </Link>
           )}
         </div>
       </div>
