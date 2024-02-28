@@ -16,6 +16,7 @@ import { ChatService } from "./services/chat-service";
 import { AuthService } from "./services/auth-service";
 import { PaymentService } from "./services/payment-service";
 import { useSession } from "next-auth/react";
+import { MiscService } from "./services/misc-service";
 
 const defaultHeaders = {
 	"X-Api": 1,
@@ -49,6 +50,7 @@ export const apiClient = (accessToken?: string) => {
 		chat: ChatService(httpClient),
 		auth: AuthService(httpClient),
 		payment: PaymentService(httpClient),
+		misc: MiscService(httpClient),
 	};
 };
 

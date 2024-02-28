@@ -45,7 +45,7 @@
     "embla-carousel-react": "8.0.0-rc21",
     "inputmask": "^5.0.9-beta.45",
     "libphonenumber-js": "^1.10.56",
-    "lucide-react": "^0.303.0",
+    "lucide-react": "^0.341.0",
     "luxon": "^3.4.3",
     "next": "14.0.2",
     "next-auth": "^4.24.3",

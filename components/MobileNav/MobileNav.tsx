@@ -18,6 +18,7 @@ import {
   FileEdit,
   FileSignature,
   Flame,
+  HandCoins,
   HelpCircle,
   Home,
   LogOut,
@@ -160,6 +161,12 @@ const MobileNav = () => {
                   {isProducerProfile && <SheetClose asChild>
                     <Link href={"/settings/plans"} className={`${shouldHighlight("/settings/plans") ? "text-secondary" : "text-white"}`}>
                       <MobileNavItem name="Planos" icon={<FileEdit />} />
+                    </Link>
+                  </SheetClose>}
+
+                  {isProducerProfile && <SheetClose asChild>
+                    <Link href={"/settings/bank"} className={`${shouldHighlight("/settings/bank") ? "text-secondary" : "text-white"}`}>
+                      <MobileNavItem name="Dados Bancários" icon={<HandCoins />} />
                     </Link>
                   </SheetClose>}
 

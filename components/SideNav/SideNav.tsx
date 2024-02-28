@@ -11,6 +11,7 @@ import {
   FileSignature,
   Flame,
   FlameIcon,
+  HandCoins,
   HelpCircle,
   Home,
   LogOut,
@@ -56,7 +57,7 @@ export default function SideNav() {
   }, [session]);
 
   return (
-    <>
+    <div className="h-full">
       <div className="flex gap-2 items-center cursor-pointer justify-between">
         <Avatar onClick={() => handleRedirect(session?.user.username)}>
           <AvatarImage src={session?.user.profilePhotoPresignedGet} />
@@ -78,7 +79,7 @@ export default function SideNav() {
 
       <Separator className="mt-4 mb-4" />
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1 overflow-y-auto max-h-[calc(100dvh-160px)]">
         <Link href={"/"}>
           <SideNavItem icon={<Home />} name="Início" />
         </Link>
@@ -104,17 +105,23 @@ export default function SideNav() {
         )}
 
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-          <CollapsibleTrigger className="flex items-center gap-2">
+          <CollapsibleTrigger className="flex items-center gap-1">
             <SideNavItem name="Configurações" icon={<Settings />} />{" "}
             <ChevronRight
               size={14}
               className={`${isOpen ? "rotate-90" : ""} transition-all`}
             />
           </CollapsibleTrigger>
-          <CollapsibleContent className="flex flex-col pl-8 gap-2">
+          <CollapsibleContent className="flex flex-col pl-8 gap-1">
             {isProducerProfile && (
-              <Link href={"/settings/plans"} className="mt-1">
+              <Link href={"/settings/plans"}>
                 <SideNavItem icon={<FileEdit />} name="Planos" />
+              </Link>
+            )}
+
+            {isProducerProfile && (
+              <Link href={"/settings/bank"}>
+                <SideNavItem icon={<HandCoins />} name="Dados Bancários" />
               </Link>
             )}
 
@@ -135,7 +142,7 @@ export default function SideNav() {
           <SideNavItem name="Ajuda e Suporte" icon={<HelpCircle />} />
         </Link>
       </div>
-    </>
+    </div>
   );
 }
 

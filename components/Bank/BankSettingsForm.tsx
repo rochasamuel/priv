@@ -1,30 +1,18 @@
-"use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import useBackendClient from "@/hooks/useBackendClient";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMutation, useQuery } from "react-query";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
+import { toast } from "../ui/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import { ArrowRight, ChevronLeft, Loader2, Save } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import MaskedInput from "../Input/MaskedInput";
-import { isValidNumber } from "@/utils/phone";
-import axios from "axios";
+} from "../ui/form";
 import {
   Select,
   SelectContent,
@@ -32,70 +20,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { useMutation, useQuery } from "react-query";
-import { toast } from "../ui/use-toast";
-import useBackendClient from "@/hooks/useBackendClient";
 import { AccountType, Bank, PixKeyType } from "@/types/domain";
+import MaskedInput from "../Input/MaskedInput";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Loader2, Save } from "lucide-react";
 
-export default function ProducerBankDetails() {
-  const router = useRouter();
-
-  const handleBack = () => {
-    router.back();
-  };
-
-  return (
-    <Card className="w-full lg:w-1/3 max-w-[90dvw] backdrop-blur bg-black/60">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Button
-            className="px-0 w-8 h-8"
-            variant={"ghost"}
-            onClick={handleBack}
-          >
-            <ChevronLeft />
-          </Button>{" "}
-          Criar sua conta de produtor(a)
-        </CardTitle>
-        <div>
-          <div className="text-lg text-secondary mt-4 font-medium">
-            Dados bancários (opcional)
-          </div>
-          <div className="w-full flex gap-7 mt-2">
-            <div className="w-1/5 h-1 rounded-sm bg-secondary" />
-            <div className="w-1/5 h-1 rounded-sm bg-secondary" />
-            <div className="w-1/5 h-1 rounded-sm bg-secondary" />
-            <div className="w-1/5 h-1 rounded-sm bg-secondary" />
-            <div className="w-1/5 h-1 rounded-sm bg-slate-300" />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <ProducerBankForm />
-      </CardContent>
-    </Card>
-  );
-}
-
-export const producerBankDetailFormSchema = z.object({
-  bankId: z.coerce.number({ required_error: "Campo obrigatório" }).optional(),
-  accountTypeId: z.coerce.number({ required_error: "Campo obrigatório" }).optional(),
-  agencyNumber: z.coerce
-    .number({ required_error: "Campo obrigatório" })
-    .min(2, {
-      message: "O número da agência deve ter no mínino 2 caracteres.",
-    })
-    .optional(),
-  accountNumber: z.coerce
+export const bankSettingsFormSchema = z.object({
+  bankId: z.coerce.number({ required_error: "Campo obrigatório" }),
+  accountTypeId: z.coerce.number({ required_error: "Campo obrigatório" }),
+  agencyNumber: z.string({ required_error: "Campo obrigatório" }).min(2, {
+    message: "O número da agência deve ter no mínino 2 caracteres.",
+  }),
+  accountNumber: z
     .string({ required_error: "Campo obrigatório" })
     .min(4, {
       message: "O número da conta deve ter no mínimo 4 caracteres.",
     })
     .max(11, {
       message: "O número da conta deve ter no máximo 11 caracteres.",
-    })
-    .optional(),
-  accountDigit: z.string({ required_error: "Campo obrigatório" })
+    }),
+  accountDigit: z
+    .string({ required_error: "Campo obrigatório" })
     .length(1, { message: "O dígito da conta deve ter somente 1 caractere." })
     .optional(),
   pixKeyTypeId: z.coerce
@@ -109,8 +55,7 @@ export const producerBankDetailFormSchema = z.object({
     .optional(),
 });
 
-export const ProducerBankForm = () => {
-  const router = useRouter();
+export default function BankSettingsForm() {
   const { api, readyToFetch } = useBackendClient();
 
   const { data: bankDomains } = useQuery({
@@ -123,9 +68,7 @@ export const ProducerBankForm = () => {
 
   const { mutate: sendBankInformation, isLoading: bankRequestLoading } =
     useMutation({
-      mutationFn: async (
-        values: z.infer<typeof producerBankDetailFormSchema>
-      ) => {
+      mutationFn: async (values: z.infer<typeof bankSettingsFormSchema>) => {
         return await api.producer.sendBankInformation(values);
       },
       onSuccess: async (data) => {
@@ -134,8 +77,6 @@ export const ProducerBankForm = () => {
           title: "Sucesso!",
           description: "Os seus dados bancários foram atualizados!",
         });
-
-        router.push("/auth/register/producer/confirmation");
       },
       onError(error: any, variables, context) {
         toast({
@@ -146,17 +87,13 @@ export const ProducerBankForm = () => {
       },
     });
 
-  const form = useForm<z.infer<typeof producerBankDetailFormSchema>>({
+  const form = useForm<z.infer<typeof bankSettingsFormSchema>>({
     mode: "onChange",
-    resolver: zodResolver(producerBankDetailFormSchema),
+    resolver: zodResolver(bankSettingsFormSchema),
   });
 
-  function onSubmit(values: z.infer<typeof producerBankDetailFormSchema>) {
-    if (form.formState.isDirty) {
-      sendBankInformation(values);
-    } else {
-      router.push("/auth/register/producer/confirmation");
-    }
+  function onSubmit(values: z.infer<typeof bankSettingsFormSchema>) {
+    sendBankInformation(values);
   }
 
   return (
@@ -338,7 +275,7 @@ export const ProducerBankForm = () => {
               </>
             ) : (
               <div className="flex items-center justify-center">
-                Avançar <ArrowRight className="ml-2" size={18} />
+                Salvar <Save className="ml-2" size={18} />
               </div>
             )}
           </Button>
@@ -346,4 +283,4 @@ export const ProducerBankForm = () => {
       </form>
     </Form>
   );
-};
+}
