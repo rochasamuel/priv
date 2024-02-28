@@ -80,6 +80,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
 
   const [postDescription, setPostDescription] = useState("");
   const [postPrivacy, setPostPrivacy] = useState("private");
+  const [isLoadingThumbnailGeneration, setIsLoadingThumbnailGeneration] = useState(false);
 
   const ffmpegRef = useRef(new FFmpeg());
 
@@ -113,6 +114,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
       postDescription: string;
       postMedias?: MediaToSend[];
     }) => {
+      setIsLoadingThumbnailGeneration(false);
       return await api.post.createPost(
         postData.postDescription,
         postData.postMedias
@@ -225,6 +227,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
   };
 
   const getMediasToSendFromFiles = async (): Promise<MediaToSend[]> => {
+    setIsLoadingThumbnailGeneration(true);
     const mediaArray: MediaToSend[] = await Promise.all(
       files.map(async (file) => {
         const mimeType = file.type;
@@ -388,7 +391,8 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
           <Button
             disabled={
               (postDescription.length <= 0 && files.length <= 0) ||
-              isLoadingPublishPost
+              isLoadingPublishPost ||
+              isLoadingThumbnailGeneration
             }
             onClick={async () =>
               createPost({
@@ -397,7 +401,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
               })
             }
           >
-            {isLoadingPublishPost ? (
+            {(isLoadingPublishPost || isLoadingThumbnailGeneration) ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Publicando
