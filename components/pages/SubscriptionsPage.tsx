@@ -30,7 +30,6 @@ export default function Subscriptions() {
 		setFollowersFilterSelected(mode);
 	};
 
-	console.log(session);
 	return (
 		<div className="w-full flex align-middle justify-center">
 			<Tabs defaultValue="subscriptions" className="w-full max-w-[800px]">

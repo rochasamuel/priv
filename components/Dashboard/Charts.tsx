@@ -56,7 +56,6 @@ const Charts: FunctionComponent = () => {
 
   const CustomSocialTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      console.log(payload);
       return (
         <div className="w-auto bg-slate-900 border p-2 rounded-sm">
           <p className="text-sm font-bold">{`${DateTime.fromISO(label).toFormat(
@@ -201,7 +200,6 @@ const Charts: FunctionComponent = () => {
 export const TooltipContent: FunctionComponent<{ values: any }> = ({
   values,
 }) => {
-  console.log(values);
   return <div>ddsd</div>;
 };
 

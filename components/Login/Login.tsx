@@ -85,8 +85,6 @@ export const LoginForm = () => {
         redirect: false,
       });
 
-      console.log("[LOGIN_RESPONSE]: ", response);
-
       if (!response?.error) {
         router.replace("/");
       } else {

@@ -48,7 +48,6 @@ const PostCommentsDialog = ({
 	
 	const commentsContainerRef: any = useRef(null);
   const scrollToBottom = () => {
-		console.log(commentsContainerRef)
 		if (commentsContainerRef.current) {
 			commentsContainerRef.current.scrollTo({
 				top: 0,

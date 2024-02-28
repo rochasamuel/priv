@@ -105,7 +105,7 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
                   onClick={() => redirectToPost(media.postId)}
                 >
                   {isPrivate(media) ? (
-                    <div className="h-full flex flex-col gap-4 justify-center items-center backdrop-blur-3xl bg-black bg-opacity-50 p-4">
+                    <div className="h-full flex flex-col  rounded-md gap-4 justify-center items-center backdrop-blur-3xl bg-black bg-opacity-50 p-4">
                       <LockKeyhole />
                       <div className="w-full text-center">
                         Conteúdo exclusivo para assinantes
@@ -113,10 +113,11 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
                     </div>
                   ) : (
                     <div className="w-full h-full relative flex items-center justify-center">
-                      <video
+                     {media.presignedUrls[0] ? <img
                         className="h-full max-w-full w-full rounded-md object-cover"
                         src={media.presignedUrls[0]}
-                      />
+                        alt="keke"
+                      />: <div className="w-full h-full bg-black max-w-full rounded-md" />}
                       <PlayCircle size={60} className="absolute opacity-50" />
                     </div>
                   )}

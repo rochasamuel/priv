@@ -14,6 +14,12 @@ interface ApiActionResponse {
 	message: string;
 }
 
+interface PostPresignedUrls {
+	id: string;
+	media: PresignedUrl;
+	thumbnail?: PresignedUrl;
+}
+
 export const PostService = (httpClient: AxiosInstance) => {
 	return {
 		getPosts: async (
@@ -94,59 +100,56 @@ export const PostService = (httpClient: AxiosInstance) => {
 			return response.data.result as Media[];
 		},
 		uploadFiles: async (
-			presignedUrls: PresignedUrl[],
-			files: File[],
-			setUploadProgress: (progress: number) => void,
+			postPresignedUrls: PostPresignedUrls[],
+			files: MediaToSend[],
 		) => {
-
-			const totalPromises = presignedUrls.length;
-			let completedPromises = 0;
-			let overallProgress = 0;
-
-			const promises = presignedUrls.map((presignedUrl, index) => {
-				const formData = new FormData();
-				for (const [key, value] of Object.entries(presignedUrl.fields)) {
+			for (const postPresignedUrl of postPresignedUrls) {
+				const mediaFormData = new FormData();
+				for (const [key, value] of Object.entries(
+					postPresignedUrl.media.fields,
+				)) {
 					if (key === "id") {
 						continue;
 					}
-					formData.append(key, value);
+					mediaFormData.append(key, value);
 				}
-				formData.append("file", files[index]);
 
-				return axios
-					.post(presignedUrl.url, formData, {
+				const fileToUpload = files.find(
+					(file) => file.id === postPresignedUrl.id,
+				);
+
+				if (fileToUpload) {
+					mediaFormData.append("file", fileToUpload.file);
+				}
+
+				await axios.post(postPresignedUrl.media.url, mediaFormData, {
+					headers: {
+						"X-Amz-Server-Side-Encryption": "AES256",
+					},
+				});
+
+				if (postPresignedUrl.thumbnail) {
+					const thumbnailFormData = new FormData();
+					for (const [key, value] of Object.entries(
+						postPresignedUrl.thumbnail.fields,
+					)) {
+						if (key === "id") {
+							continue;
+						}
+						thumbnailFormData.append(key, value);
+					}
+
+					if (fileToUpload?.thumbnail) {
+						thumbnailFormData.append("file", fileToUpload.thumbnail);
+					}
+
+					await axios.post(postPresignedUrl.thumbnail.url, thumbnailFormData, {
 						headers: {
 							"X-Amz-Server-Side-Encryption": "AES256",
 						},
-						onUploadProgress: (progressEvent) => {
-							const percentCompleted = Math.round(
-								(progressEvent.loaded * 100) / (progressEvent.total ?? 0),
-							);
-
-							// Update individual promise progress
-							setUploadProgress(percentCompleted);
-
-							// Calculate and update overall progress
-							overallProgress =
-								(completedPromises * overallProgress + percentCompleted) /
-								(completedPromises + 1);
-
-							setUploadProgress(overallProgress);
-						},
-					})
-					.finally(() => {
-						completedPromises++;
-
-						// Check if all promises are completed and set overall progress to 100%
-						if (completedPromises === totalPromises) {
-							setUploadProgress(100);
-						}
 					});
-			});
-
-			console.log(promises);
-
-			return Promise.all(promises);
+				}
+			}
 		},
 	};
 };

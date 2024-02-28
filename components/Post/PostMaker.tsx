@@ -13,10 +13,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "../ui/card";
 
 import apiClient from "@/backend-sdk";
@@ -27,10 +26,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Post } from "@/types/post";
+import useBackendClient from "@/hooks/useBackendClient";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import {
   Globe2,
-  Image,
   ImageIcon,
   Loader2,
   Lock,
@@ -38,28 +38,19 @@ import {
   Video,
   X,
 } from "lucide-react";
+import { CropperRef } from "react-mobile-cropper";
 import {
-  useInfiniteQuery,
   useMutation,
-  useQuery,
-  useQueryClient,
+  useQueryClient
 } from "react-query";
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
-import { useToast } from "../ui/use-toast";
-import { Label } from "../ui/label";
 import ImageCropper from "../Cropper/ImageCropper";
+import { Button } from "../ui/button";
 import {
   Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+  DialogContent
 } from "../ui/dialog";
-import { CropperRef } from "react-mobile-cropper";
-import useBackendClient from "@/hooks/useBackendClient";
-import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { useToast } from "../ui/use-toast";
+import { Textarea } from "../ui/textarea";
 interface PostMakerProps {
   algo?: string;
 }
@@ -77,7 +68,8 @@ export interface MediaToSend {
   isPublic: boolean;
   name: string;
   resolution?: string;
-  thumbnail?: string;
+  thumbnail?: Blob;
+  file: Blob;
 }
 
 const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
@@ -89,15 +81,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
   const [postDescription, setPostDescription] = useState("");
   const [postPrivacy, setPostPrivacy] = useState("private");
 
-  const [presignedUrls, setPresignedUrls] = useState<PresignedUrl[]>([]);
-  const [uploadProgress, setUploadProgress] = useState(0);
-
-  const [loaded, setLoaded] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const ffmpegRef = useRef(new FFmpeg());
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const messageRef = useRef<HTMLParagraphElement | null>(null);
-  const [thumb, setThumb] = useState("");
 
   const loadFFMPEG = async () => {
     const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
@@ -134,12 +118,10 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
         postData.postMedias
       );
     },
-    onSuccess: async (data: any) => {
-      setPresignedUrls(data.result.medias);
+    onSuccess: async (data: any, variables) => {
       await apiClient(session?.user.accessToken!).post.uploadFiles(
         data.result.medias,
-        files,
-        setUploadProgress
+        variables.postMedias!
       );
       queryClient.refetchQueries([
         "posts",
@@ -147,7 +129,6 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
         "feed",
         undefined,
       ]);
-      setUploadProgress(0); //reset progress
       setFiles([]); //clear files
       setPostDescription(""); //clear post description
       toast({
@@ -202,10 +183,13 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
     setOpenImageCropper(false);
   };
 
-  const getVideoThumbnail = async (file: File) => {
+  const getVideoThumbnailAndResolution = async (file: File) => {
     const ffmpeg = ffmpegRef.current;
     if (ffmpeg) {
+      // Write video file to temporary location
       await ffmpeg.writeFile(file!.name, await fetchFile(file!));
+
+      // Generate thumbnail
       const extension = file!.name.split(".").pop();
       await ffmpeg.exec([
         "-i",
@@ -216,12 +200,27 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
         "1",
         file!.name.replace(`.${extension}`, ".png"),
       ]);
+
+      // Read thumbnail data
       const data = await ffmpeg.readFile(
         file!.name.replace(`.${extension}`, ".png")
       );
+
+      // Create Blob and URL for the thumbnail
       const blob = new Blob([data], { type: "image/png" });
-      const url = URL.createObjectURL(blob);
-      return blob;
+
+      //get video resolution
+
+      const videoResolution = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          resolve(`${img.width}x${img.height}`);
+        };
+        img.onerror = reject;
+        img.src = img.src = URL.createObjectURL(blob);
+      });
+
+      return { blob, videoResolution };
     }
   };
 
@@ -237,8 +236,12 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
         let resolution;
 
         if (file.type.startsWith("video")) {
-          thumbnail = await getVideoThumbnail(file);
-          resolution = "1280 x 720";
+          const result = await getVideoThumbnailAndResolution(file);
+
+          if (result) {
+            thumbnail = result.blob;
+            resolution = result.videoResolution;
+          }
         }
 
         return {
@@ -248,6 +251,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
           name,
           thumbnail,
           resolution,
+          file,
         } as MediaToSend;
       })
     );
@@ -277,7 +281,8 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
               <SelectContent defaultValue={"private"}>
                 <SelectItem value="private">
                   <div className="flex items-center">
-                    Assinantes <Lock className="text-secondary ml-2" size={14} />
+                    Assinantes{" "}
+                    <Lock className="text-secondary ml-2" size={14} />
                   </div>
                 </SelectItem>
                 <SelectItem value="public">
