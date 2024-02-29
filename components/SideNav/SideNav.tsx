@@ -20,6 +20,7 @@ import {
   Receipt,
   Settings,
   UserRound,
+  VenetianMask,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -101,6 +102,11 @@ export default function SideNav() {
         {isProducerProfile && (
           <Link href={"/dashboard"}>
             <SideNavItem icon={<CircleDollarSign />} name="Dashboard" />
+          </Link>
+        )}
+        {!isProducerProfile && (
+          <Link href={"/become-producer"}>
+            <SideNavItem icon={<VenetianMask />} name="Quero ser produtor" />
           </Link>
         )}
 

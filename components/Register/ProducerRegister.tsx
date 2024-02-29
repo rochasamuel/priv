@@ -31,6 +31,7 @@ import { isValidCpf } from "@/utils/cpf";
 import MaskedInput from "../Input/MaskedInput";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { formatRawStringDate } from "@/utils/date";
+import { isValidNumber } from "@/utils/phone";
 
 export default function ProducerRegister() {
   const router = useRouter();
@@ -73,7 +74,7 @@ export default function ProducerRegister() {
 }
 
 const producerFormSchema = z.object({
-  name: z.string({ required_error: "Campo obrigatório" }).min(4, {
+  fullName: z.string({ required_error: "Campo obrigatório" }).min(4, {
     message: "O nome deve ter no mínimo 4 carcteres.",
   }),
   cpf: z.string().refine((cpf: string) => {
@@ -82,19 +83,25 @@ const producerFormSchema = z.object({
   birthDate: z.string({ required_error: "Campo obrigatório" }).min(8, {
     message: "A data de nascimento deve ter no mínimo 8 caracteres.",
   }),
-  presentationName: z.string({ required_error: "Campo obrigatório" }).min(2, {
+  name: z.string({ required_error: "Campo obrigatório" }).min(2, {
     message: "O nome de apresentação deve ter no mínimo 8 caracteres.",
   }),
   username: z.string({ required_error: "Campo obrigatório" }).min(8, {
     message: "O username deve ter no mínimo 8 caracteres.",
   }),
+  phone: z
+    .string({ required_error: "Campo obrigatório" })
+    .min(10, "O telefone deve ter no mínimo 10 dígitos")
+    .refine((phone: string) => {
+      return isValidNumber(phone);
+    }, "O telefone informado é inválido."),
   email: z
     .string({ required_error: "Campo obrigatório" })
     .min(4, {
       message: "O email deve ter no mínimo 4 caracteres.",
     })
     .email({ message: "Email inválido" }),
-    password: z
+  password: z
     .string({ required_error: "Campo obrigatório" })
     .min(8, {
       message: "A senha deve ter no mínimo 8 caracteres.",
@@ -144,10 +151,12 @@ export const ProducerForm = () => {
 
   const { mutate, isLoading } = useMutation({
     mutationFn: async (values: z.infer<typeof producerFormSchema>) => {
-      const { cpf, birthDate, ...payload } = values;
       const api = apiClient();
       const referrer = searchParams.get("referrer") ?? "";
-      const result = await api.auth.createAccount({ ...payload, referrer });
+      const result = await api.auth.createProducerAccount({
+        ...values,
+        referrer,
+      });
       return result;
     },
     onError(error: any) {
@@ -160,9 +169,6 @@ export const ProducerForm = () => {
     onSuccess(data, variables) {
       localStorage.setItem("registerEmail", variables.email);
       localStorage.setItem("registerPassword", variables.password);
-      localStorage.setItem("fullName", variables.name);
-      localStorage.setItem("cpf", variables.cpf);
-      localStorage.setItem("birthDate", formatRawStringDate(variables.birthDate));
       setSuccessfullRequest(true);
       toast({
         variant: "default",
@@ -181,7 +187,7 @@ export const ProducerForm = () => {
     mode: "onChange",
     defaultValues: {
       username: "",
-      password: ""
+      password: "",
     },
   });
 
@@ -198,13 +204,13 @@ export const ProducerForm = () => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="name"
+          name="fullName"
           render={({ field }) => (
             <FormItem className="space-y-1">
               <FormLabel>Nome completo</FormLabel>
               <FormControl>
                 <Input
-                  id="name"
+                  id="fullName"
                   placeholder="Digite seu nome completo"
                   {...field}
                 />
@@ -255,7 +261,25 @@ export const ProducerForm = () => {
 
         <FormField
           control={form.control}
-          name="presentationName"
+          name="phone"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Celular</FormLabel>
+              <FormControl>
+                <MaskedInput
+                  {...field}
+                  mask="(99) 9 9999-9999"
+                  placeholder="Ex: (99) 9 9999-9999"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="name"
           render={({ field }) => (
             <FormItem className="space-y-1">
               <FormLabel className="flex items-center gap-2">
@@ -265,7 +289,8 @@ export const ProducerForm = () => {
                     <HelpCircle className="h-6" size={16} />
                   </PopoverTrigger>
                   <PopoverContent className="text-xs">
-                    O nome de apresentação é como os outros usuários veem seu nome. Pode ser seu nome real ou um não.
+                    O nome de apresentação é como os outros usuários veem seu
+                    nome. Pode ser seu nome real ou um não.
                   </PopoverContent>
                 </Popover>
               </FormLabel>

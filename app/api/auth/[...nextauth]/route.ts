@@ -101,6 +101,7 @@ const authOptions: NextAuthOptions = {
 					roles: token.roles,
 					profilePhotoPresignedGet: token.profilePhotoPresignedGet,
 					referrerCode: token.referrerCode,
+					hasAddress: token.hasAddress,
 				},
 			};
 		},

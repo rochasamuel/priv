@@ -5,6 +5,7 @@ import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { PresignedUrl } from "@/components/Post/PostMaker";
 import { producerBankDetailFormSchema } from "@/components/Register/ProducerBankDetails";
 import { bankSettingsFormSchema } from "@/components/Bank/BankSettingsForm";
+import { becomeProducerFormSchema } from "@/components/pages/BecomeProducerPage";
 
 export interface SearchResult {
 	presentationName: string;
@@ -57,14 +58,27 @@ export const ProducerService = (httpClient: AxiosInstance) => {
 
 			return response.data.result as ProducerRegisterState;
 		},
-		sendProducersData: async (
-			data: z.infer<typeof producerAddressFormSchema> & {
-				fullName?: string;
-				cpf?: string;
-				birthDate?: string;
-			},
+		becomeProducer: async (
+			data: z.infer<typeof becomeProducerFormSchema>,
 		): Promise<any> => {
-			const response: AxiosResponse = await httpClient.post("/producers", data);
+			const response: AxiosResponse = await httpClient.post("/producers-register", { ...data });
+
+			return response.data.result;
+		},
+		requestWithdraw: async (amount: number): Promise<any> => {
+			const response: AxiosResponse = await httpClient.post("/withdraw", {
+				value: amount,
+			});
+
+			return response.data.result;
+		},
+		sendProducerAddress: async (
+			data: z.infer<typeof producerAddressFormSchema>,
+		): Promise<any> => {
+			const response: AxiosResponse = await httpClient.post(
+				"/producers-address",
+				data,
+			);
 
 			return response.data.result;
 		},

@@ -1,59 +1,43 @@
 "use client";
 
+import { Info } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useCallback, useMemo } from "react";
 import Feed from "../Feed/Feed";
 import PostMaker from "../Post/PostMaker";
 import SuggestionList from "../Suggestion/SuggestionList";
-import { useCallback, useMemo } from "react";
-import { useQuery } from "react-query";
-import useBackendClient from "@/hooks/useBackendClient";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { Info } from "lucide-react";
 import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const { data: session } = useSession();
-  const { api, readyToFetch } = useBackendClient();
 	const router = useRouter();
 
   const canMakePosts = useMemo(() => {
     return session?.user.activeProducer && session?.user.approved;
   }, [session]);
 
-  const { data: producerRegisterState } = useQuery({
-    queryKey: "producerRegisterState",
-    queryFn: async () => {
-      return await api.producer.getProducerRegisterState();
-    },
-    enabled: readyToFetch,
-  });
-
   const shouldResumeRegister = useMemo(() => {
-		if(producerRegisterState && !session?.user.approved) {
+		if(session?.user.activeProducer && !session?.user.approved) {
 			return (
-				// !producerRegisterState.idDocumentStatus ||
-				// !producerRegisterState.idProducerDocument ||
-				// !producerRegisterState.idUserProducer
-				!producerRegisterState.idProducerDocument
+				!session.user.hasDocuments ||
+				!session.user.hasAddress
 			);
 		}
 
 		return false;
-  }, [producerRegisterState, session?.user.approved]);
+  }, [session]);
 
 	const redirectToRegister = useCallback(() => {
-		if(producerRegisterState) {
-			if (!producerRegisterState.idProducerDocument) {
-				router.push("auth/register/producer/documents");
-			}
-			// if (!producerRegisterState.idUserProducer) {
-			// 	router.push("auth/register/producer/address?resume=true");
-			// } else if (!producerRegisterState.idProducerDocument) {
-			// 	router.push("auth/register/producer/documents");
-			// }
+		if(session) {
+			if (!session.user.hasAddress) {
+				router.push("auth/register/producer/address");
+			} else if (!session.user.hasDocuments) {
+        router.push("auth/register/producer/documents");
+      }
 		}
-	}, [producerRegisterState, router]);
+	}, [router, session]);
 
   return (
     <>

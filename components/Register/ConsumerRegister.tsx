@@ -20,20 +20,18 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { ChevronLeft, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ChevronLeft, Eye, EyeOff, HelpCircle, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "react-query";
 import apiClient from "@/backend-sdk";
 import { toast, useToast } from "../ui/use-toast";
 import { useState } from "react";
 import Link from "next/link";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 const consumerFormSchema = z.object({
   name: z.string({ required_error: "Campo obrigatório" }).min(4, {
     message: "O nome deve ter no mínimo 4 carcteres.",
-  }),
-  presentationName: z.string({ required_error: "Campo obrigatório" }).min(2, {
-    message: "O nome de apresentação deve ter no mínimo 8 caracteres.",
   }),
   username: z.string({ required_error: "Campo obrigatório" }).min(4, {
     message: "O username deve ter no mínimo 4 caracteres.",
@@ -125,7 +123,7 @@ export const ConsumerForm = () => {
     mutationFn: async (values: z.infer<typeof consumerFormSchema>) => {
       const api = apiClient();
       const referrer = searchParams.get("referrer") ?? "";
-      const result = await api.auth.createAccount({ ...values, referrer });
+      const result = await api.auth.createUserAccount({ ...values, referrer });
       return result;
     },
     onError(error: any) {
@@ -169,30 +167,23 @@ export const ConsumerForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
+      <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem className="space-y-1">
-              <FormLabel>Nome completo</FormLabel>
-              <FormControl>
-                <Input
-                  id="name"
-                  placeholder="Digite seu nome completo"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="presentationName"
-          render={({ field }) => (
-            <FormItem className="space-y-1">
-              <FormLabel>Nome de apresentação</FormLabel>
+              <FormLabel className="flex items-center gap-2">
+                Nome de apresentação
+                <Popover>
+                  <PopoverTrigger>
+                    <HelpCircle className="h-6" size={16} />
+                  </PopoverTrigger>
+                  <PopoverContent className="text-xs">
+                    O nome de apresentação é como os outros usuários veem seu
+                    nome. Pode ser seu nome real ou um não.
+                  </PopoverContent>
+                </Popover>
+              </FormLabel>
               <FormControl>
                 <Input
                   id="presentationName"

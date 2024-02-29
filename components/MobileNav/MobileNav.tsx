@@ -31,6 +31,7 @@ import {
   Settings,
   Share2,
   UserRound,
+  VenetianMask,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -146,6 +147,12 @@ const MobileNav = () => {
               {isProducerProfile && <SheetClose asChild>
                 <Link href={"/dashboard"} className={`${shouldHighlight("/dashboard") ? "text-secondary" : "text-white"}`}>
                   <MobileNavItem name="Dashboard" icon={<CircleDollarSign />} />
+                </Link>
+              </SheetClose>}
+
+              {!isProducerProfile && <SheetClose asChild>
+                <Link href={"/become-producer"} className={`${shouldHighlight("/become-producer") ? "text-secondary" : "text-white"}`}>
+                  <MobileNavItem name="Quero ser produtor" icon={<VenetianMask />} />
                 </Link>
               </SheetClose>}
 

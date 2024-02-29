@@ -23,11 +23,13 @@ import Link from "next/link";
 import { useMutation } from "react-query";
 import { toast } from "../ui/use-toast";
 import useBackendClient from "@/hooks/useBackendClient";
+import { useSession } from "next-auth/react";
 
 export default function ProducerSelfie() {
   const [selectedSelfieImage, setSelectedSelfieImage] = useState<File>();
   const { api } = useBackendClient();
   const router = useRouter();
+  const { update: updateSession } = useSession();
 
   const { mutate: sendSelfie, isLoading } = useMutation({
     mutationFn: async () => {
@@ -44,7 +46,7 @@ export default function ProducerSelfie() {
         title: "Sucesso!",
         description: "A sua selfie foi enviada!",
       });
-
+      updateSession({ user: { hasDocuments: true, hasPendingDocuments: true } })
       router.push("/auth/register/producer/bank");
     },
     onError(error: any, variables, context) {

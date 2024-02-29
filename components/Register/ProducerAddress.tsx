@@ -91,20 +91,15 @@ export const producerAddressFormSchema = z.object({
     })
     .min(1, {
       message: "O número deve ter pelo menos um dígito.",
-    }),
+    }).optional(),
   complement: z.string().optional(),
-  phone: z
-    .string({ required_error: "Campo obrigatório" })
-    .min(10, "O telefone deve ter no mínimo 10 dígitos")
-    .refine((phone: string) => {
-      return isValidNumber(phone);
-    }, "O telefone informado é inválido."),
 });
 
 export const ProducerAddressForm = () => {
   const { api } = useBackendClient();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { update: updateSession } = useSession();
 
   const form = useForm<z.infer<typeof producerAddressFormSchema>>({
     mode: "onChange",
@@ -113,10 +108,7 @@ export const ProducerAddressForm = () => {
 
   const { mutate: sendAddressData, isLoading } = useMutation({
     mutationFn: async (data: z.infer<typeof producerAddressFormSchema>) => {
-      const cpf = localStorage.getItem("cpf")!;
-      const birthDate = localStorage.getItem("birthDate")!;
-      const fullName = localStorage.getItem("fullName")!;
-      return await api.producer.sendProducersData({...data, cpf, birthDate, fullName});
+      return await api.producer.sendProducerAddress({...data });
     },
     onSuccess: () => {
       toast({
@@ -124,6 +116,7 @@ export const ProducerAddressForm = () => {
         title: "Sucesso!",
         description: "Seus dados de endereço foram cadastrados!",
       });
+      updateSession({ user: { hasAddress: true }});
       router.push("/auth/register/producer/documents");
     },
     onError(error: any, variables, context) {
@@ -263,31 +256,13 @@ export const ProducerAddressForm = () => {
               <FormItem className="space-y-1">
                 <FormLabel>Complemento</FormLabel>
                 <FormControl>
-                  <Input id="complement" placeholder="Opcional" {...field} />
+                  <Input id="complement" placeholder="Casa, Apartamento, etc..." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel>Celular</FormLabel>
-              <FormControl>
-                <MaskedInput
-                  {...field}
-                  mask="(99) 9 9999-9999"
-                  placeholder="Ex: (99) 9 9999-9999"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <div>
           <Button disabled={isLoading} className="w-full mt-4" type="submit">

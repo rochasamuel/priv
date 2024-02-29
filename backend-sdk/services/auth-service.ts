@@ -1,12 +1,23 @@
 import { PlanSettingsPayload } from "@/components/Plan/PlanSettingsCard";
 import { AxiosInstance, AxiosResponse } from "axios";
 
-export type AccountDataPayload = {
+export type UserAccountDataPayload = {
 	email: string;
 	name: string;
 	username: string;
-	presentationName: string;
 	password: string
+	referrer?: string;
+};
+
+export type ProducerAccountDataPayload = {
+	name: string;
+	password: string
+	username: string;
+	email: string;
+	cpf: string;
+	birthDate: string;
+	fullName: string;
+	phone: string;
 	referrer?: string;
 };
 
@@ -17,9 +28,17 @@ export type EmailConfirmationPayload = {
 
 export const AuthService = (httpClient: AxiosInstance) => {
 	return {
-		createAccount: async (account: AccountDataPayload): Promise<any> => {
+		createUserAccount: async (account: UserAccountDataPayload): Promise<any> => {
 			const response: AxiosResponse = await httpClient.post(
 				"/users",
+				{ ...account },
+			);
+
+			return response.data.result;
+		},
+		createProducerAccount: async (account: ProducerAccountDataPayload): Promise<any> => {
+			const response: AxiosResponse = await httpClient.post(
+				"/producers",
 				{ ...account },
 			);
 

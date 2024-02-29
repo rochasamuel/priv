@@ -16,6 +16,7 @@ declare module "next-auth" {
 			activeProducer: boolean;
 			activeUser: boolean;
 			hasDocuments: boolean;
+			hasAddress: boolean;
 			hasRejectedDocument: boolean;
 			hasPendingDocument: boolean;
 			hasActiveBank: boolean;
