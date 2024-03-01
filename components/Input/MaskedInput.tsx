@@ -5,7 +5,7 @@ import { Input } from "../ui/input";
 import Inputmask from "inputmask";
 
 interface MaskedInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  mask: string;
+  mask: string | string[];
 }
 
 export default function MaskedInput({mask, ...props}: MaskedInputProps) {

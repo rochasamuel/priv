@@ -2,7 +2,7 @@
 
 import { useMenuStore } from "@/store/useMenuStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import * as z from "zod";
@@ -16,7 +16,7 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Info, Loader2 } from "lucide-react";
 import { isValidNumber } from "@/utils/phone";
 import { isValidCpf } from "@/utils/cpf";
 import MaskedInput from "../Input/MaskedInput";
@@ -24,20 +24,63 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import useBackendClient from "@/hooks/useBackendClient";
 import { toast } from "../ui/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 export default function BecomeProducerPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
 
   useEffect(() => {
     setPageTitle("Quer ser produtor");
   }, []);
 
+  const shouldResumeRegister = useMemo(() => {
+    if (session?.user.activeProducer && !session?.user.approved) {
+      return !session.user.hasDocuments || !session.user.hasAddress;
+    }
+
+    return false;
+  }, [session]);
+
+  const redirectToRegister = useCallback(() => {
+    if (session) {
+      if (!session.user.hasAddress) {
+        router.push("auth/register/producer/address");
+      } else if (!session.user.hasDocuments) {
+        router.push("auth/register/producer/documents");
+      }
+    }
+  }, [router, session]);
+
   return (
     <div className="w-full">
       <div className="hidden text-lg font-bold lg:block mb-4">
         Quero ser produtor
       </div>
-      <BecomeProducerForm />
+      {session?.user.hasPendingDocument && (
+        <Alert className="max-w-[96vw] mx-auto mb-4">
+          <Info className="h-4 w-4" />
+          <AlertTitle>Seu cadastro está pendente!</AlertTitle>
+          <AlertDescription>
+            Você já fez uma solicitação para tornar-se produtor. Agora só precisa aguardar a aprovação do seu cadastro.
+          </AlertDescription>
+        </Alert>
+      )}
+      {shouldResumeRegister && (
+        <Alert className="max-w-[96vw] mx-auto mb-4">
+          <Info className="h-4 w-4" />
+          <AlertTitle>Você não terminou o seu cadastro de produtor!</AlertTitle>
+          <AlertDescription>
+            Clique no botão abaixo para completar o cadastro de onde você parou.
+            <br />
+            <Button onClick={redirectToRegister} className="mt-2">
+              Voltar ao cadastro
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+      {session && !session.user.activeProducer && <BecomeProducerForm />}
     </div>
   );
 }
@@ -61,10 +104,10 @@ export const becomeProducerFormSchema = z.object({
 });
 
 export const BecomeProducerForm = () => {
+  const { update: updateSession } = useSession();
   const router = useRouter();
   const [successfullRequest, setSuccessfullRequest] = useState(false);
   const { api } = useBackendClient();
-
 
   const { mutate, isLoading } = useMutation({
     mutationFn: async (values: z.infer<typeof becomeProducerFormSchema>) => {
@@ -78,6 +121,7 @@ export const BecomeProducerForm = () => {
       });
     },
     onSuccess(data, variables) {
+      updateSession({ user: { activeProducer: true } })
       setSuccessfullRequest(true);
       toast({
         variant: "default",
@@ -97,7 +141,7 @@ export const BecomeProducerForm = () => {
       cpf: "",
       birthDate: "",
       phone: "",
-    }
+    },
   });
 
   function onSubmit(values: z.infer<typeof becomeProducerFormSchema>) {

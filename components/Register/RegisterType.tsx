@@ -36,7 +36,7 @@ export default function RegisterType() {
   const router = useRouter();
 
   const handleBack = () => {
-    router.back();
+    router.replace("/auth/login");
   };
 
   return (

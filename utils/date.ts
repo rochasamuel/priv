@@ -12,12 +12,6 @@ export const getChatRelativeTime = (ISODate: string) => {
 };
 
 export const formatRawStringDate = (rawDate: string) => {
-	const day = rawDate.slice(0, 2);
-	const month = rawDate.slice(2, 4);
-	const year = rawDate.slice(4);
-
-	// Format the date as "DD/MM/YYYY"
-	const formattedDate = `${year}-${month}-${day}`;
-
-	return formattedDate;
+	const parsedDate = DateTime.fromFormat(rawDate, "ddMMyyyy").toFormat("yyyy-MM-dd");
+	return parsedDate;
 };

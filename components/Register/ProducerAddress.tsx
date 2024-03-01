@@ -29,6 +29,14 @@ import { useSession } from "next-auth/react";
 import { useMutation } from "react-query";
 import useBackendClient from "@/hooks/useBackendClient";
 import { toast } from "../ui/use-toast";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 export default function ProducerAddress() {
   const router = useRouter();
@@ -41,17 +49,12 @@ export default function ProducerAddress() {
     <Card className="w-full lg:w-1/3 max-w-[90dvw] backdrop-blur bg-black/60">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Button
-            className="px-0 w-8 h-8"
-            variant={"ghost"}
-            onClick={handleBack}
-          >
-            <ChevronLeft />
-          </Button>{" "}
           Criar sua conta de produtor(a)
         </CardTitle>
         <div>
-          <div className="text-lg text-secondary mt-4 font-medium">Endereço</div>
+          <div className="text-lg text-secondary mt-4 font-medium">
+            Endereço
+          </div>
           <div className="w-full flex gap-7 mt-2">
             <div className="w-1/5 h-1 rounded-sm bg-secondary" />
             <div className="w-1/5 h-1 rounded-sm bg-slate-300" />
@@ -91,7 +94,8 @@ export const producerAddressFormSchema = z.object({
     })
     .min(1, {
       message: "O número deve ter pelo menos um dígito.",
-    }).optional(),
+    })
+    .optional(),
   complement: z.string().optional(),
 });
 
@@ -100,6 +104,7 @@ export const ProducerAddressForm = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { update: updateSession } = useSession();
+  const [loadingCepRequest, setLoadingCepRequest] = useState(false);
 
   const form = useForm<z.infer<typeof producerAddressFormSchema>>({
     mode: "onChange",
@@ -108,15 +113,15 @@ export const ProducerAddressForm = () => {
 
   const { mutate: sendAddressData, isLoading } = useMutation({
     mutationFn: async (data: z.infer<typeof producerAddressFormSchema>) => {
-      return await api.producer.sendProducerAddress({...data });
+      return await api.producer.sendProducerAddress({ ...data });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await updateSession({ user: { hasAddress: true } });
       toast({
         variant: "default",
         title: "Sucesso!",
         description: "Seus dados de endereço foram cadastrados!",
       });
-      updateSession({ user: { hasAddress: true }});
       router.push("/auth/register/producer/documents");
     },
     onError(error: any, variables, context) {
@@ -134,113 +139,44 @@ export const ProducerAddressForm = () => {
 
   const fetchCepData = async (cep: string) => {
     if (cep.length === 8) {
+      setLoadingCepRequest(true);
       const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
       const data = response.data;
       form.setValue("addressCity", data.localidade);
       form.setValue("addressUf", data.uf);
       form.setValue("address", data.logradouro);
       form.setValue("addressDistrict", data.bairro);
+      setLoadingCepRequest(false);
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="addressZipcode"
-          render={({ field }) => (
-            <FormItem className="space-y-1">
-              <FormLabel>CEP</FormLabel>
-              <FormControl
-                onBlur={async (e) => {
-                  await fetchCepData(field.value);
-                }}
-              >
-                <MaskedInput
-                  id="addressZipcode"
-                  mask="99999-999"
-                  placeholder="CEP"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid md:grid-cols-2 gap-2">
+    <>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
-            name="addressCity"
+            name="addressZipcode"
             render={({ field }) => (
               <FormItem className="space-y-1">
-                <FormLabel>Cidade</FormLabel>
-                <FormControl>
-                  <Input id="addressCity" placeholder="Cidade" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="addressUf"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel>Estado</FormLabel>
-                <FormControl>
-                  <Input id="addressUf" placeholder="Estado" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-2">
-          <FormField
-            control={form.control}
-            name="address"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel>Endereço</FormLabel>
-                <FormControl>
-                  <Input id="address" placeholder="Endereço" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="addressDistrict"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel>Bairro</FormLabel>
-                <FormControl>
-                  <Input id="addressDistrict" placeholder="Bairro" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-2">
-          <FormField
-            control={form.control}
-            name="number"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel>Numero</FormLabel>
-                <FormControl>
-                  <Input
-                    id="number"
-                    type="number"
-                    placeholder="00000"
+                <FormLabel className="flex gap-3">
+                  CEP{" "}
+                  {loadingCepRequest && (
+                    <div className="opacity-70 flex italic">
+                      Buscando endereço{" "}
+                      <Loader2 className="ml-2 size-4 animate-spin" />
+                    </div>
+                  )}
+                </FormLabel>
+                <FormControl
+                  onBlur={async (e) => {
+                    await fetchCepData(field.value);
+                  }}
+                >
+                  <MaskedInput
+                    id="addressZipcode"
+                    mask="99999-999"
+                    placeholder="CEP"
                     {...field}
                   />
                 </FormControl>
@@ -249,36 +185,129 @@ export const ProducerAddressForm = () => {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="complement"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel>Complemento</FormLabel>
-                <FormControl>
-                  <Input id="complement" placeholder="Casa, Apartamento, etc..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+          <div className="grid md:grid-cols-2 gap-2">
+            <FormField
+              control={form.control}
+              name="addressCity"
+              disabled={loadingCepRequest}
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel>Cidade</FormLabel>
+                  <FormControl>
+                    <Input id="addressCity" placeholder="Cidade" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div>
-          <Button disabled={isLoading} className="w-full mt-4" type="submit">
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
-                Aguarde
-              </>
-            ) : (
-              <div className="flex items-center justify-center">
-                Avançar <ArrowRight className="ml-2" size={18} />
-              </div>
-            )}
-          </Button>
-        </div>
-      </form>
-    </Form>
+            <FormField
+              control={form.control}
+              name="addressUf"
+              disabled={loadingCepRequest}
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel>Estado</FormLabel>
+                  <FormControl>
+                    <Input id="addressUf" placeholder="Estado" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-2">
+            <FormField
+              control={form.control}
+              name="address"
+              disabled={loadingCepRequest}
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel>Endereço</FormLabel>
+                  <FormControl>
+                    <Input id="address" placeholder="Endereço" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="addressDistrict"
+              disabled={loadingCepRequest}
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel>Bairro</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="addressDistrict"
+                      placeholder="Bairro"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-2">
+            <FormField
+              control={form.control}
+              name="number"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel>Numero</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="number"
+                      type="number"
+                      placeholder="00000"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="complement"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel>Complemento</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="complement"
+                      placeholder="Casa, Apartamento, etc..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div>
+            <Button disabled={isLoading} className="w-full mt-4" type="submit">
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Aguarde
+                </>
+              ) : (
+                <div className="flex items-center justify-center">
+                  Avançar <ArrowRight className="ml-2" size={18} />
+                </div>
+              )}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </>
   );
 };

@@ -32,6 +32,7 @@ import MaskedInput from "../Input/MaskedInput";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { formatRawStringDate } from "@/utils/date";
 import { isValidNumber } from "@/utils/phone";
+import { DateTime } from "luxon";
 
 export default function ProducerRegister() {
   const router = useRouter();
@@ -80,14 +81,49 @@ const producerFormSchema = z.object({
   cpf: z.string().refine((cpf: string) => {
     return isValidCpf(cpf);
   }, "O CPF informado é inválido."),
-  birthDate: z.string({ required_error: "Campo obrigatório" }).min(8, {
-    message: "A data de nascimento deve ter no mínimo 8 caracteres.",
-  }),
+  birthDate: z
+    .string({ required_error: "Campo obrigatório" })
+    .min(8, {
+      message: "A data de nascimento deve ter no mínimo 8 caracteres.",
+    })
+    .transform(formatRawStringDate)
+    .superRefine((date, ctx) => {
+      const parsedDate = DateTime.fromFormat(date, "yyyy-MM-dd");
+
+      if(!parsedDate.isValid) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Data de nascimento inválida.",
+        });
+        return false;
+      }
+
+      const age = DateTime.now().diff(parsedDate, "years").years;
+      
+      if (age < 18) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Você não pode ser menor de idade.",
+        });
+        return false;
+      }
+      return true;
+    }),
   name: z.string({ required_error: "Campo obrigatório" }).min(2, {
     message: "O nome de apresentação deve ter no mínimo 8 caracteres.",
   }),
   username: z.string({ required_error: "Campo obrigatório" }).min(8, {
     message: "O username deve ter no mínimo 8 caracteres.",
+  }).superRefine((username, ctx) => {
+    const usernameRegex = /^[\w\d\-_\.]*$/;
+    if (!usernameRegex.test(username)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "O username deve conter apenas letras, números e os caracteres: - (traço), _ (underline), e . (ponto)",
+      });
+      return false;
+    }
+    return true;
   }),
   phone: z
     .string({ required_error: "Campo obrigatório" })

@@ -41,12 +41,12 @@ export default function ProducerSelfie() {
       throw new Error("Presigned URL not found");
     },
     onSuccess: async (data) => {
+      await updateSession({ user: { hasDocuments: true, hasPendingDocument: true } })
       toast({
         variant: "default",
         title: "Sucesso!",
         description: "A sua selfie foi enviada!",
       });
-      updateSession({ user: { hasDocuments: true, hasPendingDocuments: true } })
       router.push("/auth/register/producer/bank");
     },
     onError(error: any, variables, context) {
@@ -82,13 +82,6 @@ export default function ProducerSelfie() {
     <Card className="w-full lg:w-1/3 max-w-[90dvw] backdrop-blur bg-black/60">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Button
-            className="px-0 w-8 h-8"
-            variant={"ghost"}
-            onClick={handleBack}
-          >
-            <ChevronLeft />
-          </Button>{" "}
           Criar sua conta de produtor(a)
         </CardTitle>
         <div>

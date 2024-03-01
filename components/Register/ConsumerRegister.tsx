@@ -35,6 +35,16 @@ const consumerFormSchema = z.object({
   }),
   username: z.string({ required_error: "Campo obrigatório" }).min(4, {
     message: "O username deve ter no mínimo 4 caracteres.",
+  }).superRefine((username, ctx) => {
+    const usernameRegex = /^[\w\d\-_\.]*$/;
+    if (!usernameRegex.test(username)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "O username deve conter apenas letras, números e os caracteres: - (traço), _ (underline), e . (ponto)",
+      });
+      return false;
+    }
+    return true;
   }),
   email: z
     .string({ required_error: "Campo obrigatório" })
@@ -88,7 +98,7 @@ export default function ConsumerRegister() {
   const router = useRouter();
 
   const handleBack = () => {
-    router.back();
+    router.replace("/auth/register/type");
   };
 
   return (
@@ -151,6 +161,7 @@ export const ConsumerForm = () => {
 
   const form = useForm<z.infer<typeof consumerFormSchema>>({
     resolver: zodResolver(consumerFormSchema),
+    mode: "onChange",
     defaultValues: {
       username: "",
     },

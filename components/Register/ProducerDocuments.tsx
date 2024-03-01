@@ -38,12 +38,6 @@ export default function ProducerDocuments() {
       return await api.producer.sendDocuments(docType);
     },
     onSuccess: async (data) => {
-      toast({
-        variant: "default",
-        title: "Sucesso!",
-        description: "As fotos do seu documento foram enviadas!",
-      });
-
       const presignedUrls: any = {front: data.documentFront, back: data.documentBack}
       const files: any = {front: selectedFrontImage!, back: selectedBackImage!}
 
@@ -51,6 +45,11 @@ export default function ProducerDocuments() {
 
       await api.producer.uploadDocuments(presignedUrls, files);
 
+      toast({
+        variant: "default",
+        title: "Sucesso!",
+        description: "As fotos do seu documento foram enviadas!",
+      });
       router.push("/auth/register/producer/selfie");
     },
     onError(error: any, variables, context) {
@@ -87,7 +86,7 @@ export default function ProducerDocuments() {
   };
 
   const handleBack = () => {
-    router.back();
+    router.replace("/auth/register/type");
   };
 
   const handleSendPictures = () => {
@@ -98,13 +97,6 @@ export default function ProducerDocuments() {
     <Card className="w-full lg:w-1/3 max-w-[90dvw] backdrop-blur bg-black/60">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Button
-            className="px-0 w-8 h-8"
-            variant={"ghost"}
-            onClick={handleBack}
-          >
-            <ChevronLeft />
-          </Button>{" "}
           Criar sua conta de produtor(a)
         </CardTitle>
         <div>

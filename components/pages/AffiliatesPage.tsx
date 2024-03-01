@@ -37,8 +37,8 @@ export default function AffiliatesPage() {
       const result = await api.referrer.generateReferralCode();
       return result;
     },
-		onSuccess: (code) => {
-			updateSession({ user: { referrerCode: code } });
+		onSuccess: async (code) => {
+			await updateSession({ user: { referrerCode: code } });
 			toast({
 				title: "Link gerado!",
 				description: "Seu link de afiliado foi gerado com sucesso.",

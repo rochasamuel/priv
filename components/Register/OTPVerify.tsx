@@ -61,18 +61,19 @@ export default function OTPVerify() {
       });
     },
     async onSuccess(data) {
-      toast({
-        variant: "default",
-        title: "Sucesso!",
-        description: "Email confirmado!",
-      });
-
       try {
         const response = await signIn("credentials", {
           email: userEmail,
           password: localStorage.getItem("registerPassword") ?? "",
           redirect: false,
         });
+
+        toast({
+          variant: "default",
+          title: "Sucesso!",
+          description: "Email confirmado!",
+        });
+  
 
         if (!response?.error) {
           if(pathName.includes('producer')) {

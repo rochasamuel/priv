@@ -23,20 +23,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const formSchemaLogin = z.object({
-  username: z.string({ required_error: "Campo obrigatório" }).min(2, {
-    message: "O nome de usuário deve ter no mínimo 2 carcteres.",
+  username: z.string({ required_error: "Campo obrigatório" }).min(3, {
+    message: "O nome de usuário deve ter no mínimo 3 carcteres.",
+  }).max(100, {
+    message: "O nome de usuário deve ter no máximo 100 carcteres.",
   }),
   password: z.string({ required_error: "Campo obrigatório" }).min(8, {
     message: "A senha deve ter no mínimo 8 caracteres.",
+  }).max(100, {
+    message: "A senha deve ter no máximo 100 carcteres.",
   }),
 });
 
@@ -68,10 +72,13 @@ export function ButtonLoading() {
 export const LoginForm = () => {
   const router = useRouter();
   const [isSendindRequest, setIsSendingRequest] = useState(false);
+  const [peekingPassword, setPeekingPassword] = useState(false);
   const { toast } = useToast();
+  const searchParams = useSearchParams();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchemaLogin>>({
+    mode: "onChange",
     resolver: zodResolver(formSchemaLogin),
   });
 
@@ -79,6 +86,7 @@ export const LoginForm = () => {
   async function onSubmit(values: z.infer<typeof formSchemaLogin>) {
     try {
       setIsSendingRequest(true);
+      const callBackUrl = searchParams.get("callbackUrl")
       const response = await signIn("credentials", {
         email: values.username,
         password: values.password,
@@ -86,7 +94,11 @@ export const LoginForm = () => {
       });
 
       if (!response?.error) {
-        router.replace("/");
+        if(callBackUrl) {
+          router.replace(callBackUrl);
+        } else {
+          router.replace("/");
+        }
       } else {
         setIsSendingRequest(false);
         toast({
@@ -107,6 +119,10 @@ export const LoginForm = () => {
       console.log("[LOGIN_ERROR]: ", error);
     }
   }
+  
+  const handleTogglePasswordPeek = () => {
+    setPeekingPassword(!peekingPassword);
+  };
 
   return (
     <Form {...form}>
@@ -120,7 +136,7 @@ export const LoginForm = () => {
               <FormControl>
                 <Input
                   id="username"
-                  type="email"
+                  type="text"
                   placeholder="Seu usuário ou email"
                   {...field}
                 />
@@ -134,11 +150,21 @@ export const LoginForm = () => {
           name="password"
           render={({ field }) => (
             <FormItem className="space-y-1">
-              <FormLabel>Senha</FormLabel>
+              <FormLabel className="flex items-center gap-2">
+                Senha{" "}
+                <Button
+                  type="button"
+                  onClick={() => handleTogglePasswordPeek()}
+                  className="p-1 h-6"
+                  variant={"ghost"}
+                >
+                  {peekingPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </Button>
+              </FormLabel>
               <FormControl>
                 <Input
                   id="password"
-                  type="password"
+                  type={peekingPassword ? "text" : "password"}
                   placeholder="Sua senha"
                   {...field}
                 />

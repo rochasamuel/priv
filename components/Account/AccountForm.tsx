@@ -79,7 +79,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
         );
       }
 
-      updateSession({
+      await updateSession({
         user: {
           ...variables,
           profilePhotoPresignedGet: user.profilePhotoPresignedGet,
