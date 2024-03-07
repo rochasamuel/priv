@@ -1,3 +1,5 @@
+"use client";
+
 import axios from "axios";
 import { CommentService } from "./services/comment-service";
 import { FollowService } from "./services/follow-service";
