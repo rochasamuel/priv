@@ -9,6 +9,7 @@ import {
   forwardRef,
   useCallback,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -86,6 +87,7 @@ import {
 } from "@/components/ui/carousel";
 import useBackendClient from "@/hooks/useBackendClient";
 import PlansDialog from "../Plan/PlansDialog";
+import axios from "axios";
 
 interface PostCardProps {
   post: Post;
@@ -99,6 +101,7 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
   const [editMode, setEditMode] = useState(false);
   const [postDescription, setPostDescription] = useState(post.description);
   const [openPlansDialog, setOpenPlansDialog] = useState(false);
+  const [isPeekingDescription, setIsPeekingDescription] = useState(false);
 
   const router = useRouter();
 
@@ -191,9 +194,34 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
     },
   });
 
+  const descriptionRef = useRef<HTMLDivElement>(null);
+
+  const isTextClamped = useMemo(() => {
+    const el = descriptionRef.current;
+    if (!el) return false;
+    return el.scrollHeight > el.clientHeight;
+  }, [descriptionRef.current]);
+
   const handleClosePlansDialog = () => {
     setOpenPlansDialog(false);
-  }
+  };
+
+  // const replacedDescription = (description: string) => description.replace(/(@\w+)/g, (mention) =>
+  //   <LinkToProfile key={mention} username={mention.substring(1)} />
+  // );
+
+  const replacedDescription = (description: string) => {
+    if(!description) return;
+    const parts = description.split(/(@\S+)/g);
+
+    return parts.map((part, index) => {
+      if (part.match(/@\S+/)) {
+        const username = part.substring(1);
+        return <LinkToProfile key={index + 1} username={username} />;
+      }
+      return part;
+    });
+  };
 
   return (
     <>
@@ -281,7 +309,9 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
               </div>
             </div>
           </CardTitle>
-          <CardDescription className="text-gray-900 dark:text-gray-300 whitespace-pre-line">
+          <CardDescription
+            className={"text-gray-900 dark:text-gray-300 whitespace-pre-line"}
+          >
             {editMode ? (
               <div>
                 <Textarea
@@ -316,7 +346,26 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
                 </div>
               </div>
             ) : (
-              post.description
+              <>
+                <div
+                  className={`break-words ${
+                    isPeekingDescription ? "" : "line-clamp-5"
+                  }`}
+                  ref={descriptionRef}
+                >
+                  {replacedDescription(post.description)}
+                </div>
+                {isTextClamped && (
+                  <div
+                    className="font-bold text-white cursor-pointer mt-1 w-max"
+                    onClick={() =>
+                      setIsPeekingDescription(!isPeekingDescription)
+                    }
+                  >
+                    {isPeekingDescription ? "Ver menos" : "Ver mais"}
+                  </div>
+                )}
+              </>
             )}
           </CardDescription>
         </CardHeader>
@@ -382,16 +431,33 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
         )}
       </Card>
       {openPlansDialog && (
-        <PlansDialog user={{producerId: post.producer.producerId, presentationName: post.producer.presentationName}} closePlansDialog={handleClosePlansDialog} />
+        <PlansDialog
+          user={{
+            producerId: post.producer.producerId,
+            presentationName: post.producer.presentationName,
+          }}
+          closePlansDialog={handleClosePlansDialog}
+        />
       )}
     </>
   );
 });
 
+export function LinkToProfile({ username }: { username: string }) {
+  return (
+    <Link
+      className="font-semibold text-secondary hover:underline"
+      href={`/profile/${username}`}
+    >
+      @{username}
+    </Link>
+  );
+}
+
 interface PostMediaVisualizationProps {
   media: PostMedia;
   post: Post;
-  aspectRatioResult: any;
+  aspectRatioResult?: any;
 }
 
 export const PostMediaVisualization = ({
@@ -419,7 +485,11 @@ export const PostMediaVisualization = ({
         <video
           key={post.postId}
           controls
+          controlsList="nodownload"
+          playsInline
+          autoPlay={false}
           className="w-full h-full m-auto"
+          onContextMenu={(e) => e.preventDefault()}
           src={post.medias[0].presignedUrls[0]}
         />
       )}

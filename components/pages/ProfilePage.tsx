@@ -13,14 +13,17 @@ import ProfileCard, { ProfileCardSkeleton } from "../Profile/ProfileCard";
 import SuggestionList from "../Suggestion/SuggestionList";
 import { useMenuStore } from "@/store/useMenuStore";
 import useBackendClient from "@/hooks/useBackendClient";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface ProfilePageProps {
   params: { username: string };
 }
 
 export default function ProfilePage({ params }: ProfilePageProps) {
-  const [selectedSection, setSelectedSection] = useState("posts");
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
+  const searchParams = useSearchParams();
+  const [selectedSection, setSelectedSection] = useState(searchParams.get("section") || "posts");
+  const router = useRouter();
 
   const { data: session } = useSession();
   const { api, readyToFetch } = useBackendClient();
@@ -42,12 +45,17 @@ export default function ProfilePage({ params }: ProfilePageProps) {
     );
   }, [session, params]);
 
-  const handleSessionChange = (session: "posts" | "about" | "media") => {
-    setSelectedSection(session);
+  const handleSectionChange = (section: "posts" | "about" | "media") => {
+    setSelectedSection(section);
+    const currentSearchParams = new URLSearchParams(Array.from(searchParams.entries()));
+    currentSearchParams.set("section", section);
+    router.push(`${params.username}?${currentSearchParams.toString()}`);
   };
 
-  const renderSession = () => {
-    switch (selectedSection) {
+  const renderSection = () => {
+    const currentSearchParams = new URLSearchParams(Array.from(searchParams.entries()));
+
+    switch (currentSearchParams.get("section") || "posts") {
       case "posts":
         return (
           <>
@@ -77,7 +85,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
             className={`cursor-pointer text-sm ${
               selectedSection === "posts" && selectedSessionStyle
             }`}
-            onClick={() => handleSessionChange("posts")}
+            onClick={() => handleSectionChange("posts")}
           >
             Publicações
           </div>
@@ -86,7 +94,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
             className={`cursor-pointer text-sm ${
               selectedSection === "about" && selectedSessionStyle
             }`}
-            onClick={() => handleSessionChange("about")}
+            onClick={() => handleSectionChange("about")}
           >
             Sobre mim
           </div>
@@ -95,12 +103,12 @@ export default function ProfilePage({ params }: ProfilePageProps) {
             className={`cursor-pointer text-sm ${
               selectedSection === "media" && selectedSessionStyle
             }`}
-            onClick={() => handleSessionChange("media")}
+            onClick={() => handleSectionChange("media")}
           >
             Mídias
           </div>
         </div>
-        {user && renderSession()}
+        {user && renderSection()}
       </main>
 
       <aside className="sticky top-0 hidden w-72 shrink-0 xl:block">

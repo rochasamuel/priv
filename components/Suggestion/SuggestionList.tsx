@@ -1,24 +1,34 @@
 import apiClient from "@/backend-sdk";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCcw } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { FunctionComponent } from "react";
-import { useQuery } from "react-query";
+import { FunctionComponent, useState } from "react";
+import { useQuery, useQueryClient } from "react-query";
 import { ScrollArea } from "../ui/scroll-area";
 import SuggestionCard from "./SuggestionCard";
 import useBackendClient from "@/hooks/useBackendClient";
+import { Button } from "../ui/button";
 
 const SuggestionList: FunctionComponent = () => {
 	const { data: session, status } = useSession();
 	const { api, readyToFetch } = useBackendClient();
+	const queryClient = useQueryClient();
+	const [refetching, setRefetching] = useState(false);
 
 	const { data: suggestions, isLoading } = useQuery({
 		queryKey: ["suggestions", session?.user?.userId],
 		queryFn: async () => {
-			return await api.suggestion.getSuggestions();
+			const result = await api.suggestion.getSuggestions();
+			setRefetching(false);
+			return result;
 		},
 		enabled: readyToFetch,
 		staleTime: Infinity
 	});
+
+	const refreshSuggestions = async () => {
+		setRefetching(true);
+		await queryClient.refetchQueries(["suggestions", session?.user?.userId]);
+	}
 
 	return (
 		<>
@@ -32,6 +42,10 @@ const SuggestionList: FunctionComponent = () => {
 					{suggestions?.map((suggestions) => (
 						<SuggestionCard key={suggestions.username} recommendation={suggestions} />
 					))}
+					<Button onClick={refreshSuggestions} variant={"link"} className="text-white flex justify-center gap-2 w-full">
+						Mostrar novas sugestões
+						<RefreshCcw size={16} className={`${refetching ? "animate-spin" : ""}`} />
+					</Button>
 				</ScrollArea>
 			)}
 		</>

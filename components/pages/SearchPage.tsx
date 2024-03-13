@@ -32,7 +32,7 @@ export default function SearchPage() {
 		queryFn: async () => {
 			return await api.producer.search(searchTerm);
 		},
-		enabled: searchTerm.length > 0 && readyToFetch,
+		enabled: searchTerm.length > 2 && readyToFetch,
 		retry: false,
 		staleTime: 1000,
 	});

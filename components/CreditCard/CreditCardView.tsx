@@ -111,7 +111,7 @@ const CreditCardView: FunctionComponent<CreditCardProps> = ({
 							</AlertDialogHeader>
 							<AlertDialogFooter>
 								<AlertDialogCancel>Cancelar</AlertDialogCancel>
-								<Button onClick={() => deleteCreditCard()}>
+								<Button disabled={isLoading} onClick={() => deleteCreditCard()}>
 									{isLoading ? (
 										<>
 											<Loader2 className="mr-2 h-4 w-4 animate-spin" />

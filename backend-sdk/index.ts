@@ -35,7 +35,9 @@ export const apiClient = (accessToken?: string) => {
 		},
 	});
 
+
 	return {
+		axiosClient: httpClient,
 		post: PostService(httpClient),
 		subscription: SubscriptionService(httpClient),
 		follow: FollowService(httpClient),

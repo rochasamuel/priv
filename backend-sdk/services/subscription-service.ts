@@ -19,5 +19,13 @@ export const SubscriptionService = (httpClient: AxiosInstance) => {
 
 			return response.data.result as Subscriber[];
 		},
+		cancelSubscription: async (producerId: string): Promise<any> => {
+			const response: AxiosResponse = await httpClient.delete(
+				"/producers/sign",
+				{ params: { producerId } },
+			);
+
+			return response.data.result;
+		},
 	};
 };

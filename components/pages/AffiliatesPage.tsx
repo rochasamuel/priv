@@ -166,8 +166,8 @@ export default function AffiliatesPage() {
         <Button className="mt-8" onClick={() => generateCode()}>
           {isLoading ? (
             <>
-              Aguarde
               <Loader2 className="ml-2 size-4 animate-spin" />
+              Aguarde
             </>
           ) : (
             <>

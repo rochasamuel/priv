@@ -255,7 +255,7 @@ const PlanSettingsCard: FunctionComponent<PlanSettingsCardProps> = ({
             </>
           )}
           {form.formState.isDirty && watchActivePlan && (
-            <Button type="submit" className="w-full">
+            <Button disabled={isSendindRequest} type="submit" className="w-full">
               {isSendindRequest ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

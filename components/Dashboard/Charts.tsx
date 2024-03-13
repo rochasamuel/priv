@@ -36,6 +36,7 @@ const Charts: FunctionComponent = () => {
         profitMetrics,
       };
     },
+    enabled: readyToFetch
   });
 
   const CustomProfitTooltip = ({ active, payload, label }: any) => {

@@ -30,18 +30,36 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import PasswordRecoverDialog from "../PasswordRecovery/PasswordRecoverDialog";
 
 const formSchemaLogin = z.object({
-  username: z.string({ required_error: "Campo obrigatório" }).min(3, {
-    message: "O nome de usuário deve ter no mínimo 3 carcteres.",
-  }).max(100, {
-    message: "O nome de usuário deve ter no máximo 100 carcteres.",
-  }),
-  password: z.string({ required_error: "Campo obrigatório" }).min(8, {
-    message: "A senha deve ter no mínimo 8 caracteres.",
-  }).max(100, {
-    message: "A senha deve ter no máximo 100 carcteres.",
-  }),
+  username: z
+    .string({ required_error: "Campo obrigatório" })
+    .min(3, {
+      message: "O nome de usuário deve ter no mínimo 3 caracteres.",
+    })
+    .max(100, {
+      message: "O nome de usuário deve ter no máximo 100 caracteres.",
+    }),
+  password: z
+    .string({ required_error: "Campo obrigatório" })
+    .min(8, {
+      message: "A senha deve ter no mínimo 8 caracteres.",
+    })
+    .max(100, {
+      message: "A senha deve ter no máximo 100 caracteres.",
+    }),
 });
 
 export default function Login() {
@@ -75,18 +93,17 @@ export const LoginForm = () => {
   const [peekingPassword, setPeekingPassword] = useState(false);
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const [isPasswordRecoverOpen, setIsPasswordRecoverOpen] = useState(false);
 
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchemaLogin>>({
     mode: "onChange",
     resolver: zodResolver(formSchemaLogin),
   });
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchemaLogin>) {
     try {
       setIsSendingRequest(true);
-      const callBackUrl = searchParams.get("callbackUrl")
+      const callBackUrl = searchParams.get("callbackUrl");
       const response = await signIn("credentials", {
         email: values.username,
         password: values.password,
@@ -94,7 +111,7 @@ export const LoginForm = () => {
       });
 
       if (!response?.error) {
-        if(callBackUrl) {
+        if (callBackUrl) {
           router.replace(callBackUrl);
         } else {
           router.replace("/");
@@ -104,8 +121,7 @@ export const LoginForm = () => {
         toast({
           variant: "destructive",
           title: "Ops.",
-          description:
-            "Algo deu errado com seu login. Verifique os dados e tente novamente",
+          description: "Falha no login. Verifique os dados e tente novamente",
         });
       }
     } catch (error) {
@@ -113,15 +129,18 @@ export const LoginForm = () => {
       toast({
         variant: "destructive",
         title: "Ops.",
-        description:
-          "Algo deu errado com seu login. Verifique os dados e tente novamente",
+        description: "Falha no login. Verifique os dados e tente novamente",
       });
       console.log("[LOGIN_ERROR]: ", error);
     }
   }
-  
+
   const handleTogglePasswordPeek = () => {
     setPeekingPassword(!peekingPassword);
+  };
+
+  const handleClosePasswordRecoverDialog = () => {
+    setIsPasswordRecoverOpen(false);
   };
 
   return (
@@ -174,7 +193,17 @@ export const LoginForm = () => {
           )}
         />
         <div className="flex items-center justify-end">
-          <Button variant="link" className="font-semibold text-white" type="button">
+          {isPasswordRecoverOpen && (
+            <PasswordRecoverDialog
+              closePasswordRecoverDialog={handleClosePasswordRecoverDialog}
+            />
+          )}
+          <Button
+            variant="link"
+            className="font-semibold text-white"
+            type="button"
+            onClick={() => setIsPasswordRecoverOpen(true)}
+          >
             Esqueceu sua senha?
           </Button>
         </div>
@@ -189,7 +218,10 @@ export const LoginForm = () => {
           )}
         </Button>
         <div className="text-sm w-full flex justify-center items-center">
-          Não tem uma conta? <Link href="/auth/register/type" className="ml-1 underline">Crie agora</Link>
+          Não tem uma conta?{" "}
+          <Link href="/auth/register/type" className="ml-1 underline">
+            Crie agora
+          </Link>
         </div>
       </form>
     </Form>

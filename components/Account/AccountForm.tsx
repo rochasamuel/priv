@@ -28,6 +28,7 @@ import { Dialog, DialogContent } from "../ui/dialog";
 import { CropperRef, FixedCropperRef } from "react-advanced-cropper";
 import AccountImageCropper from "../Cropper/AccountImageCropper";
 import useBackendClient from "@/hooks/useBackendClient";
+import { usernameRegex } from "@/utils/regex";
 
 interface AccountFormProps {
   user: User;
@@ -105,23 +106,25 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
   const formSchema = z.object({
     presentationName: z
       .string({ required_error: "É obrigatório preencher este campo" })
-      .min(2, "É usuário deve ter no mínimo 2 caracteres")
-      .max(60, "É usuário deve ter no maximo 30 caracteres"),
+      .min(2, "O nome de apresentação deve ter no mínimo 2 caracteres")
+      .max(70, "O nome de apresentação deve ter no máximo 70 caracteres"),
     username: z
       .string({ required_error: "É obrigatório preencher este campo" })
-      .min(2, "É usuário deve ter no mínimo 2 caracteres")
-      .max(30, "É usuário deve ter no maximo 30 caracteres"),
+      .min(2, "O nome de usuário deve ter no mínimo 2 caracteres")
+      .max(30, "O nome de usuário deve ter no máximo 30 caracteres")
+      .regex(usernameRegex, { message: "O nome de usuário deve conter apenas letras, números e os caracteres: - (traço), _ (underline), e . (ponto)" }),
     email: z
       .string({ required_error: "É obrigatório preencher este campo" })
       .email(),
-    facebook: z.string().max(50).optional(),
-    instagram: z.string().max(30).optional(),
-    twitter: z.string().max(15).optional(),
-    biography: z.string().max(2000).optional(),
+    facebook: z.string().max(50, "O usuário do facebook deve ter no máximo 50 caracteres").optional(),
+    instagram: z.string().max(30, "O usuário do instagram deve ter no máximo 30 caracteres").optional(),
+    twitter: z.string().max(15, "O usuário do Twitter(X) deve ter no máximo 15 caracteres").optional(),
+    biography: z.string().max(5000, "A descrição deve ter no máximo 5000 caracteres").optional(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: "onChange",
     defaultValues: {
       presentationName: user.presentationName,
       username: user.username,
@@ -249,7 +252,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
                     <Input {...field} />
                   </FormControl>
                   <FormDescription>
-                    {field.value?.length ?? 0} / 60
+                    {field.value?.length ?? 0} / 70
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -261,7 +264,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
               name="username"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Nome de usuário</FormLabel>
                   <FormControl>
                     <Input readOnly={!isProducer} {...field} />
                   </FormControl>
@@ -282,7 +285,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input readOnly={!isProducer} {...field} />
+                    <Input readOnly {...field} />
                   </FormControl>
                   <FormDescription>
                     {field.value?.length ?? 0} / 100
@@ -302,7 +305,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
                     <Input {...field} placeholder="Nome de usuário" />
                   </FormControl>
                   <FormDescription>
-                    {field.value?.length ?? 0} / 100
+                    {field.value?.length ?? 0} / 50
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -358,7 +361,7 @@ const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
                   <Textarea {...field} />
                 </FormControl>
                 <FormDescription>
-                  {field.value?.length ?? 0} / 20000
+                  {field.value?.length ?? 0} / 5000
                 </FormDescription>
                 <FormMessage />
               </FormItem>

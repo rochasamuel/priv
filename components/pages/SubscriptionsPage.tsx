@@ -2,7 +2,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
 import { Badge } from "../ui/badge";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import FollowerList from "../Follower/FollowerList";
 import FollowingList from "../Follower/FollowingList";
 import SubscriberList from "../Subscription/SubscriberList";
@@ -19,7 +19,7 @@ export default function Subscriptions() {
   const [subscriptionsFilterSelected, setSubscriptionsFilterSelected] =
 		useState("subscriptions");
 	const [followersFilterSelected, setFollowersFilterSelected] =
-		useState("followers");
+		useState("following");
 	const { data: session, status } = useSession();
 
 	const handleSubscriptionsFilterSelectedToggle = (mode: string) => {
@@ -29,6 +29,8 @@ export default function Subscriptions() {
 	const handleFollowersFilterSelectedToggle = (mode: string) => {
 		setFollowersFilterSelected(mode);
 	};
+
+	const isProducer = useMemo(() => session?.user.activeProducer && session.user.approved , [session]);
 
 	return (
 		<div className="w-full flex align-middle justify-center">
@@ -51,7 +53,7 @@ export default function Subscriptions() {
 					>
 						Minhas assinaturas
 					</Badge>
-					<Badge
+					{isProducer && <Badge
 						onClick={() =>
 							handleSubscriptionsFilterSelectedToggle("subscribers")
 						}
@@ -63,7 +65,7 @@ export default function Subscriptions() {
 						}
 					>
 						Meus assinantes
-					</Badge>
+					</Badge>}
 
 					{subscriptionsFilterSelected === "subscriptions" ? (
 						<SubscriptionList />
@@ -73,15 +75,6 @@ export default function Subscriptions() {
 				</TabsContent>
 				<TabsContent value="followers" className="mt-3">
 					<Badge
-						onClick={() => handleFollowersFilterSelectedToggle("followers")}
-						className="mr-2  cursor-pointer"
-						variant={
-							followersFilterSelected === "followers" ? "default" : "outline"
-						}
-					>
-						Seguidores
-					</Badge>
-					<Badge
 						onClick={() => handleFollowersFilterSelectedToggle("following")}
 						className="cursor-pointer"
 						variant={
@@ -90,6 +83,15 @@ export default function Subscriptions() {
 					>
 						Seguindo
 					</Badge>
+					{isProducer && <Badge
+						onClick={() => handleFollowersFilterSelectedToggle("followers")}
+						className="mr-2  cursor-pointer"
+						variant={
+							followersFilterSelected === "followers" ? "default" : "outline"
+						}
+					>
+						Seguidores
+					</Badge>}
 
 					{followersFilterSelected === "following" ? (
 						<FollowingList />

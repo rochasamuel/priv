@@ -44,12 +44,12 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
   const infiniteTriggerPostRef = useRef<HTMLElement>(null);
   const { ref, entry } = useIntersection({
     root: infiniteTriggerPostRef.current,
-    threshold: 0.2,
+    threshold: 0.8,
   });
 
   useEffect(() => {
     if (!isFetchingNextPage && entry?.isIntersecting) fetchNextPage();
-  }, [entry?.isIntersecting]);
+  }, [entry?.isIntersecting, fetchNextPage, isFetchingNextPage]);
 
   const redirectToPost = (postId: string) => {
     router.push(`/profile/${user.username}/${postId}`);
@@ -78,7 +78,7 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
                     key={media.presignedUrls[0]}
                     className="h-56 border rounded-md cursor-pointer bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900"
                     onClick={() => redirectToPost(media.postId)}
-                    ref={index === _medias.length - 2 ? ref : null}
+                    ref={index === _medias.length - 3 ? ref : null}
                   >
                     {isPrivate(media) ? (
                       <div className="h-full flex flex-col gap-4 justify-center items-center backdrop-blur-3xl bg-black bg-opacity-50 p-4">
@@ -103,6 +103,7 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
                   className="h-56 border rounded-md cursor-pointer bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 relative"
                   key={media.presignedUrls[0]}
                   onClick={() => redirectToPost(media.postId)}
+                  ref={index === _medias.length - 3 ? ref : null}
                 >
                   {isPrivate(media) ? (
                     <div className="h-full flex flex-col  rounded-md gap-4 justify-center items-center backdrop-blur-3xl bg-black bg-opacity-50 p-4">

@@ -17,6 +17,7 @@ import { useMutation, useQuery } from "react-query";
 import { useToast } from "../ui/use-toast";
 import PostCommentCard from "./PostCommentCard";
 import useBackendClient from "@/hooks/useBackendClient";
+import { noLinksRegex } from "@/utils/regex";
 
 interface PostCommentsDialogProps {
   post: Post;
@@ -30,6 +31,7 @@ const PostCommentsDialog = ({
   updateCommentsCount,
 }: PostCommentsDialogProps) => {
   const [commentText, setCommentText] = useState("");
+  const [commentTextError, setCommentTextError] = useState("");
   const { toast } = useToast();
 
   const { data: session } = useSession();
@@ -91,6 +93,17 @@ const PostCommentsDialog = ({
     },
   });
 
+  const handleCommentInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCommentText(value);
+    if(noLinksRegex.test(value)) {
+      setCommentTextError("Links externos não são permitidos");
+      return;
+    }
+
+    setCommentTextError("")
+  }
+
   return (
     <Dialog defaultOpen onOpenChange={closeComments}>
       {/* <DialogTrigger>{trigger}</DialogTrigger> */}
@@ -130,7 +143,7 @@ const PostCommentsDialog = ({
             ))}
           </div>
         ) : (
-          <div className="w-full text-center h-[80dvh]">
+          <div className="w-full text-center min-h-[70vh] h-full">
             Nenhum comentário. <br />
             Seja o primeiro a comentar!
           </div>
@@ -138,7 +151,8 @@ const PostCommentsDialog = ({
         <DialogFooter>
           <div className="w-full flex">
             <Input
-              onChange={(e) => setCommentText(e.target.value)}
+              onChange={handleCommentInputChange}
+              className={`${commentTextError ? "border-destructive" : ""}`}
               value={commentText}
               maxLength={280}
               placeholder="Digite seu comentário"
@@ -146,7 +160,7 @@ const PostCommentsDialog = ({
             <Button
               className="w-min ml-2"
               onClick={() => mutate(commentText)}
-              disabled={loadingPublish || commentText.length === 0}
+              disabled={loadingPublish || commentText.length === 0 || commentTextError.length > 0}
             >
               {loadingPublish ? (
                   <Loader2 className="animate-spin" size={18} />
@@ -155,6 +169,9 @@ const PostCommentsDialog = ({
               )}
             </Button>
           </div>
+          {commentTextError && (
+            <div className="text-destructive text-xs mt-1">{commentTextError}</div>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

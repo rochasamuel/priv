@@ -75,10 +75,14 @@ export default function ProducerRegister() {
 }
 
 const producerFormSchema = z.object({
-  fullName: z.string({ required_error: "Campo obrigatório" }).min(4, {
-    message: "O nome deve ter no mínimo 4 carcteres.",
-  }),
-  cpf: z.string().refine((cpf: string) => {
+  fullName: z
+    .string({ required_error: "Campo obrigatório" })
+    .min(4, {
+      message: "O nome deve ter no mínimo 4 caracteres.",
+    })
+    .max(100, { message: "O nome deve ter no máximo 100 caracteres." })
+    .regex(/^[a-zA-Z\s]*$/, { message: "O nome deve conter apenas letras e espaços." }),
+  cpf: z.string({ required_error: "Campo obrigatório" }).refine((cpf: string) => {
     return isValidCpf(cpf);
   }, "O CPF informado é inválido."),
   birthDate: z
@@ -90,7 +94,7 @@ const producerFormSchema = z.object({
     .superRefine((date, ctx) => {
       const parsedDate = DateTime.fromFormat(date, "yyyy-MM-dd");
 
-      if(!parsedDate.isValid) {
+      if (!parsedDate.isValid) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Data de nascimento inválida.",
@@ -99,7 +103,7 @@ const producerFormSchema = z.object({
       }
 
       const age = DateTime.now().diff(parsedDate, "years").years;
-      
+
       if (age < 18) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -109,22 +113,32 @@ const producerFormSchema = z.object({
       }
       return true;
     }),
-  name: z.string({ required_error: "Campo obrigatório" }).min(2, {
-    message: "O nome de apresentação deve ter no mínimo 8 caracteres.",
-  }),
-  username: z.string({ required_error: "Campo obrigatório" }).min(8, {
-    message: "O username deve ter no mínimo 8 caracteres.",
-  }).superRefine((username, ctx) => {
-    const usernameRegex = /^[\w\d\-_\.]*$/;
-    if (!usernameRegex.test(username)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "O username deve conter apenas letras, números e os caracteres: - (traço), _ (underline), e . (ponto)",
-      });
-      return false;
-    }
-    return true;
-  }),
+  name: z
+    .string({ required_error: "Campo obrigatório" })
+    .min(2, {
+      message: "O nome de apresentação deve ter no mínimo 8 caracteres.",
+    })
+    .max(70, {
+      message: "O nome de apresentação deve ter no máximo 70 caracteres.",
+    }).regex(/^[a-zA-Z\s]*$/, { message: "O nome de apresentação deve conter apenas letras e espaços." }),
+  username: z
+    .string({ required_error: "Campo obrigatório" })
+    .min(6, {
+      message: "O username deve ter no mínimo 6 caracteres.",
+    })
+    .max(30, { message: "O username deve ter no máximo 30 caracteres." })
+    .superRefine((username, ctx) => {
+      const usernameRegex = /^[\w\d\-_\.]*$/;
+      if (!usernameRegex.test(username)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "O username deve conter apenas letras, números e os caracteres: - (traço), _ (underline), e . (ponto)",
+        });
+        return false;
+      }
+      return true;
+    }),
   phone: z
     .string({ required_error: "Campo obrigatório" })
     .min(10, "O telefone deve ter no mínimo 10 dígitos")
@@ -136,12 +150,14 @@ const producerFormSchema = z.object({
     .min(4, {
       message: "O email deve ter no mínimo 4 caracteres.",
     })
+    .max(100, { message: "O email deve ter no máximo 100 caracteres." })
     .email({ message: "Email inválido" }),
   password: z
     .string({ required_error: "Campo obrigatório" })
     .min(8, {
       message: "A senha deve ter no mínimo 8 caracteres.",
     })
+    .max(100, { message: "A senha deve ter no máximo 100 caracteres." })
     .superRefine((password, ctx) => {
       const lowercaseRegex = /[a-z]/;
       if (!lowercaseRegex.test(password)) {
@@ -196,6 +212,14 @@ export const ProducerForm = () => {
       return result;
     },
     onError(error: any) {
+      if(error.response.data.message.includes("CPF")) {
+        form.setError("cpf", { message: error.response.data.message });
+      } else if(error.response.data.message.includes("Nome de usuário")) {
+        form.setError("username", { message: error.response.data.message });
+      } else if(error.response.data.message.includes("Email")) {
+        form.setError("email", { message: error.response.data.message });
+      }
+      
       toast({
         variant: "destructive",
         title: "Ops.",
@@ -326,7 +350,7 @@ export const ProducerForm = () => {
                   </PopoverTrigger>
                   <PopoverContent className="text-xs">
                     O nome de apresentação é como os outros usuários veem seu
-                    nome. Pode ser seu nome real ou um não.
+                    nome. Pode ser seu nome real ou não.
                   </PopoverContent>
                 </Popover>
               </FormLabel>

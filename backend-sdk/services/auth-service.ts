@@ -77,5 +77,22 @@ export const AuthService = (httpClient: AxiosInstance) => {
 
 			return response.data;
 		},
+		requestPasswordRecovery: async (email: string): Promise<any> => {
+			const response: AxiosResponse = await httpClient.post(
+				"/token-recuperacao-senha",
+				{ email },
+			);
+
+			return response.data;
+		},
+		changePassword: async (newPassword: string, code: string): Promise<any> => {
+			const response: AxiosResponse = await httpClient.put(
+				"/alteracao-senha",
+				{ newPassword, code },
+			);
+
+			return response.data;
+		}
 	};
 };
+ 

@@ -87,7 +87,7 @@ export default function BecomeProducerPage() {
 
 export const becomeProducerFormSchema = z.object({
   fullName: z.string({ required_error: "Campo obrigatório" }).min(4, {
-    message: "O nome deve ter no mínimo 4 carcteres.",
+    message: "O nome deve ter no mínimo 4 caracteres.",
   }),
   cpf: z.string().refine((cpf: string) => {
     return isValidCpf(cpf);

@@ -89,7 +89,7 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
       >
         {chat?.messages.map((message, index) => (
           <div
-            key={index+1}
+            key={index + 1}
             className={cn(
               "flex gap-2 whitespace-pre-wrap my-2",
               message.direction !== ChatMessageDirection.Incoming
@@ -97,7 +97,14 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
                 : "justify-start"
             )}
           >
-            <span className="text-sm bg-accent p-2 rounded-md max-w-xs">
+            <span
+              className={cn(
+                "text-sm bg-accent p-2 rounded-md max-w-xs",
+                message.direction !== ChatMessageDirection.Incoming
+                  ? "bg-primary"
+                  : "bg-secondary"
+              )}
+            >
               {message.data.text}
             </span>
           </div>

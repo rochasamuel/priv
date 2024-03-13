@@ -31,14 +31,12 @@ const Feed: FunctionComponent<FeedProps> = ({ mode, producerId }) => {
 			},
 			enabled: readyToFetch,
 			onError: (error: any) => {
-				// if (error.response.status === 401) {
-				//   signOut();
-				// }
 			},
 			getNextPageParam: (_, pages) => {
 				return pages.length + 1;
 			},
-			staleTime: 1000 * 60 * 60,
+			staleTime: mode === "profile" ? 1000 * 30 : 1000 * 60 * 60,
+			refetchOnWindowFocus: false,
 		});
 
 	const infiniteTriggerPostRef = useRef<HTMLElement>(null);

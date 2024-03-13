@@ -95,8 +95,8 @@ export default function PixPaymentPage() {
   const formSchema = z.object({
     name: z
       .string()
-      .min(4, "O nome deve ter no mínimo 4 carcteres")
-      .max(100, "O nome deve ter no máximo 100 carcteres"),
+      .min(4, "O nome deve ter no mínimo 4 caracteres")
+      .max(100, "O nome deve ter no máximo 100 caracteres"),
     cpfCnpj: z.string().refine((cpf: string) => {
       return isValidCpf(cpf);
     }, "O CPF informado é inválido."),
@@ -289,8 +289,8 @@ export default function PixPaymentPage() {
                   <Button className="w-full" type="submit">
                     {loadingQrCode ? (
                       <>
-                        Aguarde
                         <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                        Aguarde
                       </>
                     ) : (
                       <>

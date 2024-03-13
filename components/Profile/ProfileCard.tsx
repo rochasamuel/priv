@@ -44,6 +44,7 @@ import { Skeleton } from "../ui/skeleton";
 import PlansDialog from "../Plan/PlansDialog";
 import Link from "next/link";
 import useBackendClient from "@/hooks/useBackendClient";
+import { SubscriptionStatus } from "@/types/subscription";
 
 interface ProfileCardProps {
   user: User;
@@ -94,6 +95,7 @@ const ProfileCard: FunctionComponent<ProfileCardProps> = ({ user }) => {
             <div className="mt-14">
               <CardTitle className="text-xl">{user.presentationName}</CardTitle>
             </div>
+            <div className="text-sm">@{user.username}</div>
 
             <div className="mt-4 flex justify-center flex-wrap sm:justify-between gap-2">
               {isOwn && (
@@ -115,7 +117,7 @@ const ProfileCard: FunctionComponent<ProfileCardProps> = ({ user }) => {
                 <>
                   {user.isSubscripted ? (
                     <Button className="w-auto">Ver assinatura</Button>
-                  ) : (user.subscriptionIdStatusContract === 1) ? (
+                  ) : (user.subscriptionIdStatusContract === SubscriptionStatus.ACTIVE && !user.subscriptionExpirationDate) ? (
                     <Button className="w-auto" onClick={handleOpenPlansDialog}>
                       Aguardando pagamento <Clock className="ml-2" size={18} />
                     </Button>

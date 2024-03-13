@@ -51,9 +51,7 @@ import {
 } from "../ui/dialog";
 import { useToast } from "../ui/use-toast";
 import { Textarea } from "../ui/textarea";
-interface PostMakerProps {
-  algo?: string;
-}
+import { noLinksRegex } from "@/utils/regex";
 
 export interface PresignedUrl {
   url: string;
@@ -61,6 +59,9 @@ export interface PresignedUrl {
     [key: string]: string;
   };
 }
+
+const MAX_IMAGE_SIZE = 20 * 1024 * 1024; // 20MB
+const MAX_VIDEO_SIZE = 4096 * 1024 * 1024; // 4096MB
 
 export interface MediaToSend {
   mimeType: string;
@@ -72,7 +73,7 @@ export interface MediaToSend {
   file: Blob;
 }
 
-const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
+const PostMaker: FunctionComponent = () => {
   const { data: session } = useSession();
   const { api, readyToFetch } = useBackendClient();
   const { toast } = useToast();
@@ -80,6 +81,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
 
   const [postDescription, setPostDescription] = useState("");
   const [postPrivacy, setPostPrivacy] = useState("private");
+  const [descriptionWithError, setDescriptionWithError] = useState("");
   const [isLoadingThumbnailGeneration, setIsLoadingThumbnailGeneration] = useState(false);
 
   const ffmpegRef = useRef(new FFmpeg());
@@ -125,11 +127,17 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
         data.result.medias,
         variables.postMedias!
       );
-      queryClient.refetchQueries([
+      await queryClient.refetchQueries([
         "posts",
         session?.user.email,
         "feed",
         undefined,
+      ]);
+      await queryClient.refetchQueries([
+        "posts",
+        session?.user.email,
+        "profile",
+        session?.user.userId,
       ]);
       setFiles([]); //clear files
       setPostDescription(""); //clear post description
@@ -160,7 +168,32 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
     const selectedFiles = e.target.files;
 
     if (selectedFiles) {
+      const lastInsertedFile = selectedFiles[selectedFiles.length - 1];
+
+      if(lastInsertedFile) {
+        if (lastInsertedFile.type.startsWith("video") && lastInsertedFile.size > MAX_VIDEO_SIZE) {
+          toast({
+            variant: "destructive",
+            title: "Erro",
+            description: "O vídeo selecionado é muito grande, o tamanho máximo é 4GB",
+          });
+          return;
+        }
+
+        if (lastInsertedFile.size > MAX_IMAGE_SIZE) {
+          toast({
+            variant: "destructive",
+            title: "Erro",
+            description: "A imagem selecionada é muito grande, o tamanho máximo é 20MB",
+          });
+          return;
+        }
+      }
+
+      console.log("chamei", files)
       const updatedFiles = [...files];
+      console.log(selectedFiles)
+      console.log(updatedFiles)
       for (let i = 0; i < selectedFiles.length; i++) {
         updatedFiles.push(selectedFiles[i]);
       }
@@ -262,6 +295,23 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
     return mediaArray;
   };
 
+  const handlePostDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setPostDescription(e.target.value);
+
+    if (e.target.value.length > 5000) {
+      setDescriptionWithError("A descrição do post deve ter no máximo 5000 caracteres");
+      return;
+    }
+
+    //regex to verify if have external links
+    if(noLinksRegex.test(e.target.value)) {
+      setDescriptionWithError("A descrição do post não pode conter links externos");
+      return;
+    }
+
+    setDescriptionWithError("");
+  }
+
   return (
     <div className="max-w-[96vw] m-auto mb-4 md:max-w-2xl">
       <Card className="p-0">
@@ -301,11 +351,12 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
           <Textarea
             placeholder="O que está acontecendo?"
             rows={6}
+            className={`${descriptionWithError ? "border-2 border-destructive" : ""}`}
             value={postDescription}
-            onChange={(e) => setPostDescription(e.target.value)}
+            onChange={handlePostDescriptionChange}
           />
-          <div className="text-xs mt-2 text-gray-300">
-            {postDescription.length} / 5000
+          <div className={`text-xs mt-2 text-white flex justify-between ${descriptionWithError ? "text-red-500" : ""}`}>
+            {postDescription.length} / 5000 <span className="ml-auto">{descriptionWithError}</span>
           </div>
           {files.length > 0 && (
             <div className="w-full flex gap-2 mt-4 flex-wrap">
@@ -368,7 +419,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
               <ImageIcon /> Foto
             </label>
             <input
-              onChange={handleFileInputChange}
+              onInput={handleFileInputChange}
               id="image-input"
               className="hidden"
               type="file"
@@ -380,7 +431,7 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
               <Video /> Vídeo
             </label>
             <input
-              onChange={handleFileInputChange}
+              onInput={handleFileInputChange}
               id="video-input"
               className="hidden"
               type="file"
@@ -392,7 +443,8 @@ const PostMaker: FunctionComponent<PostMakerProps> = ({ algo }) => {
             disabled={
               (postDescription.length <= 0 && files.length <= 0) ||
               isLoadingPublishPost ||
-              isLoadingThumbnailGeneration
+              isLoadingThumbnailGeneration || 
+              (!!descriptionWithError)
             }
             onClick={async () =>
               createPost({
