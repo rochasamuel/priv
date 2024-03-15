@@ -33,5 +33,8 @@ export const ChatService = (httpClient: AxiosInstance) => {
 
 			return response.data.result.idChat as string;
 		},
+		ackChat: async (idChat: string): Promise<void> => {
+			await httpClient.post(`/chats/${idChat}/ack`);
+		}
 	};
 };

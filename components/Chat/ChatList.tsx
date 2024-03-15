@@ -1,28 +1,27 @@
 "use client";
 
-import apiClient from "@/backend-sdk";
-import { ChatInfo } from "@/types/chat";
-import { useSession } from "next-auth/react";
-import { FunctionComponent, useCallback, useEffect, useState } from "react";
-import { useQuery } from "react-query";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { getAcronym } from "@/utils";
-import { Separator } from "../ui/separator";
-import { DateTime } from "luxon";
-import { getChatRelativeTime } from "@/utils/date";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Skeleton } from "../ui/skeleton";
-import { MessageCirclePlus } from "lucide-react";
-import { Button } from "../ui/button";
-import Link from "next/link";
-import NewChatDialog from "./NewChatDialog";
-import { useMenuStore } from "@/store/useMenuStore";
 import useBackendClient from "@/hooks/useBackendClient";
+import { useMenuStore } from "@/store/useMenuStore";
+import { ChatInfo } from "@/types/chat";
+import { getAcronym } from "@/utils";
+import { getChatRelativeTime } from "@/utils/date";
+import { MessageCirclePlus } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FunctionComponent, useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "react-query";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
+import { Skeleton } from "../ui/skeleton";
+import NewChatDialog from "./NewChatDialog";
+import { useWebSocket } from "@/providers/web-socket-provider";
 
 const ChatList: FunctionComponent = () => {
   const [newChatDialogOpen, setNewChatDialogOpen] = useState(false);
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
   const { api, readyToFetch } = useBackendClient();
+  const queryClient = useQueryClient();
+  const socket = useWebSocket();
 
 	useEffect(() => {
 		setPageTitle("Chats");
@@ -45,6 +44,19 @@ const ChatList: FunctionComponent = () => {
   const handleCloseComments = useCallback(() => {
     setNewChatDialogOpen(false);
   }, []);
+
+  useEffect(() => {
+    if(socket) {
+      socket.onmessage = async (event) => {
+        const wsData = JSON.parse(event.data);
+
+        if(wsData.type === "receiveMessage") {
+          queryClient.invalidateQueries("chats");
+        }
+        // chats
+      }
+    }
+  }, [chats, queryClient, socket]);
 
   return (
     <div className="w-full h-full flex flex-col gap-4 relative">
@@ -112,11 +124,11 @@ export const ChatCard: FunctionComponent<ChatCardProps> = ({ chatInfo }) => {
           </div>
 
           <div className="flex items-center justify-between w-full overflow-hidden gap-2">
-            <div className="text-sm text-gray-500 text-ellipsis overflow-hidden whitespace-nowrap">
+            <div className={`text-sm opacity-60 font-light text-ellipsis overflow-hidden whitespace-nowrap ${chatInfo.notReadMessages > 0 ? "font-semibold opacity-80" : ""}`}>
               {chatInfo.lastMessageText}
             </div>
             {chatInfo.notReadMessages > 0 && (
-              <div className="w-5 h-5 flex justify-center items-center bg-purple-800 rounded-full text-xs font-bold">
+              <div className="min-w-5 min-h-5 flex justify-center items-center bg-purple-800 rounded-full text-xs font-medium">
                 {chatInfo.notReadMessages}
               </div>
             )}
