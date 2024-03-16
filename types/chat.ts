@@ -32,3 +32,21 @@ export enum ChatMessageDirection {
   Outgoing = "outgoing",
   Incoming = "incoming"
 };
+
+export enum SocketChatMessageType {
+  Pending = "pending",
+  Send = "sendMessage",
+  SendMessageStatus = "sendMessageStatus",
+  Received = "receiveMessage",
+  Failed = "failed",
+  Ping = "ping",
+  Pong = "pong",
+}
+export interface SocketChatOutgoingMessage {
+  type: SocketChatMessageType;
+  id: string;
+  data: {
+    text: string;
+    idChat: string;
+  };
+}

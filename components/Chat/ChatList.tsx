@@ -4,10 +4,10 @@ import useBackendClient from "@/hooks/useBackendClient";
 import { useMenuStore } from "@/store/useMenuStore";
 import { ChatInfo } from "@/types/chat";
 import { getAcronym } from "@/utils";
-import { getChatRelativeTime } from "@/utils/date";
+import { getChatRelativeDate } from "@/utils/date";
 import { MessageCirclePlus } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FunctionComponent, useCallback, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -15,13 +15,19 @@ import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import NewChatDialog from "./NewChatDialog";
 import { useWebSocket } from "@/providers/web-socket-provider";
+import { useChatStore } from "@/store/useChatStore";
 
 const ChatList: FunctionComponent = () => {
   const [newChatDialogOpen, setNewChatDialogOpen] = useState(false);
-  const setPageTitle = useMenuStore((state) => state.setPageTitle);
+
   const { api, readyToFetch } = useBackendClient();
   const queryClient = useQueryClient();
   const socket = useWebSocket();
+
+  const setPageTitle = useMenuStore((state) => state.setPageTitle);
+  const setChats = useChatStore((state) => state.setChats);
+  const chats = useChatStore((state) => state.chats);
+  const modifyChat = useChatStore((state) => state.modifyChat);
 
   useEffect(() => {
     setPageTitle("Chats");
@@ -29,10 +35,13 @@ const ChatList: FunctionComponent = () => {
 
   const { data: session } = useSession();
 
-  const { data: chats } = useQuery({
+  const { data: chatList } = useQuery({
     queryKey: ["chats", session?.user.username],
     queryFn: async () => {
       return await api.chat.getActiveChats();
+    },
+    onSuccess: (data) => {
+      setChats(data);
     },
     enabled: readyToFetch,
   });
@@ -51,9 +60,12 @@ const ChatList: FunctionComponent = () => {
         const wsData = JSON.parse(event.data);
 
         if (wsData.type === "receiveMessage") {
-          queryClient.invalidateQueries("chats");
+          modifyChat(wsData.data.idChat, {
+            idChat: wsData.data.idChat,
+            lastMessageDate: wsData.data.registrationDate,
+            lastMessageText: wsData.data.text,
+          });
         }
-        // chats
       };
     }
   }, [chats, queryClient, socket]);
@@ -84,27 +96,40 @@ interface ChatCardProps {
 }
 
 export const ChatCard: FunctionComponent<ChatCardProps> = ({ chatInfo }) => {
+  const modifyChat = useChatStore((state) => state.modifyChat);
+  const setMessages = useChatStore((state) => state.setMessages);
   const searchParams = useSearchParams();
+  const pathName = usePathname();
 
   const router = useRouter();
 
   const handleChatClick = (chatId: string) => {
     const mobileMediaQuery = window.matchMedia("(max-width: 1024px)");
-    const isMobile = mobileMediaQuery.matches;
-    if (isMobile) {
-      router.push(`/chats/conversation/${chatId}`);
-    } else {
-      const current = new URLSearchParams(Array.from(searchParams.entries()));
-      current.set("selectedChat", chatId);
+    modifyChat(chatId, {
+      notReadMessages: 0,
+    });
 
-      if (!chatId) {
-        current.delete("selectedChat");
-      } else {
-        current.set("selectedChat", chatId);
-      }
-
-      router.push(`chats?${current.toString()}`);
+    if (pathName.split("/").at(-1) !== chatId) {
+      setMessages(undefined);
     }
+    router.push(`/chats/conversation/${chatId}`);
+    // if (isMobile) {
+    //   router.push(`/chats/conversation/${chatId}`);
+    // } else {
+    //   const current = new URLSearchParams(Array.from(searchParams.entries()));
+    //   current.set("selectedChat", chatId);
+
+    //   if (!chatId) {
+    //     current.delete("selectedChat");
+    //   } else {
+    //     current.set("selectedChat", chatId);
+    //     modifyChat(chatId, {
+    //       notReadMessages: 0,
+    //     });
+    //   }
+
+    //   router.push(`chats?${current.toString()}`);
+    // }
   };
 
   return (
@@ -124,14 +149,14 @@ export const ChatCard: FunctionComponent<ChatCardProps> = ({ chatInfo }) => {
               {chatInfo.name}
             </div>
             <div className="text-xs flex-none">
-              {getChatRelativeTime(chatInfo.lastMessageDate)}
+              {getChatRelativeDate(chatInfo.lastMessageDate)}
             </div>
           </div>
 
           <div className="flex items-center justify-between w-full overflow-hidden gap-2">
             <div
               className={`text-sm opacity-60 font-light text-ellipsis overflow-hidden whitespace-nowrap ${
-                chatInfo.notReadMessages > 0 ? "font-semibold opacity-80" : ""
+                chatInfo.notReadMessages > 0 ? "font-medium opacity-90" : ""
               }`}
             >
               {chatInfo.lastMessageText}

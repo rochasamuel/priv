@@ -22,6 +22,7 @@ import { getAcronym } from "@/utils";
 import { ContactSearchResult } from "@/backend-sdk/services/chat-service";
 import { useRouter } from "next/navigation";
 import useBackendClient from "@/hooks/useBackendClient";
+import { useChatStore } from "@/store/useChatStore";
 
 interface NewChatDialogProps {
   closeComments: () => void;
@@ -30,6 +31,8 @@ interface NewChatDialogProps {
 const NewChatDialog = ({ closeComments }: NewChatDialogProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const { api, readyToFetch } = useBackendClient();
+
+  const setMessages = useChatStore((state) => state.setMessages);
 
 	const router = useRouter();
 
@@ -58,6 +61,7 @@ const NewChatDialog = ({ closeComments }: NewChatDialogProps) => {
       return result;
     },
     onSuccess: (idUser) => {
+      setMessages(undefined);
       router.push(`/chats/conversation/${idUser}`);
     },
     onError: (error) => {

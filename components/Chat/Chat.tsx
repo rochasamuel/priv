@@ -1,9 +1,9 @@
 import useBackendClient from "@/hooks/useBackendClient";
 import { cn } from "@/lib/utils";
 import { useMenuStore } from "@/store/useMenuStore";
-import { ChatMessageDirection } from "@/types/chat";
+import { ChatMessage, ChatMessageDirection, SocketChatMessageType, SocketChatOutgoingMessage } from "@/types/chat";
 import { getAcronym } from "@/utils";
-import { Send } from "lucide-react";
+import { ChevronLeft, Send } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { FunctionComponent, useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
@@ -12,6 +12,9 @@ import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { useWebSocket } from "@/providers/web-socket-provider";
 import { DateTime } from "luxon";
+import { useChatStore } from "@/store/useChatStore";
+import MessageList from "./MessageList";
+import { useRouter } from "next/navigation";
 
 interface ChatProps {
   chatId: string;
@@ -20,47 +23,28 @@ interface ChatProps {
 const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
   const { data: session } = useSession();
   const { api, readyToFetch } = useBackendClient();
-  const [shouldScrollSmoothly, setShouldScrollSmoothly] = useState(false);
   const setPageTitle = useMenuStore((state) => state.setPageTitle);
   const socket = useWebSocket();
-  const queryClient = useQueryClient();
+  const router = useRouter();
 
-  const lastMessageRef: any = useRef(null);
-  const containerRef: any = useRef(null);
+  const setMessages = useChatStore((state) => state.setMessages);
+  const messages = useChatStore((state) => state.messages);
+  const addMessage = useChatStore((state) => state.addMessage);
+  const modifyChat = useChatStore((state) => state.modifyChat);
 
-  const [message, setMessage] = useState("");
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(event.target.value);
-  };
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      sendMessage(message);
+      if(inputRef.current?.value) {
+        sendMessage(inputRef.current.value);
+      }
     }
 
     if (event.key === "Enter" && event.shiftKey) {
     }
   };
-
-  enum SocketMessageType {
-    Pending = "pending",
-    Send = "sendMessage",
-    SendMessageStatus = "sendMessageStatus",
-    Received = "receiveMessage",
-    Failed = "failed",
-    Ping = "ping",
-    Pong = "pong",
-  }
-  interface OutgoingMessage {
-    type: SocketMessageType;
-    id: string;
-    data: {
-      text: string;
-      idChat: string;
-    };
-  }
 
   const { data: chat } = useQuery({
     queryKey: ["chat", session?.user.username, chatId],
@@ -71,6 +55,7 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
     },
     enabled: readyToFetch,
     onSuccess(data) {
+      setMessages(data.messages);
       setPageTitle(data.name);
     },
   });
@@ -79,8 +64,8 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
     if (message.trim().length === 0) return;
 
     const messageId = crypto.randomUUID();
-    const messageToSend: OutgoingMessage = {
-      type: SocketMessageType.Send,
+    const messageToSend: SocketChatOutgoingMessage = {
+      type: SocketChatMessageType.Send,
       id: messageId,
       data: {
         text: message.substring(0, 1999),
@@ -88,8 +73,9 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
       },
     };
 
-    setShouldScrollSmoothly(true);
-    const messageToView = {
+    socket?.send(JSON.stringify(messageToSend));
+
+    const messageToView: ChatMessage = {
       direction: ChatMessageDirection.Outgoing,
       data: {
         idChat: chatId,
@@ -101,52 +87,54 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
       },
     };
 
-    chat?.messages.push(messageToView);
-    socket?.send(JSON.stringify(messageToSend));
-    setMessage("");
+    addMessage(messageToView);
+    modifyChat(chatId, {
+      lastMessageDate: DateTime.now().toISO()!,
+      lastMessageText: message,
+    });
+
+    if(inputRef.current) {
+      inputRef.current.value = "";
+    }
   };
 
   useEffect(() => {
     if (socket) {
       socket.onmessage = async (event) => {
         const messageData = JSON.parse(event.data);
-        const message = {
-          direction:
-            messageData.type === SocketMessageType.Received
-              ? ChatMessageDirection.Incoming
-              : ChatMessageDirection.Outgoing,
-          data: { ...messageData.data, idDomainStatusMessage: 3 },
-        };
 
-        if (messageData.type === SocketMessageType.Received) {
-          setShouldScrollSmoothly(true);
-          await queryClient.setQueryData(
-            ["chat", session?.user.username, chatId],
-            (oldData: any) => {
-              return {
-                ...oldData,
-                messages: [...oldData.messages, message],
-              };
-            }
-          );
+        if (messageData.type === SocketChatMessageType.Received) {
+          const message: ChatMessage = {
+            direction: ChatMessageDirection.Incoming,
+            data: { ...messageData.data, idDomainStatusMessage: 3 },
+          };
+
+          if(chatId === messageData.data.idChat) {
+            await api.chat.ackChat(chatId);
+            modifyChat(chatId, {
+              lastMessageDate: messageData.data.registrationDate,
+              lastMessageText: messageData.data.text,
+              notReadMessages: 0,
+            }, true);
+          }
+          addMessage(message);
         }
       };
     }
   }, [socket, chatId]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    containerRef.current?.scrollTo({
-      top: containerRef.current?.scrollHeight,
-      behavior: shouldScrollSmoothly ? "smooth" : "auto",
-    });
-  }, [chat?.messages.length]);
-
   return (
-    <div className="w-full h-full flex flex-col justify-between">
+    <div className="w-full h-full flex flex-col justify-between rounded-sm md:border md:p-4">
       {chat && (
         <div className="items-center justify-start gap-2 mb-2 hidden lg:block">
           <div className="flex items-center gap-2">
+          <Button
+            className="px-0 w-8 h-8"
+            variant={"ghost"}
+            onClick={() => router.push("/chats")}
+          >
+            <ChevronLeft />
+          </Button>{" "}
             <Avatar className="w-10 h-10 border-2">
               <AvatarImage src={chat.avatarReference} />
               <AvatarFallback>{getAcronym(chat.name)}</AvatarFallback>
@@ -156,59 +144,25 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
         </div>
       )}
 
-      <div
+      {!messages && <div
         className="w-full min-h-[85%] overflow-y-auto overflow-x-hidden flex flex-col"
-        ref={containerRef}
       >
-        {chat?.messages.map((message, index) => (
-          <div
-            key={index + 1}
-            className={cn(
-              "flex gap-2 my-2 items-end",
-              message.direction !== ChatMessageDirection.Incoming
-                ? "justify-end"
-                : "justify-start"
-            )}
-          >
-            {message.direction !== ChatMessageDirection.Incoming && (
-              <div className="text-xs opacity-50">
-                {DateTime.fromISO(message.data.registrationDate).toFormat(
-                  `${DateTime.fromISO(message.data.registrationDate).diffNow().hours > 24 ? "dd/MM/yyyy HH:mm" : "HH:mm"}`
-                )}
-              </div>
-            )}
-            <div
-              className={cn(
-                "text-sm bg-accent p-2 rounded-md max-w-[80%] w-[max-content] break-words whitespace-pre-line",
-                message.direction !== ChatMessageDirection.Incoming
-                  ? "bg-primary"
-                  : "bg-secondary"
-              )}
-            >
-              {message.data.text}
-            </div>
-            {message.direction !== ChatMessageDirection.Outgoing && (
-              <div className="text-xs opacity-50">
-                {DateTime.fromISO(message.data.registrationDate).toFormat(
-                  `${DateTime.fromISO(message.data.registrationDate).diffNow().hours > 24 ? "dd/MM/yyyy HH:mm" : "HH:mm"}`
-                )}
-              </div>
-            )}
-          </div>
-        ))}
-        <div ref={lastMessageRef} />
-      </div>
+        <div className="flex justify-center items-center w-full h-full">
+          <div className="text-lg font-normal opacity-50">Carregando mensagens...</div>
+        </div>
+      </div>}
+      {messages && <MessageList messages={messages} />}
+
       <div className="pt-2 flex justify-between w-full items-center gap-2">
         <Textarea
           autoComplete="off"
           name="message"
-          value={message}
           onKeyDown={handleKeyPress}
-          onChange={handleInputChange}
+          ref={inputRef}
           placeholder="Mensagem"
           className="w-full border rounded-sm h-10 flex items-center resize-none overflow-hidden bg-background mt-auto"
         />
-        <Button onClick={() => sendMessage(message)}>
+        <Button onClick={() => sendMessage(inputRef.current?.value!)}>
           <Send />
         </Button>
       </div>
