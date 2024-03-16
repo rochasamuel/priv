@@ -23,9 +23,9 @@ const ChatList: FunctionComponent = () => {
   const queryClient = useQueryClient();
   const socket = useWebSocket();
 
-	useEffect(() => {
-		setPageTitle("Chats");
-	}, [setPageTitle])
+  useEffect(() => {
+    setPageTitle("Chats");
+  }, [setPageTitle]);
 
   const { data: session } = useSession();
 
@@ -39,22 +39,22 @@ const ChatList: FunctionComponent = () => {
 
   const handleClickNewChat = () => {
     setNewChatDialogOpen(true);
-  }
+  };
 
   const handleCloseComments = useCallback(() => {
     setNewChatDialogOpen(false);
   }, []);
 
   useEffect(() => {
-    if(socket) {
+    if (socket) {
       socket.onmessage = async (event) => {
         const wsData = JSON.parse(event.data);
 
-        if(wsData.type === "receiveMessage") {
+        if (wsData.type === "receiveMessage") {
           queryClient.invalidateQueries("chats");
         }
         // chats
-      }
+      };
     }
   }, [chats, queryClient, socket]);
 
@@ -66,10 +66,15 @@ const ChatList: FunctionComponent = () => {
           ))
         : chats?.map((chat) => <ChatCard key={chat.idChat} chatInfo={chat} />)}
 
-      <Button className="rounded-full w-12 h-12 p-2 opacity-95 fixed lg:absolute lg:bottom-0 lg:right-0 bottom-20 right-4" onClick={handleClickNewChat}>
+      <Button
+        className="rounded-full w-12 h-12 p-2 opacity-95 fixed lg:absolute lg:bottom-0 lg:right-0 bottom-20 right-4"
+        onClick={handleClickNewChat}
+      >
         <MessageCirclePlus />
       </Button>
-      {newChatDialogOpen && <NewChatDialog closeComments={handleCloseComments} />}
+      {newChatDialogOpen && (
+        <NewChatDialog closeComments={handleCloseComments} />
+      )}
     </div>
   );
 };
@@ -84,7 +89,7 @@ export const ChatCard: FunctionComponent<ChatCardProps> = ({ chatInfo }) => {
   const router = useRouter();
 
   const handleChatClick = (chatId: string) => {
-    const mobileMediaQuery = window.matchMedia('(max-width: 1024px)');
+    const mobileMediaQuery = window.matchMedia("(max-width: 1024px)");
     const isMobile = mobileMediaQuery.matches;
     if (isMobile) {
       router.push(`/chats/conversation/${chatId}`);
@@ -124,7 +129,11 @@ export const ChatCard: FunctionComponent<ChatCardProps> = ({ chatInfo }) => {
           </div>
 
           <div className="flex items-center justify-between w-full overflow-hidden gap-2">
-            <div className={`text-sm opacity-60 font-light text-ellipsis overflow-hidden whitespace-nowrap ${chatInfo.notReadMessages > 0 ? "font-semibold opacity-80" : ""}`}>
+            <div
+              className={`text-sm opacity-60 font-light text-ellipsis overflow-hidden whitespace-nowrap ${
+                chatInfo.notReadMessages > 0 ? "font-semibold opacity-80" : ""
+              }`}
+            >
               {chatInfo.lastMessageText}
             </div>
             {chatInfo.notReadMessages > 0 && (
