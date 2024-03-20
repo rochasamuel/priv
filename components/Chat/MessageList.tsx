@@ -22,6 +22,10 @@ export default function MessageList({ messages }: MessageListProps) {
         lastMessageRef.current.scrollIntoView({
           behavior: containerRef.current.scrollTop === 0 ? "auto" : "smooth",
         });
+        containerRef.current.scrollTo({
+          top: containerRef.current.scrollHeight,
+          behavior: "smooth",
+        });
       }
     }
   }, [messages]);
@@ -48,7 +52,7 @@ export default function MessageList({ messages }: MessageListProps) {
           )}
           <div
             className={cn(
-              "text-sm bg-accent w-fit p-2 rounded-md max-w-[80%] break-words whitespace-pre-line",
+              "text-sm bg-accent min-w-fit p-2 rounded-md max-w-[80%] break-words whitespace-pre",
               message.direction !== ChatMessageDirection.Incoming
                 ? "bg-primary"
                 : "bg-secondary"

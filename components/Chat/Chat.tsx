@@ -15,6 +15,7 @@ import { DateTime } from "luxon";
 import { useChatStore } from "@/store/useChatStore";
 import MessageList from "./MessageList";
 import { useRouter } from "next/navigation";
+import { useMediaQuery } from "@mantine/hooks";
 
 interface ChatProps {
   chatId: string;
@@ -27,6 +28,8 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
   const socket = useWebSocket();
   const router = useRouter();
 
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
   const setMessages = useChatStore((state) => state.setMessages);
   const messages = useChatStore((state) => state.messages);
   const addMessage = useChatStore((state) => state.addMessage);
@@ -35,7 +38,7 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (event.key === "Enter" && !event.shiftKey && !isMobile) {
       event.preventDefault();
       if(inputRef.current?.value) {
         sendMessage(inputRef.current.value);
