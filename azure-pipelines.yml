@@ -7,7 +7,7 @@ pool:
 steps:
 - task: vercel-deployment-task@1
   inputs:
-    vercelProjectId: 'prj_mEfO3dE8aG9AiuQkVUQabV2E39kw' //Example Vercel Project ID
-    vercelOrgId: 'iEbc4cJ0CnpE7Wc6COWSfCnK' //Example Vercel Personal Account ID
+    vercelProjectId: 'prj_mEfO3dE8aG9AiuQkVUQabV2E39kw'
+    vercelOrgId: 'iEbc4cJ0CnpE7Wc6COWSfCnK'
     vercelToken: $(VERCEL_TOKEN)
     production: true
