@@ -33,7 +33,7 @@ import { usernameRegex } from "@/utils/regex";
 interface AccountFormProps {
   user: User;
 }
-
+//
 const AccountForm: FunctionComponent<AccountFormProps> = ({ user }) => {
   const { data: session, update: updateSession } = useSession();
   const { toast } = useToast();
