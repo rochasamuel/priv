@@ -134,7 +134,10 @@ const Chat: FunctionComponent<ChatProps> = ({ chatId }) => {
           <Button
             className="px-0 w-8 h-8"
             variant={"ghost"}
-            onClick={() => router.push("/chats")}
+            onClick={() => {
+              setMessages([]);
+              router.push("/chats")
+            }}
           >
             <ChevronLeft />
           </Button>{" "}
