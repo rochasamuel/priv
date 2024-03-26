@@ -100,12 +100,12 @@ const ProfileCard: FunctionComponent<ProfileCardProps> = ({ user }) => {
             <div className="mt-4 flex justify-center flex-wrap sm:justify-between gap-2">
               {isOwn && (
                 <>
-                  <Link href="/settings/plans">
+                  <Link prefetch href="/settings/plans">
                     <Button>
                       Planos <FileEdit className="ml-2" size={17} />
                     </Button>
                   </Link>
-                  <Link href="/settings/account">
+                  <Link prefetch href="/settings/account">
                     <Button variant={"secondary"}>
                       Perfil <Cog className="ml-2" size={18} />
                     </Button>

@@ -60,6 +60,7 @@ import { cn } from "@/lib/utils";
 import { Drawer, DrawerContent, DrawerTrigger } from "../ui/drawer";
 import { useMediaQuery } from "@mantine/hooks";
 import { isValidCNPJ, isValidCpf } from "@/utils/cpf";
+import Link from "next/link";
 
 export default function ProducerBankDetails() {
   const router = useRouter();
@@ -480,15 +481,16 @@ export const ProducerBankForm = () => {
         </Form>
       )}
       {!wantToInformBank && questionResponded && (
-        <Button
-          disabled={bankRequestLoading}
-          className="w-full mt-4"
-          onClick={() => router.push("/auth/register/producer/confirmation")}
-        >
-          <div className="flex items-center justify-center">
-            Avançar <ArrowRight className="ml-2" size={18} />
-          </div>
-        </Button>
+        <Link href={"/auth/register/producer/confirmation"}>
+          <Button
+            disabled={bankRequestLoading}
+            className="w-full mt-4"
+          >
+            <div className="flex items-center justify-center">
+              Avançar <ArrowRight className="ml-2" size={18} />
+            </div>
+          </Button>
+        </Link>
       )}
     </>
   );

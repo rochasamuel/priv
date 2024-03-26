@@ -16,6 +16,7 @@ import { Skeleton } from "../ui/skeleton";
 import NewChatDialog from "./NewChatDialog";
 import { useWebSocket } from "@/providers/web-socket-provider";
 import { useChatStore } from "@/store/useChatStore";
+import Link from "next/link";
 
 const ChatList: FunctionComponent = () => {
   const [newChatDialogOpen, setNewChatDialogOpen] = useState(false);
@@ -103,39 +104,11 @@ export const ChatCard: FunctionComponent<ChatCardProps> = ({ chatInfo }) => {
 
   const router = useRouter();
 
-  const handleChatClick = (chatId: string) => {
-    const mobileMediaQuery = window.matchMedia("(max-width: 1024px)");
-    modifyChat(chatId, {
-      notReadMessages: 0,
-    });
-
-    if (pathName.split("/").at(-1) !== chatId) {
-      setMessages(undefined);
-    }
-    router.push(`/chats/conversation/${chatId}`);
-    // if (isMobile) {
-    //   router.push(`/chats/conversation/${chatId}`);
-    // } else {
-    //   const current = new URLSearchParams(Array.from(searchParams.entries()));
-    //   current.set("selectedChat", chatId);
-
-    //   if (!chatId) {
-    //     current.delete("selectedChat");
-    //   } else {
-    //     current.set("selectedChat", chatId);
-    //     modifyChat(chatId, {
-    //       notReadMessages: 0,
-    //     });
-    //   }
-
-    //   router.push(`chats?${current.toString()}`);
-    // }
-  };
-
   return (
-    <div
+    <Link
+      prefetch
+      href={`/chats/conversation/${chatInfo.idChat}`}
       className="w-full flex items-center justify-between cursor-pointer"
-      onClick={() => handleChatClick(chatInfo.idChat)}
     >
       <div className="flex items-center w-full">
         <Avatar className="w-12 h-12 border-2 mr-4">
@@ -169,7 +142,7 @@ export const ChatCard: FunctionComponent<ChatCardProps> = ({ chatInfo }) => {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

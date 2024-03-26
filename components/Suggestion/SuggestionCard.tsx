@@ -5,6 +5,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Recommendation } from "@/types/recommendation";
 import { getAcronym } from "@/utils";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface SuggestionsCardProps {
@@ -14,11 +15,6 @@ interface SuggestionsCardProps {
 export default function SuggestionsCard({
   recommendation,
 }: SuggestionsCardProps) {
-  const router = useRouter();
-
-  const handleRedirect = (username: string) => {
-    router.push(`/profile/${username}`);
-  };
 
   return (
     <Card className="m-auto mb-4 relative cursor-pointer">
@@ -39,24 +35,29 @@ export default function SuggestionsCard({
       </CardContent>
       <CardFooter
         className="flex flex-col w-full absolute p-0 bottom-0"
-        onClick={() => handleRedirect(recommendation.username)}
       >
-        <div className="w-16 h-16 rounded-full mb-1 bg-gradient-to-br from-[#FF63FE] to-[#4518A7] flex justify-center items-center">
-          <Avatar className="w-[58px] h-[58px]">
-            <AvatarImage src={recommendation.profilePhotoReference} />
-            <AvatarFallback>
-              {getAcronym(recommendation.presentationName)}
-            </AvatarFallback>
-          </Avatar>
-        </div>
-        <div className="flex justify-center items-center self-stretch h-12 rounded-b-md leading-4 text-white bg-black bg-opacity-50 backdrop-blur-lg p-2">
-          <div className="flex flex-1 flex-col justify-center items-center">
-            <p className="font-semibold text-sm ">
-              {recommendation.presentationName}
-            </p>
-            <p className="text-xs">@{recommendation.username}</p>
+        <Link
+          className="w-full flex flex-col items-center justify-center"
+          prefetch
+          href={`/profile/${recommendation.username}`}
+        >
+          <div className="w-16 h-16 rounded-full mb-1 bg-gradient-to-br from-[#FF63FE] to-[#4518A7] flex justify-center items-center">
+            <Avatar className="w-[58px] h-[58px]">
+              <AvatarImage src={recommendation.profilePhotoReference} />
+              <AvatarFallback>
+                {getAcronym(recommendation.presentationName)}
+              </AvatarFallback>
+            </Avatar>
           </div>
-        </div>
+          <div className="flex justify-center items-center self-stretch h-12 rounded-b-md leading-4 text-white bg-black bg-opacity-50 backdrop-blur-lg p-2">
+            <div className="flex flex-1 flex-col justify-center items-center">
+              <p className="font-semibold text-sm ">
+                {recommendation.presentationName}
+              </p>
+              <p className="text-xs">@{recommendation.username}</p>
+            </div>
+          </div>
+        </Link>
       </CardFooter>
     </Card>
   );

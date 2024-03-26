@@ -278,12 +278,12 @@ export const PostCard = forwardRef(({ post }: PostCardProps, ref) => {
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col w-full">
-                <p
+                <Link
                   className="text-lg font-bold max-w-[90%] line-clamp-1 cursor-pointer"
-                  onClick={() => handleRedirect(post.producer.username)}
+                  href={`/profile/${post.producer.username}`}
                 >
                   {post.producer.presentationName}
-                </p>
+                </Link>
                 <div className="flex text-sm items-center">
                   <Link
                     href={`/profile/${post.producer.username}`}

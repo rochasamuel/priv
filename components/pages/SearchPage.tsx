@@ -12,6 +12,7 @@ import IconInput from "../Input/IconInput";
 import SuggestionList from "../Suggestion/SuggestionList";
 import { useMenuStore } from "@/store/useMenuStore";
 import useBackendClient from "@/hooks/useBackendClient";
+import Link from "next/link";
 
 export default function SearchPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,10 +42,6 @@ export default function SearchPage() {
 		setPageTitle("Busca");
 	}, [])
 
-	const handleRedirect = (username: string) => {
-		router.push(`/profile/${username}`);
-	}
-
 	return (
 		<div className="w-full">
 			<IconInput
@@ -61,10 +58,11 @@ export default function SearchPage() {
 				</div>
 			) : (
 				searchResut?.map((searchResult: SearchResult) => (
-					<div
+					<Link
+						prefetch
 						key={searchResult.username}
 						className="flex items-center my-4 cursor-pointer"
-						onClick={() => handleRedirect(searchResult.username)}
+						href={`/profile/${searchResult.username}`}
 					>
 						<Avatar>
 							<AvatarImage src={searchResult.profilePhotoReference} />
@@ -78,7 +76,7 @@ export default function SearchPage() {
 							</p>
 							<p className="text-xs text-gray-500">@{searchResult.username}</p>
 						</div>
-					</div>
+					</Link>
 				))
 			)}
 			<p className="text-lg font-bold mt-6 mb-4">Sugestões pra você</p>

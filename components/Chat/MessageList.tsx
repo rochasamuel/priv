@@ -52,7 +52,7 @@ export default function MessageList({ messages }: MessageListProps) {
           )}
           <div
             className={cn(
-              "text-sm bg-accent min-w-fit p-2 rounded-md max-w-[80%] break-words whitespace-pre",
+              "text-sm bg-accent w-fit p-2 rounded-md max-w-[80%] break-words whitespace-pre-wrap",
               message.direction !== ChatMessageDirection.Incoming
                 ? "bg-primary"
                 : "bg-secondary"

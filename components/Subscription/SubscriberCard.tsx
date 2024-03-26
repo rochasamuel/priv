@@ -15,6 +15,7 @@ import { MoreVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
 import PlansDialog from "../Plan/PlansDialog";
 import { useState } from "react";
+import Link from "next/link";
 
 interface SubscriberCardProps {
   subscriber: Subscriber;
@@ -23,13 +24,13 @@ interface SubscriberCardProps {
 const SubscriberCard = ({ subscriber }: SubscriberCardProps) => {
   const router = useRouter();
 
-  const handleRedirect = (username: string) => {
-    router.push(`/profile/${username}`);
-  };
-
   return (
     <div className="w-full my-4 flex items-center justify-between">
-      <div className="flex items-center justify-start">
+      <Link
+        href={`/profile/${subscriber.username}`}
+        prefetch
+        className="flex items-center justify-start"
+      >
         <Avatar>
           <AvatarImage src={subscriber.profilePhotoPresignedGet} />
           <AvatarFallback>
@@ -39,18 +40,15 @@ const SubscriberCard = ({ subscriber }: SubscriberCardProps) => {
         <div className="ml-2 flex flex-col gap-1">
           <div
             className="font-medium text-sm flex items-center"
-            onClick={() => handleRedirect(subscriber.username)}
           >
             {subscriber.presentationName}{" "}
-            <Badge className="ml-2 h-4 bg-primary">
-              {subscriber.planType}
-            </Badge>
+            <Badge className="ml-2 h-4 bg-primary">{subscriber.planType}</Badge>
           </div>
           <a className="text-xs" href={`/profile/${subscriber.username}`}>
             @{subscriber.username}
           </a>
         </div>
-      </div>
+      </Link>
       <DropdownMenu>
         <DropdownMenuTrigger>
           <MoreVertical size={18} />

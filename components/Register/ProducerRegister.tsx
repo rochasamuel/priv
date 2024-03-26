@@ -115,16 +115,16 @@ const producerFormSchema = z.object({
     }),
   name: z
     .string({ required_error: "Campo obrigatório" })
-    .min(2, {
-      message: "O nome de apresentação deve ter no mínimo 8 caracteres.",
+    .min(3, {
+      message: "O nome de apresentação deve ter no mínimo 3 caracteres.",
     })
     .max(70, {
       message: "O nome de apresentação deve ter no máximo 70 caracteres.",
     }).regex(/^[a-zA-Z\s]*$/, { message: "O nome de apresentação deve conter apenas letras e espaços." }),
   username: z
     .string({ required_error: "Campo obrigatório" })
-    .min(6, {
-      message: "O username deve ter no mínimo 6 caracteres.",
+    .min(3, {
+      message: "O username deve ter no mínimo 3 caracteres.",
     })
     .max(30, { message: "O username deve ter no máximo 30 caracteres." })
     .superRefine((username, ctx) => {

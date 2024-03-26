@@ -12,6 +12,7 @@ import Image from "next/image";
 import { Media } from "@/types/media";
 import { Lock, LockKeyhole, PlayCircle } from "lucide-react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 interface MediaCardProps {
   user: User;
@@ -51,10 +52,6 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
     if (!isFetchingNextPage && entry?.isIntersecting) fetchNextPage();
   }, [entry?.isIntersecting, fetchNextPage, isFetchingNextPage]);
 
-  const redirectToPost = (postId: string) => {
-    router.push(`/profile/${user.username}/${postId}`);
-  };
-
   const isPrivate = (media: Media) => {
     return media.isPublic === false && media.presignedUrls.length === 0;
   };
@@ -74,10 +71,10 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
           : _medias?.map((media: any, index: number) => {
               if (media.mediaTypeId === MediaType.Image) {
                 return (
-                  <div
+                  <Link
                     key={media.presignedUrls[0]}
                     className="h-56 border rounded-md cursor-pointer bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900"
-                    onClick={() => redirectToPost(media.postId)}
+                    href={`/profile/${user.username}/${media.postId}`}
                     ref={index === _medias.length - 3 ? ref : null}
                   >
                     {isPrivate(media) ? (
@@ -94,15 +91,15 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
                         alt=""
                       />
                     )}
-                  </div>
+                  </Link>
                 );
               }
 
               return (
-                <div
+                <Link
                   className="h-56 border rounded-md cursor-pointer bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 relative"
                   key={media.presignedUrls[0]}
-                  onClick={() => redirectToPost(media.postId)}
+                  href={`/profile/${user.username}/${media.postId}`}
                   ref={index === _medias.length - 3 ? ref : null}
                 >
                   {isPrivate(media) ? (
@@ -122,7 +119,7 @@ const MediaCard: FunctionComponent<MediaCardProps> = ({ user }) => {
                       <PlayCircle size={60} className="absolute opacity-50" />
                     </div>
                   )}
-                </div>
+                </Link>
               );
             })}
         {isFetchingNextPage && <MediaCardSkeleton />}

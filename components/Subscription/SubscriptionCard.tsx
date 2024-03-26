@@ -24,6 +24,7 @@ import { useMutation, useQueryClient } from "react-query";
 import useBackendClient from "@/hooks/useBackendClient";
 import { toast } from "../ui/use-toast";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 interface SubscriptionCardProps {
   subscription: Subscription;
@@ -63,10 +64,6 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
     },
   });
 
-  const handleRedirect = (username: string) => {
-    router.push(`/profile/${username}`);
-  };
-
   const handleClosePlansDialog = () => {
     setOpenPlansDialog(false);
   };
@@ -90,18 +87,20 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
           </AvatarFallback>
         </Avatar>
 
-        <p
+        <Link
           className="text-sm font-medium mt-2"
-          onClick={() => handleRedirect(subscription.username)}
+          prefetch
+          href={`/profile/${subscription.username}`}
         >
           {subscription.presentationName}
-        </p>
-        <p
+        </Link>
+        <Link
           className="text-xs"
-          onClick={() => handleRedirect(subscription.username)}
+          prefetch
+          href={`/profile/${subscription.username}`}
         >
           @{subscription.username}
-        </p>
+        </Link>
 
         {subscription.idStatusContract === SubscriptionStatus.ACTIVE &&
           subscription.expirationDate && (

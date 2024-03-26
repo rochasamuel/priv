@@ -33,8 +33,8 @@ const consumerFormSchema = z.object({
   name: z.string({ required_error: "Campo obrigatório" }).min(4, {
     message: "O nome deve ter no mínimo 4 caracteres.",
   }),
-  username: z.string({ required_error: "Campo obrigatório" }).min(4, {
-    message: "O username deve ter no mínimo 4 caracteres.",
+  username: z.string({ required_error: "Campo obrigatório" }).min(3, {
+    message: "O username deve ter no mínimo 3 caracteres.",
   }).superRefine((username, ctx) => {
     const usernameRegex = /^[\w\d\-_\.]*$/;
     if (!usernameRegex.test(username)) {
